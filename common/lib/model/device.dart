@@ -61,6 +61,7 @@ class Device with DeviceMappable {
   final String fingerprint;
   final String alias;
   final String? deviceModel;
+  final String? avatarUrl;
   final DeviceType deviceType;
   final bool download;
   final Set<DiscoveryMethod> discoveryMethods;
@@ -97,6 +98,7 @@ class Device with DeviceMappable {
     required this.fingerprint,
     required this.alias,
     required this.deviceModel,
+    required this.avatarUrl,
     required this.deviceType,
     required this.download,
     required this.discoveryMethods,
@@ -111,6 +113,7 @@ class Device with DeviceMappable {
     fingerprint: '',
     alias: '',
     deviceModel: null,
+    avatarUrl: null,
     deviceType: DeviceType.desktop,
     download: false,
     discoveryMethods: {},

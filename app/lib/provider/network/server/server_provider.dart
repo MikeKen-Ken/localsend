@@ -29,9 +29,10 @@ final serverProvider = NotifierProvider<ServerService, ServerState?>(
   onChanged: (_, next, ref) {
     final settings = ref.read(settingsProvider);
     final syncState = ref.read(parentIsolateProvider).syncState;
-    final syncStatePrev = (syncState.alias, syncState.port, syncState.protocol, syncState.serverRunning, syncState.download);
+    final syncStatePrev = (syncState.alias, syncState.avatarUrl, syncState.port, syncState.protocol, syncState.serverRunning, syncState.download);
     final syncStateNext = (
       next?.alias ?? settings.alias,
+      settings.avatarUrl,
       next?.port ?? settings.port,
       (next?.https ?? settings.https) ? ProtocolType.https : ProtocolType.http,
       next != null,
@@ -47,10 +48,11 @@ final serverProvider = NotifierProvider<ServerService, ServerState?>(
         .dispatch(
           IsolateSyncServerStateAction(
             alias: syncStateNext.$1,
-            port: syncStateNext.$2,
-            protocol: syncStateNext.$3,
-            serverRunning: syncStateNext.$4,
-            download: syncStateNext.$5,
+            avatarUrl: syncStateNext.$2,
+            port: syncStateNext.$3,
+            protocol: syncStateNext.$4,
+            serverRunning: syncStateNext.$5,
+            download: syncStateNext.$6,
           ),
         );
   },

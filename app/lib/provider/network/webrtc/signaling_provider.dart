@@ -213,6 +213,7 @@ extension ClientInfoExt on ClientInfo {
       fingerprint: token,
       alias: alias,
       deviceModel: deviceModel,
+      avatarUrl: null,
       deviceType: deviceType?.toDeviceType() ?? DeviceType.desktop,
       download: false,
       discoveryMethods: {

@@ -73,6 +73,7 @@ class FetchLocalIpAction extends AsyncReduxAction<LocalIpService, NetworkState> 
       localIps: await _getIp(
         whitelist: notifier._settingsService.state.networkWhitelist,
         blacklist: notifier._settingsService.state.networkBlacklist,
+        excludeVpnInterfaces: notifier._settingsService.state.networkExcludeVpnInterfaces,
       ),
       initialized: true,
     );
@@ -82,6 +83,7 @@ class FetchLocalIpAction extends AsyncReduxAction<LocalIpService, NetworkState> 
 Future<List<String>> _getIp({
   required List<String>? whitelist,
   required List<String>? blacklist,
+  required bool excludeVpnInterfaces,
 }) async {
   final info = plugin.NetworkInfo();
   String? ip;
@@ -95,6 +97,7 @@ Future<List<String>> _getIp({
       (await getNetworkInterfaces(
             whitelist: whitelist,
             blacklist: blacklist,
+            excludeVpnInterfaces: excludeVpnInterfaces,
           ))
           .map((interface) => interface.addresses.map((a) => a.address).toList())
           .expand((ip) => ip)

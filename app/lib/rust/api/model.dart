@@ -111,6 +111,7 @@ class RegisterDto {
   final String alias;
   final String version;
   final String? deviceModel;
+  final String? avatarUrl;
   final DeviceType? deviceType;
   final String token;
   final int port;
@@ -121,6 +122,7 @@ class RegisterDto {
     required this.alias,
     required this.version,
     this.deviceModel,
+    this.avatarUrl,
     this.deviceType,
     required this.token,
     required this.port,
@@ -133,6 +135,7 @@ class RegisterDto {
       alias.hashCode ^
       version.hashCode ^
       deviceModel.hashCode ^
+      avatarUrl.hashCode ^
       deviceType.hashCode ^
       token.hashCode ^
       port.hashCode ^
@@ -147,6 +150,7 @@ class RegisterDto {
           alias == other.alias &&
           version == other.version &&
           deviceModel == other.deviceModel &&
+          avatarUrl == other.avatarUrl &&
           deviceType == other.deviceType &&
           token == other.token &&
           port == other.port &&
@@ -158,6 +162,7 @@ class RegisterResponseDto {
   final String alias;
   final String version;
   final String? deviceModel;
+  final String? avatarUrl;
   final DeviceType? deviceType;
   final String token;
   final bool hasWebInterface;
@@ -166,13 +171,15 @@ class RegisterResponseDto {
     required this.alias,
     required this.version,
     this.deviceModel,
+    this.avatarUrl,
     this.deviceType,
     required this.token,
     required this.hasWebInterface,
   });
 
   @override
-  int get hashCode => alias.hashCode ^ version.hashCode ^ deviceModel.hashCode ^ deviceType.hashCode ^ token.hashCode ^ hasWebInterface.hashCode;
+  int get hashCode =>
+      alias.hashCode ^ version.hashCode ^ deviceModel.hashCode ^ avatarUrl.hashCode ^ deviceType.hashCode ^ token.hashCode ^ hasWebInterface.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -182,6 +189,7 @@ class RegisterResponseDto {
           alias == other.alias &&
           version == other.version &&
           deviceModel == other.deviceModel &&
+          avatarUrl == other.avatarUrl &&
           deviceType == other.deviceType &&
           token == other.token &&
           hasWebInterface == other.hasWebInterface;

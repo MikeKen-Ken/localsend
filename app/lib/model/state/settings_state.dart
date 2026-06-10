@@ -17,6 +17,7 @@ class SettingsState with SettingsStateMappable {
   final int port;
   final List<String>? networkWhitelist; // null = disabled
   final List<String>? networkBlacklist; // null = disabled
+  final bool networkExcludeVpnInterfaces;
   final String multicastGroup;
   final String? destination; // null = default
   final bool saveToGallery; // only Android, iOS
@@ -32,6 +33,7 @@ class SettingsState with SettingsStateMappable {
   final bool enableAnimations;
   final DeviceType? deviceType;
   final String? deviceModel;
+  final String? avatarUrl;
   final bool shareViaLinkAutoAccept;
   final int discoveryTimeout;
   final bool advancedSettings;
@@ -45,6 +47,7 @@ class SettingsState with SettingsStateMappable {
     required this.port,
     required this.networkWhitelist,
     required this.networkBlacklist,
+    required this.networkExcludeVpnInterfaces,
     required this.multicastGroup,
     required this.destination,
     required this.saveToGallery,
@@ -60,6 +63,7 @@ class SettingsState with SettingsStateMappable {
     required this.enableAnimations,
     required this.deviceType,
     required this.deviceModel,
+    required this.avatarUrl,
     required this.shareViaLinkAutoAccept,
     required this.discoveryTimeout,
     required this.advancedSettings,

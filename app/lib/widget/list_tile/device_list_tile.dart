@@ -1,7 +1,7 @@
 import 'package:common/model/device.dart';
 import 'package:flutter/material.dart';
-import 'package:localsend_app/util/device_type_ext.dart';
 import 'package:localsend_app/widget/custom_progress_bar.dart';
+import 'package:localsend_app/widget/device_avatar.dart';
 import 'package:localsend_app/widget/device_bage.dart';
 import 'package:localsend_app/widget/list_tile/custom_list_tile.dart';
 
@@ -32,7 +32,7 @@ class DeviceListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final badgeColor = Color.lerp(Theme.of(context).colorScheme.secondaryContainer, Colors.white, 0.3)!;
     return CustomListTile(
-      icon: Icon(device.deviceType.icon, size: 46),
+      icon: DeviceAvatar(device: device),
       title: Text(nameOverride ?? device.alias, style: const TextStyle(fontSize: 20)),
       trailing: onFavoriteTap != null
           ? IconButton(

@@ -131,6 +131,7 @@
       "needRestart": "重启服务器后生效！",
       "server": "服务器",
       "alias": "设备名称",
+      "avatarUrl": "头像 URL",
       "deviceType": "设备类型",
       "deviceModel": "设备型号",
       "port": "端口",
@@ -550,6 +551,8 @@
     "info": "默认情况下，LocalSend 使用所有可用的网络接口。您可以在此处排除不需要的网络接口。您需要重新启动服务器以应用更改。",
     "preview": "预览",
     "whitelist": "白名单",
-    "blacklist": "黑名单"
+    "blacklist": "黑名单",
+    "excludeVpnInterfaces": "排除常用 VPN IP",
+    "excludeVpnInterfacesHint": "内置网段：198.18.0.0/15（Clash / Mihomo fake-ip）、100.64.0.0/10（Tailscale 等）、10.8.0.0/16（OpenVPN 默认池）"
   }
 }

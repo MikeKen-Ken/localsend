@@ -54,6 +54,7 @@ Device _target({
     fingerprint: 'fingerprint',
     alias: 'alias',
     deviceModel: 'deviceModel',
+    avatarUrl: null,
     deviceType: DeviceType.desktop,
     download: false,
     discoveryMethods: {},

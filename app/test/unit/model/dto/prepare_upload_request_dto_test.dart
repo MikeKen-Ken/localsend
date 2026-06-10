@@ -143,6 +143,7 @@ void main() {
       alias: 'Nice Banana',
       version: '2.0',
       deviceModel: 'Samsung',
+      avatarUrl: null,
       deviceType: DeviceType.mobile,
       fingerprint: '123',
       port: 123,

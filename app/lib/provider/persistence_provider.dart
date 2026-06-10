@@ -73,6 +73,7 @@ const _localeKey = 'ls_locale';
 const _portKey = 'ls_port';
 const _networkWhitelistKey = 'ls_network_whitelist';
 const _networkBlacklistKey = 'ls_network_blacklist';
+const _networkExcludeVpnInterfacesKey = 'ls_network_exclude_vpn_interfaces';
 const _timeoutKey = 'ls_timeout';
 const _multicastGroupKey = 'ls_multicast_group';
 const _destinationKey = 'ls_destination';
@@ -88,6 +89,7 @@ const _sendMode = 'ls_send_mode';
 const _enableAnimations = 'ls_enable_animations';
 const _deviceType = 'ls_device_type';
 const _deviceModel = 'ls_device_model';
+const _avatarUrl = 'ls_avatar_url';
 const _shareViaLinkAutoAccept = 'ls_share_via_link_auto_accept';
 const _advancedSettingsKey = 'ls_advanced_settings';
 
@@ -351,6 +353,14 @@ class PersistenceService {
     }
   }
 
+  bool getNetworkExcludeVpnInterfaces() {
+    return _prefs.getBool(_networkExcludeVpnInterfacesKey) ?? true;
+  }
+
+  Future<void> setNetworkExcludeVpnInterfaces(bool excludeVpnInterfaces) async {
+    await _prefs.setBool(_networkExcludeVpnInterfacesKey, excludeVpnInterfaces);
+  }
+
   int getDiscoveryTimeout() {
     return _prefs.getInt(_timeoutKey) ?? defaultDiscoveryTimeout;
   }
@@ -544,6 +554,18 @@ class PersistenceService {
 
   Future<void> setDeviceModel(String deviceModel) async {
     await _prefs.setString(_deviceModel, deviceModel);
+  }
+
+  String? getAvatarUrl() {
+    return _prefs.getString(_avatarUrl);
+  }
+
+  Future<void> setAvatarUrl(String? avatarUrl) async {
+    if (avatarUrl == null || avatarUrl.isEmpty) {
+      await _prefs.remove(_avatarUrl);
+    } else {
+      await _prefs.setString(_avatarUrl, avatarUrl);
+    }
   }
 
   Future<void> clear() async {

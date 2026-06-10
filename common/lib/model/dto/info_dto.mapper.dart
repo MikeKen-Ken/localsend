@@ -27,6 +27,8 @@ class InfoDtoMapper extends ClassMapperBase<InfoDto> {
   static const Field<InfoDto, String> _f$version = Field('version', _$version);
   static String? _$deviceModel(InfoDto v) => v.deviceModel;
   static const Field<InfoDto, String> _f$deviceModel = Field('deviceModel', _$deviceModel);
+  static String? _$avatarUrl(InfoDto v) => v.avatarUrl;
+  static const Field<InfoDto, String> _f$avatarUrl = Field('avatarUrl', _$avatarUrl);
   static DeviceType? _$deviceType(InfoDto v) => v.deviceType;
   static const Field<InfoDto, DeviceType> _f$deviceType = Field('deviceType', _$deviceType);
   static String? _$fingerprint(InfoDto v) => v.fingerprint;
@@ -39,6 +41,7 @@ class InfoDtoMapper extends ClassMapperBase<InfoDto> {
     #alias: _f$alias,
     #version: _f$version,
     #deviceModel: _f$deviceModel,
+    #avatarUrl: _f$avatarUrl,
     #deviceType: _f$deviceType,
     #fingerprint: _f$fingerprint,
     #download: _f$download,
@@ -49,6 +52,7 @@ class InfoDtoMapper extends ClassMapperBase<InfoDto> {
         alias: data.dec(_f$alias),
         version: data.dec(_f$version),
         deviceModel: data.dec(_f$deviceModel),
+        avatarUrl: data.dec(_f$avatarUrl),
         deviceType: data.dec(_f$deviceType),
         fingerprint: data.dec(_f$fingerprint),
         download: data.dec(_f$download));
@@ -97,7 +101,7 @@ extension InfoDtoValueCopy<$R, $Out> on ObjectCopyWith<$R, InfoDto, $Out> {
 }
 
 abstract class InfoDtoCopyWith<$R, $In extends InfoDto, $Out> implements ClassCopyWith<$R, $In, $Out> {
-  $R call({String? alias, String? version, String? deviceModel, DeviceType? deviceType, String? fingerprint, bool? download});
+  $R call({String? alias, String? version, String? deviceModel, String? avatarUrl, DeviceType? deviceType, String? fingerprint, bool? download});
   InfoDtoCopyWith<$R2, $In, $Out2> $chain<$R2, $Out2>(Then<$Out2, $R2> t);
 }
 
@@ -111,6 +115,7 @@ class _InfoDtoCopyWithImpl<$R, $Out> extends ClassCopyWithBase<$R, InfoDto, $Out
           {String? alias,
           Object? version = $none,
           Object? deviceModel = $none,
+          Object? avatarUrl = $none,
           Object? deviceType = $none,
           Object? fingerprint = $none,
           Object? download = $none}) =>
@@ -118,6 +123,7 @@ class _InfoDtoCopyWithImpl<$R, $Out> extends ClassCopyWithBase<$R, InfoDto, $Out
         if (alias != null) #alias: alias,
         if (version != $none) #version: version,
         if (deviceModel != $none) #deviceModel: deviceModel,
+        if (avatarUrl != $none) #avatarUrl: avatarUrl,
         if (deviceType != $none) #deviceType: deviceType,
         if (fingerprint != $none) #fingerprint: fingerprint,
         if (download != $none) #download: download
@@ -127,6 +133,7 @@ class _InfoDtoCopyWithImpl<$R, $Out> extends ClassCopyWithBase<$R, InfoDto, $Out
       alias: data.get(#alias, or: $value.alias),
       version: data.get(#version, or: $value.version),
       deviceModel: data.get(#deviceModel, or: $value.deviceModel),
+      avatarUrl: data.get(#avatarUrl, or: $value.avatarUrl),
       deviceType: data.get(#deviceType, or: $value.deviceType),
       fingerprint: data.get(#fingerprint, or: $value.fingerprint),
       download: data.get(#download, or: $value.download));

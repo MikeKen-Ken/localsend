@@ -131,6 +131,7 @@
       "needRestart": "Restart the server to apply the settings!",
       "server": "Server",
       "alias": "Device name",
+      "avatarUrl": "Avatar URL",
       "deviceType": "Device type",
       "deviceModel": "Device model",
       "port": "Port",
@@ -180,7 +181,9 @@
     "info": "By default, LocalSend uses all available network interfaces. You can exclude unwanted networks here. You need to restart the server to apply the changes.",
     "preview": "Preview",
     "whitelist": "Whitelist",
-    "blacklist": "Blacklist"
+    "blacklist": "Blacklist",
+    "excludeVpnInterfaces": "Exclude common VPN IPs",
+    "excludeVpnInterfacesHint": "Built-in ranges: 198.18.0.0/15 (Clash / Mihomo fake-ip), 100.64.0.0/10 (Tailscale, etc.), 10.8.0.0/16 (OpenVPN)"
   },
   "receiveHistoryPage": {
     "title": "History",

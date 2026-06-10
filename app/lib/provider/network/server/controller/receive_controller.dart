@@ -133,11 +133,13 @@ class ReceiveController {
     }
 
     final deviceInfo = server.ref.read(deviceInfoProvider);
+    final avatarUrl = server.ref.read(settingsProvider).avatarUrl;
 
     final dto = InfoDto(
       alias: alias,
       version: protocolVersion,
       deviceModel: deviceInfo.deviceModel,
+      avatarUrl: avatarUrl,
       deviceType: deviceInfo.deviceType,
       fingerprint: fingerprint,
       download: server.getState().webSendState != null,
@@ -173,11 +175,13 @@ class ReceiveController {
     server.ref.notifier(discoveryLoggerProvider).addLog('[DISCOVER/TCP] Received "/register" HTTP request: ${requestDto.alias} (${request.ip})');
 
     final deviceInfo = server.ref.read(deviceInfoProvider);
+    final avatarUrl = server.ref.read(settingsProvider).avatarUrl;
 
     final responseDto = InfoDto(
       alias: alias,
       version: protocolVersion,
       deviceModel: deviceInfo.deviceModel,
+      avatarUrl: avatarUrl,
       deviceType: deviceInfo.deviceType,
       fingerprint: fingerprint,
       download: server.getState().webSendState != null,

@@ -58,6 +58,12 @@ class SettingsStateMapper extends ClassMapperBase<SettingsState> {
     'networkBlacklist',
     _$networkBlacklist,
   );
+  static bool _$networkExcludeVpnInterfaces(SettingsState v) =>
+      v.networkExcludeVpnInterfaces;
+  static const Field<SettingsState, bool> _f$networkExcludeVpnInterfaces = Field(
+    'networkExcludeVpnInterfaces',
+    _$networkExcludeVpnInterfaces,
+  );
   static String _$multicastGroup(SettingsState v) => v.multicastGroup;
   static const Field<SettingsState, String> _f$multicastGroup = Field(
     'multicastGroup',
@@ -131,6 +137,11 @@ class SettingsStateMapper extends ClassMapperBase<SettingsState> {
     'deviceModel',
     _$deviceModel,
   );
+  static String? _$avatarUrl(SettingsState v) => v.avatarUrl;
+  static const Field<SettingsState, String> _f$avatarUrl = Field(
+    'avatarUrl',
+    _$avatarUrl,
+  );
   static bool _$shareViaLinkAutoAccept(SettingsState v) =>
       v.shareViaLinkAutoAccept;
   static const Field<SettingsState, bool> _f$shareViaLinkAutoAccept = Field(
@@ -158,6 +169,7 @@ class SettingsStateMapper extends ClassMapperBase<SettingsState> {
     #port: _f$port,
     #networkWhitelist: _f$networkWhitelist,
     #networkBlacklist: _f$networkBlacklist,
+    #networkExcludeVpnInterfaces: _f$networkExcludeVpnInterfaces,
     #multicastGroup: _f$multicastGroup,
     #destination: _f$destination,
     #saveToGallery: _f$saveToGallery,
@@ -173,6 +185,7 @@ class SettingsStateMapper extends ClassMapperBase<SettingsState> {
     #enableAnimations: _f$enableAnimations,
     #deviceType: _f$deviceType,
     #deviceModel: _f$deviceModel,
+    #avatarUrl: _f$avatarUrl,
     #shareViaLinkAutoAccept: _f$shareViaLinkAutoAccept,
     #discoveryTimeout: _f$discoveryTimeout,
     #advancedSettings: _f$advancedSettings,
@@ -188,6 +201,7 @@ class SettingsStateMapper extends ClassMapperBase<SettingsState> {
       port: data.dec(_f$port),
       networkWhitelist: data.dec(_f$networkWhitelist),
       networkBlacklist: data.dec(_f$networkBlacklist),
+      networkExcludeVpnInterfaces: data.dec(_f$networkExcludeVpnInterfaces),
       multicastGroup: data.dec(_f$multicastGroup),
       destination: data.dec(_f$destination),
       saveToGallery: data.dec(_f$saveToGallery),
@@ -203,6 +217,7 @@ class SettingsStateMapper extends ClassMapperBase<SettingsState> {
       enableAnimations: data.dec(_f$enableAnimations),
       deviceType: data.dec(_f$deviceType),
       deviceModel: data.dec(_f$deviceModel),
+      avatarUrl: data.dec(_f$avatarUrl),
       shareViaLinkAutoAccept: data.dec(_f$shareViaLinkAutoAccept),
       discoveryTimeout: data.dec(_f$discoveryTimeout),
       advancedSettings: data.dec(_f$advancedSettings),
@@ -284,6 +299,7 @@ abstract class SettingsStateCopyWith<$R, $In extends SettingsState, $Out>
     int? port,
     List<String>? networkWhitelist,
     List<String>? networkBlacklist,
+    bool? networkExcludeVpnInterfaces,
     String? multicastGroup,
     String? destination,
     bool? saveToGallery,
@@ -299,6 +315,7 @@ abstract class SettingsStateCopyWith<$R, $In extends SettingsState, $Out>
     bool? enableAnimations,
     DeviceType? deviceType,
     String? deviceModel,
+    String? avatarUrl,
     bool? shareViaLinkAutoAccept,
     int? discoveryTimeout,
     bool? advancedSettings,
@@ -342,6 +359,7 @@ class _SettingsStateCopyWithImpl<$R, $Out>
     int? port,
     Object? networkWhitelist = $none,
     Object? networkBlacklist = $none,
+    bool? networkExcludeVpnInterfaces,
     String? multicastGroup,
     Object? destination = $none,
     bool? saveToGallery,
@@ -357,6 +375,7 @@ class _SettingsStateCopyWithImpl<$R, $Out>
     bool? enableAnimations,
     Object? deviceType = $none,
     Object? deviceModel = $none,
+    Object? avatarUrl = $none,
     bool? shareViaLinkAutoAccept,
     int? discoveryTimeout,
     bool? advancedSettings,
@@ -370,6 +389,8 @@ class _SettingsStateCopyWithImpl<$R, $Out>
       if (port != null) #port: port,
       if (networkWhitelist != $none) #networkWhitelist: networkWhitelist,
       if (networkBlacklist != $none) #networkBlacklist: networkBlacklist,
+      if (networkExcludeVpnInterfaces != null)
+        #networkExcludeVpnInterfaces: networkExcludeVpnInterfaces,
       if (multicastGroup != null) #multicastGroup: multicastGroup,
       if (destination != $none) #destination: destination,
       if (saveToGallery != null) #saveToGallery: saveToGallery,
@@ -387,6 +408,7 @@ class _SettingsStateCopyWithImpl<$R, $Out>
       if (enableAnimations != null) #enableAnimations: enableAnimations,
       if (deviceType != $none) #deviceType: deviceType,
       if (deviceModel != $none) #deviceModel: deviceModel,
+      if (avatarUrl != $none) #avatarUrl: avatarUrl,
       if (shareViaLinkAutoAccept != null)
         #shareViaLinkAutoAccept: shareViaLinkAutoAccept,
       if (discoveryTimeout != null) #discoveryTimeout: discoveryTimeout,
@@ -403,6 +425,10 @@ class _SettingsStateCopyWithImpl<$R, $Out>
     port: data.get(#port, or: $value.port),
     networkWhitelist: data.get(#networkWhitelist, or: $value.networkWhitelist),
     networkBlacklist: data.get(#networkBlacklist, or: $value.networkBlacklist),
+    networkExcludeVpnInterfaces: data.get(
+      #networkExcludeVpnInterfaces,
+      or: $value.networkExcludeVpnInterfaces,
+    ),
     multicastGroup: data.get(#multicastGroup, or: $value.multicastGroup),
     destination: data.get(#destination, or: $value.destination),
     saveToGallery: data.get(#saveToGallery, or: $value.saveToGallery),
@@ -424,6 +450,7 @@ class _SettingsStateCopyWithImpl<$R, $Out>
     enableAnimations: data.get(#enableAnimations, or: $value.enableAnimations),
     deviceType: data.get(#deviceType, or: $value.deviceType),
     deviceModel: data.get(#deviceModel, or: $value.deviceModel),
+    avatarUrl: data.get(#avatarUrl, or: $value.avatarUrl),
     shareViaLinkAutoAccept: data.get(
       #shareViaLinkAutoAccept,
       or: $value.shareViaLinkAutoAccept,

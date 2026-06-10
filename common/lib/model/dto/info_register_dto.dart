@@ -13,6 +13,7 @@ class InfoRegisterDto with InfoRegisterDtoMappable {
   final String alias;
   final String? version; // v2, format: major.minor
   final String? deviceModel;
+  final String? avatarUrl;
   final DeviceType? deviceType;
   final String? fingerprint;
   final int? port; // v2
@@ -23,6 +24,7 @@ class InfoRegisterDto with InfoRegisterDtoMappable {
     required this.alias,
     required this.version,
     required this.deviceModel,
+    required this.avatarUrl,
     required this.deviceType,
     required this.fingerprint,
     required this.port,
@@ -44,6 +46,7 @@ extension InfoRegisterDtoExt on InfoRegisterDto {
       fingerprint: fingerprint ?? '',
       alias: alias,
       deviceModel: deviceModel,
+      avatarUrl: avatarUrl,
       deviceType: deviceType ?? DeviceType.desktop,
       download: download ?? false,
       discoveryMethods: method == null ? const {} : {method},

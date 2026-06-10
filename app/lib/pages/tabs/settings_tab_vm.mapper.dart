@@ -32,6 +32,13 @@ class SettingsTabVmMapper extends ClassMapperBase<SettingsTabVm> {
       v.aliasController;
   static const Field<SettingsTabVm, TextEditingController> _f$aliasController =
       Field('aliasController', _$aliasController);
+  static TextEditingController _$avatarUrlController(SettingsTabVm v) =>
+      v.avatarUrlController;
+  static const Field<SettingsTabVm, TextEditingController>
+  _f$avatarUrlController = Field(
+    'avatarUrlController',
+    _$avatarUrlController,
+  );
   static TextEditingController _$deviceModelController(SettingsTabVm v) =>
       v.deviceModelController;
   static const Field<SettingsTabVm, TextEditingController>
@@ -183,6 +190,7 @@ class SettingsTabVmMapper extends ClassMapperBase<SettingsTabVm> {
   final MappableFields<SettingsTabVm> fields = const {
     #advanced: _f$advanced,
     #aliasController: _f$aliasController,
+    #avatarUrlController: _f$avatarUrlController,
     #deviceModelController: _f$deviceModelController,
     #portController: _f$portController,
     #timeoutController: _f$timeoutController,
@@ -211,6 +219,7 @@ class SettingsTabVmMapper extends ClassMapperBase<SettingsTabVm> {
     return SettingsTabVm(
       advanced: data.dec(_f$advanced),
       aliasController: data.dec(_f$aliasController),
+      avatarUrlController: data.dec(_f$avatarUrlController),
       deviceModelController: data.dec(_f$deviceModelController),
       portController: data.dec(_f$portController),
       timeoutController: data.dec(_f$timeoutController),
@@ -304,6 +313,7 @@ abstract class SettingsTabVmCopyWith<$R, $In extends SettingsTabVm, $Out>
   $R call({
     bool? advanced,
     TextEditingController? aliasController,
+    TextEditingController? avatarUrlController,
     TextEditingController? deviceModelController,
     TextEditingController? portController,
     TextEditingController? timeoutController,
@@ -354,6 +364,7 @@ class _SettingsTabVmCopyWithImpl<$R, $Out>
   $R call({
     bool? advanced,
     TextEditingController? aliasController,
+    TextEditingController? avatarUrlController,
     TextEditingController? deviceModelController,
     TextEditingController? portController,
     TextEditingController? timeoutController,
@@ -379,6 +390,7 @@ class _SettingsTabVmCopyWithImpl<$R, $Out>
     FieldCopyWithData({
       if (advanced != null) #advanced: advanced,
       if (aliasController != null) #aliasController: aliasController,
+      if (avatarUrlController != null) #avatarUrlController: avatarUrlController,
       if (deviceModelController != null)
         #deviceModelController: deviceModelController,
       if (portController != null) #portController: portController,
@@ -411,6 +423,7 @@ class _SettingsTabVmCopyWithImpl<$R, $Out>
   SettingsTabVm $make(CopyWithData data) => SettingsTabVm(
     advanced: data.get(#advanced, or: $value.advanced),
     aliasController: data.get(#aliasController, or: $value.aliasController),
+    avatarUrlController: data.get(#avatarUrlController, or: $value.avatarUrlController),
     deviceModelController: data.get(
       #deviceModelController,
       or: $value.deviceModelController,

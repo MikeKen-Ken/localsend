@@ -142,6 +142,7 @@ class ReceiveHistoryPage extends StatelessWidget {
                                   fingerprint: 'fingerprint',
                                   alias: entry.senderAlias,
                                   deviceModel: 'deviceModel',
+                                  avatarUrl: null,
                                   deviceType: DeviceType.web,
                                   download: true,
                                   discoveryMethods: const {},

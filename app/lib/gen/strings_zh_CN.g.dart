@@ -764,6 +764,11 @@ class _TranslationsNetworkInterfacesPageZhCn extends TranslationsNetworkInterfac
   String get whitelist => '白名单';
   @override
   String get blacklist => '黑名单';
+  @override
+  String get excludeVpnInterfaces => '排除常用 VPN IP';
+  @override
+  String get excludeVpnInterfacesHint =>
+      '内置网段：198.18.0.0/15（Clash / Mihomo fake-ip）、100.64.0.0/10（Tailscale 等）、10.8.0.0/16（OpenVPN 默认池）';
 }
 
 // Path: receiveTab.infoBox
@@ -939,6 +944,8 @@ class _TranslationsSettingsTabNetworkZhCn extends TranslationsSettingsTabNetwork
   String get server => '服务器';
   @override
   String get alias => '设备名称';
+  @override
+  String get avatarUrl => '头像 URL';
   @override
   String get deviceType => '设备类型';
   @override

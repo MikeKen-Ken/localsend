@@ -116,6 +116,7 @@ class SendNotifier extends Notifier<Map<String, SendSessionState>> {
         alias: originDevice.alias,
         version: originDevice.version,
         deviceModel: originDevice.deviceModel,
+        avatarUrl: originDevice.avatarUrl,
         deviceType: originDevice.deviceType.toRust(),
         token: originDevice.fingerprint,
         port: originDevice.port,

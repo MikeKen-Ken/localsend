@@ -46,4 +46,35 @@ void main() {
     expect(ignored('3.3.3.4'), true);
     expect(ignored('4.3.3.3'), false);
   });
+
+  test('Should detect common VPN/proxy IPv4 ranges', () {
+    expect(isVpnIpAddress('198.18.0.1'), true);
+    expect(isVpnIpAddress('198.19.255.255'), true);
+    expect(isVpnIpAddress('100.64.0.1'), true);
+    expect(isVpnIpAddress('100.127.255.255'), true);
+    expect(isVpnIpAddress('10.8.0.5'), true);
+    expect(isVpnIpAddress('192.168.1.1'), false);
+    expect(isVpnIpAddress('10.0.0.1'), false);
+  });
+
+  test('Should ignore interface when excludeVpnInterfaces is enabled', () {
+    expect(
+      isNetworkIgnoredRaw(
+        networkWhitelist: null,
+        networkBlacklist: null,
+        interface: ['198.18.1.5'],
+        excludeVpnInterfaces: true,
+      ),
+      true,
+    );
+    expect(
+      isNetworkIgnoredRaw(
+        networkWhitelist: null,
+        networkBlacklist: null,
+        interface: ['192.168.1.5'],
+        excludeVpnInterfaces: true,
+      ),
+      false,
+    );
+  });
 }

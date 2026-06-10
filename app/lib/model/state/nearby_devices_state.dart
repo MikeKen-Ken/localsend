@@ -49,6 +49,7 @@ extension on Device {
       fingerprint: fingerprint,
       alias: alias,
       deviceModel: deviceModel,
+      avatarUrl: avatarUrl ?? other.avatarUrl,
       deviceType: deviceType,
       download: download,
       discoveryMethods: {

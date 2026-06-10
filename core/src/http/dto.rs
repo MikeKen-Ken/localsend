@@ -36,6 +36,9 @@ pub struct RegisterDto {
     pub device_model: Option<String>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
+    pub avatar_url: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub device_type: Option<DeviceType>,
 
     pub token: String,
@@ -79,6 +82,7 @@ impl From<RegisterDto> for RegisterDtoV2 {
             alias: v3.alias,
             version: v3.version,
             device_model: v3.device_model,
+            avatar_url: v3.avatar_url,
             device_type: v3.device_type,
             fingerprint: v3.token,
             port: v3.port,
@@ -98,6 +102,9 @@ pub struct RegisterResponseDto {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub device_model: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub avatar_url: Option<String>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub device_type: Option<DeviceType>,
@@ -160,6 +167,7 @@ impl From<RegisterResponseDtoV2> for RegisterResponseDto {
             alias: v2.alias,
             version: v2.version,
             device_model: v2.device_model,
+            avatar_url: v2.avatar_url,
             device_type: v2.device_type,
             token: v2.fingerprint,
             has_web_interface: v2.download,

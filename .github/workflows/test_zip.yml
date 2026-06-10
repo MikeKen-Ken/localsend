@@ -2,6 +2,14 @@ name: Build windows zip
 
 on:
   workflow_dispatch:
+    inputs:
+      upload_to_release:
+        description: Upload build to GitHub Release (replaces same-named Windows asset only)
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
 
 env:
   # 3.38.2+ required: windows-latest ships VS 2026; older Flutter falls back to VS 2019 (not installed).
@@ -69,3 +77,21 @@ jobs:
         with:
           name: windows-zip-x86-64-result
           path: app/LocalSend.zip
+
+  upload_release:
+    needs: [build, build_windows_zip]
+    if: ${{ inputs.upload_to_release }}
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/download-artifact@v7
+        with:
+          name: windows-zip-x86-64-result
+          path: windows-zip-x86-64-result
+
+      - name: Upload Windows zip to release
+        uses: ./.github/actions/publish-release-asset
+        with:
+          tag: v${{ needs.build.outputs.version }}
+          assets: windows-zip-x86-64-result/LocalSend.zip#LocalSend-${{ needs.build.outputs.version }}-windows-x86-64.zip

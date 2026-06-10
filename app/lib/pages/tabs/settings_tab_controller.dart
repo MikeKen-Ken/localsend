@@ -62,6 +62,7 @@ class SettingsTabController extends ReduxNotifier<SettingsTabVm> {
     return SettingsTabVm(
       advanced: _settingsService.state.advancedSettings,
       aliasController: TextEditingController(text: _settingsService.state.alias),
+      avatarUrlController: TextEditingController(text: _settingsService.state.avatarUrl ?? ''),
       deviceModelController: TextEditingController(text: _initialDeviceInfo.deviceModel),
       portController: TextEditingController(text: _settingsService.state.port.toString()),
       timeoutController: TextEditingController(text: _settingsService.state.discoveryTimeout.toString()),
@@ -162,6 +163,7 @@ class SettingsTabController extends ReduxNotifier<SettingsTabVm> {
   @override
   void dispose() {
     state.aliasController.dispose();
+    state.avatarUrlController.dispose();
     state.deviceModelController.dispose();
     state.portController.dispose();
     state.timeoutController.dispose();

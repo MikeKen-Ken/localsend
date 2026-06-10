@@ -1,11 +1,13 @@
 import 'package:collection/collection.dart';
 import 'package:common/isolate.dart';
+import 'package:common/model/dto/multicast_dto.dart';
 import 'package:common/model/device.dart';
 import 'package:flutter/material.dart';
 import 'package:localsend_app/gen/strings.g.dart';
 import 'package:localsend_app/model/persistence/color_mode.dart';
 import 'package:localsend_app/model/send_mode.dart';
 import 'package:localsend_app/model/state/settings_state.dart';
+import 'package:localsend_app/provider/network/server/server_provider.dart';
 import 'package:localsend_app/provider/persistence_provider.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 
@@ -19,21 +21,40 @@ final settingsProvider = NotifierProvider<SettingsService, SettingsState>(
     final syncState = ref.read(parentIsolateProvider).syncState;
     if (_listEq(syncState.networkWhitelist, next.networkWhitelist) &&
         _listEq(syncState.networkBlacklist, next.networkBlacklist) &&
+        syncState.networkExcludeVpnInterfaces == next.networkExcludeVpnInterfaces &&
         syncState.multicastGroup == next.multicastGroup &&
         syncState.discoveryTimeout == next.discoveryTimeout) {
-      return;
+      // network settings only - avatar handled below
+    } else {
+      ref
+          .redux(parentIsolateProvider)
+          .dispatch(
+            IsolateSyncSettingsAction(
+              networkWhitelist: next.networkWhitelist,
+              networkBlacklist: next.networkBlacklist,
+              networkExcludeVpnInterfaces: next.networkExcludeVpnInterfaces,
+              multicastGroup: next.multicastGroup,
+              discoveryTimeout: next.discoveryTimeout,
+            ),
+          );
     }
 
-    ref
-        .redux(parentIsolateProvider)
-        .dispatch(
-          IsolateSyncSettingsAction(
-            networkWhitelist: next.networkWhitelist,
-            networkBlacklist: next.networkBlacklist,
-            multicastGroup: next.multicastGroup,
-            discoveryTimeout: next.discoveryTimeout,
-          ),
-        );
+    if (syncState.avatarUrl != next.avatarUrl) {
+      final serverState = ref.read(serverProvider);
+      ref.redux(parentIsolateProvider).dispatch(
+            IsolateSyncServerStateAction(
+              alias: serverState?.alias ?? next.alias,
+              avatarUrl: next.avatarUrl,
+              port: serverState?.port ?? next.port,
+              protocol: (serverState?.https ?? next.https) ? ProtocolType.https : ProtocolType.http,
+              serverRunning: serverState != null,
+              download: serverState?.webSendState != null,
+            ),
+          );
+      if (serverState != null) {
+        ref.redux(parentIsolateProvider).dispatch(IsolateSendMulticastAnnouncementAction());
+      }
+    }
   },
 );
 
@@ -52,6 +73,7 @@ class SettingsService extends PureNotifier<SettingsState> {
     port: _persistence.getPort(),
     networkWhitelist: _persistence.getNetworkWhitelist(),
     networkBlacklist: _persistence.getNetworkBlacklist(),
+    networkExcludeVpnInterfaces: _persistence.getNetworkExcludeVpnInterfaces(),
     multicastGroup: _persistence.getMulticastGroup(),
     destination: _persistence.getDestination(),
     saveToGallery: _persistence.isSaveToGallery(),
@@ -67,6 +89,7 @@ class SettingsService extends PureNotifier<SettingsState> {
     enableAnimations: _persistence.getEnableAnimations(),
     deviceType: _persistence.getDeviceType(),
     deviceModel: _persistence.getDeviceModel(),
+    avatarUrl: _persistence.getAvatarUrl(),
     shareViaLinkAutoAccept: _persistence.getShareViaLinkAutoAccept(),
     discoveryTimeout: _persistence.getDiscoveryTimeout(),
     advancedSettings: _persistence.getAdvancedSettingsEnabled(),
@@ -125,6 +148,13 @@ class SettingsService extends PureNotifier<SettingsState> {
     await _persistence.setNetworkBlacklist(blacklist);
     state = state.copyWith(
       networkBlacklist: blacklist,
+    );
+  }
+
+  Future<void> setNetworkExcludeVpnInterfaces(bool excludeVpnInterfaces) async {
+    await _persistence.setNetworkExcludeVpnInterfaces(excludeVpnInterfaces);
+    state = state.copyWith(
+      networkExcludeVpnInterfaces: excludeVpnInterfaces,
     );
   }
 
@@ -237,6 +267,15 @@ class SettingsService extends PureNotifier<SettingsState> {
     await _persistence.setDeviceModel(deviceModel);
     state = state.copyWith(
       deviceModel: deviceModel,
+    );
+  }
+
+  Future<void> setAvatarUrl(String? avatarUrl) async {
+    final trimmed = avatarUrl?.trim();
+    final value = trimmed == null || trimmed.isEmpty ? null : trimmed;
+    await _persistence.setAvatarUrl(value);
+    state = state.copyWith(
+      avatarUrl: value,
     );
   }
 

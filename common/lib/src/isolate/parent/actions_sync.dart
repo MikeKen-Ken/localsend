@@ -47,12 +47,14 @@ class IsolateSyncDeviceInfoAction extends ReduxAction<IsolateController, ParentI
 class IsolateSyncSettingsAction extends ReduxAction<IsolateController, ParentIsolateState> {
   final List<String>? networkWhitelist;
   final List<String>? networkBlacklist;
+  final bool networkExcludeVpnInterfaces;
   final String multicastGroup;
   final int discoveryTimeout;
 
   IsolateSyncSettingsAction({
     required this.networkWhitelist,
     required this.networkBlacklist,
+    required this.networkExcludeVpnInterfaces,
     required this.multicastGroup,
     required this.discoveryTimeout,
   });
@@ -63,6 +65,7 @@ class IsolateSyncSettingsAction extends ReduxAction<IsolateController, ParentIso
       syncState: state.syncState.copyWith(
         networkWhitelist: networkWhitelist,
         networkBlacklist: networkBlacklist,
+        networkExcludeVpnInterfaces: networkExcludeVpnInterfaces,
         multicastGroup: multicastGroup,
         discoveryTimeout: discoveryTimeout,
       ),
@@ -73,6 +76,7 @@ class IsolateSyncSettingsAction extends ReduxAction<IsolateController, ParentIso
 
 class IsolateSyncServerStateAction extends ReduxAction<IsolateController, ParentIsolateState> {
   final String alias;
+  final String? avatarUrl;
   final int port;
   final ProtocolType protocol;
   final bool serverRunning;
@@ -80,6 +84,7 @@ class IsolateSyncServerStateAction extends ReduxAction<IsolateController, Parent
 
   IsolateSyncServerStateAction({
     required this.alias,
+    required this.avatarUrl,
     required this.port,
     required this.protocol,
     required this.serverRunning,
@@ -91,6 +96,7 @@ class IsolateSyncServerStateAction extends ReduxAction<IsolateController, Parent
     dispatch(_PublishSyncStateAction(
       syncState: state.syncState.copyWith(
         alias: alias,
+        avatarUrl: avatarUrl,
         port: port,
         protocol: protocol,
         serverRunning: serverRunning,

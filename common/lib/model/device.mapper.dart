@@ -415,6 +415,8 @@ class DeviceMapper extends ClassMapperBase<Device> {
   static const Field<Device, String> _f$alias = Field('alias', _$alias);
   static String? _$deviceModel(Device v) => v.deviceModel;
   static const Field<Device, String> _f$deviceModel = Field('deviceModel', _$deviceModel);
+  static String? _$avatarUrl(Device v) => v.avatarUrl;
+  static const Field<Device, String> _f$avatarUrl = Field('avatarUrl', _$avatarUrl);
   static DeviceType _$deviceType(Device v) => v.deviceType;
   static const Field<Device, DeviceType> _f$deviceType = Field('deviceType', _$deviceType);
   static bool _$download(Device v) => v.download;
@@ -432,6 +434,7 @@ class DeviceMapper extends ClassMapperBase<Device> {
     #fingerprint: _f$fingerprint,
     #alias: _f$alias,
     #deviceModel: _f$deviceModel,
+    #avatarUrl: _f$avatarUrl,
     #deviceType: _f$deviceType,
     #download: _f$download,
     #discoveryMethods: _f$discoveryMethods,
@@ -447,6 +450,7 @@ class DeviceMapper extends ClassMapperBase<Device> {
         fingerprint: data.dec(_f$fingerprint),
         alias: data.dec(_f$alias),
         deviceModel: data.dec(_f$deviceModel),
+        avatarUrl: data.dec(_f$avatarUrl),
         deviceType: data.dec(_f$deviceType),
         download: data.dec(_f$download),
         discoveryMethods: data.dec(_f$discoveryMethods));
@@ -504,6 +508,7 @@ abstract class DeviceCopyWith<$R, $In extends Device, $Out> implements ClassCopy
       String? fingerprint,
       String? alias,
       String? deviceModel,
+      String? avatarUrl,
       DeviceType? deviceType,
       bool? download,
       Set<DiscoveryMethod>? discoveryMethods});
@@ -525,6 +530,7 @@ class _DeviceCopyWithImpl<$R, $Out> extends ClassCopyWithBase<$R, Device, $Out> 
           String? fingerprint,
           String? alias,
           Object? deviceModel = $none,
+          Object? avatarUrl = $none,
           DeviceType? deviceType,
           bool? download,
           Set<DiscoveryMethod>? discoveryMethods}) =>
@@ -537,6 +543,7 @@ class _DeviceCopyWithImpl<$R, $Out> extends ClassCopyWithBase<$R, Device, $Out> 
         if (fingerprint != null) #fingerprint: fingerprint,
         if (alias != null) #alias: alias,
         if (deviceModel != $none) #deviceModel: deviceModel,
+        if (avatarUrl != $none) #avatarUrl: avatarUrl,
         if (deviceType != null) #deviceType: deviceType,
         if (download != null) #download: download,
         if (discoveryMethods != null) #discoveryMethods: discoveryMethods
@@ -551,6 +558,7 @@ class _DeviceCopyWithImpl<$R, $Out> extends ClassCopyWithBase<$R, Device, $Out> 
       fingerprint: data.get(#fingerprint, or: $value.fingerprint),
       alias: data.get(#alias, or: $value.alias),
       deviceModel: data.get(#deviceModel, or: $value.deviceModel),
+      avatarUrl: data.get(#avatarUrl, or: $value.avatarUrl),
       deviceType: data.get(#deviceType, or: $value.deviceType),
       download: data.get(#download, or: $value.download),
       discoveryMethods: data.get(#discoveryMethods, or: $value.discoveryMethods));

@@ -370,6 +370,16 @@ class SettingsTab extends StatelessWidget {
                           ],
                         ),
                       ),
+                      _SettingsEntry(
+                        label: t.settingsTab.network.avatarUrl,
+                        child: TextFieldTv(
+                          name: t.settingsTab.network.avatarUrl,
+                          controller: vm.avatarUrlController,
+                          onChanged: (s) async {
+                            await ref.notifier(settingsProvider).setAvatarUrl(s);
+                          },
+                        ),
+                      ),
                       if (vm.advanced)
                         _SettingsEntry(
                           label: t.settingsTab.network.deviceType,
@@ -415,7 +425,7 @@ class SettingsTab extends StatelessWidget {
                       if (vm.advanced)
                         _ButtonEntry(
                           label: t.settingsTab.network.network,
-                          buttonLabel: switch (vm.settings.networkWhitelist != null || vm.settings.networkBlacklist != null) {
+                          buttonLabel: switch (vm.settings.networkWhitelist != null || vm.settings.networkBlacklist != null || vm.settings.networkExcludeVpnInterfaces) {
                             true => t.settingsTab.network.networkOptions.filtered,
                             false => t.settingsTab.network.networkOptions.all,
                           },

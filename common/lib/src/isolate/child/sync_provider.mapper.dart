@@ -36,12 +36,16 @@ class SyncStateMapper extends ClassMapperBase<SyncState> {
   static const Field<SyncState, DeviceInfoResult> _f$deviceInfo = Field('deviceInfo', _$deviceInfo);
   static String _$alias(SyncState v) => v.alias;
   static const Field<SyncState, String> _f$alias = Field('alias', _$alias);
+  static String? _$avatarUrl(SyncState v) => v.avatarUrl;
+  static const Field<SyncState, String> _f$avatarUrl = Field('avatarUrl', _$avatarUrl);
   static int _$port(SyncState v) => v.port;
   static const Field<SyncState, int> _f$port = Field('port', _$port);
   static List<String>? _$networkWhitelist(SyncState v) => v.networkWhitelist;
   static const Field<SyncState, List<String>> _f$networkWhitelist = Field('networkWhitelist', _$networkWhitelist);
   static List<String>? _$networkBlacklist(SyncState v) => v.networkBlacklist;
   static const Field<SyncState, List<String>> _f$networkBlacklist = Field('networkBlacklist', _$networkBlacklist);
+  static bool _$networkExcludeVpnInterfaces(SyncState v) => v.networkExcludeVpnInterfaces;
+  static const Field<SyncState, bool> _f$networkExcludeVpnInterfaces = Field('networkExcludeVpnInterfaces', _$networkExcludeVpnInterfaces);
   static ProtocolType _$protocol(SyncState v) => v.protocol;
   static const Field<SyncState, ProtocolType> _f$protocol = Field('protocol', _$protocol);
   static String _$multicastGroup(SyncState v) => v.multicastGroup;
@@ -61,9 +65,11 @@ class SyncStateMapper extends ClassMapperBase<SyncState> {
     #securityContext: _f$securityContext,
     #deviceInfo: _f$deviceInfo,
     #alias: _f$alias,
+    #avatarUrl: _f$avatarUrl,
     #port: _f$port,
     #networkWhitelist: _f$networkWhitelist,
     #networkBlacklist: _f$networkBlacklist,
+    #networkExcludeVpnInterfaces: _f$networkExcludeVpnInterfaces,
     #protocol: _f$protocol,
     #multicastGroup: _f$multicastGroup,
     #discoveryTimeout: _f$discoveryTimeout,
@@ -79,9 +85,11 @@ class SyncStateMapper extends ClassMapperBase<SyncState> {
         securityContext: data.dec(_f$securityContext),
         deviceInfo: data.dec(_f$deviceInfo),
         alias: data.dec(_f$alias),
+        avatarUrl: data.dec(_f$avatarUrl),
         port: data.dec(_f$port),
         networkWhitelist: data.dec(_f$networkWhitelist),
         networkBlacklist: data.dec(_f$networkBlacklist),
+        networkExcludeVpnInterfaces: data.dec(_f$networkExcludeVpnInterfaces),
         protocol: data.dec(_f$protocol),
         multicastGroup: data.dec(_f$multicastGroup),
         discoveryTimeout: data.dec(_f$discoveryTimeout),
@@ -142,9 +150,11 @@ abstract class SyncStateCopyWith<$R, $In extends SyncState, $Out> implements Cla
       StoredSecurityContext? securityContext,
       DeviceInfoResult? deviceInfo,
       String? alias,
+      String? avatarUrl,
       int? port,
       List<String>? networkWhitelist,
       List<String>? networkBlacklist,
+      bool? networkExcludeVpnInterfaces,
       ProtocolType? protocol,
       String? multicastGroup,
       int? discoveryTimeout,
@@ -177,9 +187,11 @@ class _SyncStateCopyWithImpl<$R, $Out> extends ClassCopyWithBase<$R, SyncState, 
           StoredSecurityContext? securityContext,
           DeviceInfoResult? deviceInfo,
           String? alias,
+          Object? avatarUrl = $none,
           int? port,
           Object? networkWhitelist = $none,
           Object? networkBlacklist = $none,
+          bool? networkExcludeVpnInterfaces,
           ProtocolType? protocol,
           String? multicastGroup,
           int? discoveryTimeout,
@@ -192,9 +204,11 @@ class _SyncStateCopyWithImpl<$R, $Out> extends ClassCopyWithBase<$R, SyncState, 
         if (securityContext != null) #securityContext: securityContext,
         if (deviceInfo != null) #deviceInfo: deviceInfo,
         if (alias != null) #alias: alias,
+        if (avatarUrl != $none) #avatarUrl: avatarUrl,
         if (port != null) #port: port,
         if (networkWhitelist != $none) #networkWhitelist: networkWhitelist,
         if (networkBlacklist != $none) #networkBlacklist: networkBlacklist,
+        if (networkExcludeVpnInterfaces != null) #networkExcludeVpnInterfaces: networkExcludeVpnInterfaces,
         if (protocol != null) #protocol: protocol,
         if (multicastGroup != null) #multicastGroup: multicastGroup,
         if (discoveryTimeout != null) #discoveryTimeout: discoveryTimeout,
@@ -209,9 +223,11 @@ class _SyncStateCopyWithImpl<$R, $Out> extends ClassCopyWithBase<$R, SyncState, 
       securityContext: data.get(#securityContext, or: $value.securityContext),
       deviceInfo: data.get(#deviceInfo, or: $value.deviceInfo),
       alias: data.get(#alias, or: $value.alias),
+      avatarUrl: data.get(#avatarUrl, or: $value.avatarUrl),
       port: data.get(#port, or: $value.port),
       networkWhitelist: data.get(#networkWhitelist, or: $value.networkWhitelist),
       networkBlacklist: data.get(#networkBlacklist, or: $value.networkBlacklist),
+      networkExcludeVpnInterfaces: data.get(#networkExcludeVpnInterfaces, or: $value.networkExcludeVpnInterfaces),
       protocol: data.get(#protocol, or: $value.protocol),
       multicastGroup: data.get(#multicastGroup, or: $value.multicastGroup),
       discoveryTimeout: data.get(#discoveryTimeout, or: $value.discoveryTimeout),

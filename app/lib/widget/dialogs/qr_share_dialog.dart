@@ -155,7 +155,12 @@ class _QrShareDialogState extends State<QrShareDialog> with Refena {
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
-      onPopInvokedWithResult: (_, __) => _close(),
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) {
+          return;
+        }
+        _close();
+      },
       child: AlertDialog(
         title: Text(t.dialogs.qr.shareTitle),
         content: _buildContent(context),

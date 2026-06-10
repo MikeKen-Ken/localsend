@@ -38,6 +38,10 @@ pub struct MulticastMessageV2 {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub device_model: Option<String>,
 
+    /// Avatar image URL. Optional.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub avatar_url: Option<String>,
+
     /// Device type category. Optional.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub device_type: Option<DeviceType>,
@@ -78,6 +82,10 @@ pub struct RegisterDtoV2 {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub device_model: Option<String>,
 
+    /// Avatar image URL. Optional.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub avatar_url: Option<String>,
+
     /// Device type category. Optional.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub device_type: Option<DeviceType>,
@@ -112,6 +120,10 @@ pub struct RegisterResponseDtoV2 {
     /// Device model. Optional.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub device_model: Option<String>,
+
+    /// Avatar image URL. Optional.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub avatar_url: Option<String>,
 
     /// Device type category. Optional.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -193,6 +205,10 @@ pub struct InfoResponseDtoV2 {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub device_model: Option<String>,
 
+    /// Avatar image URL. Optional.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub avatar_url: Option<String>,
+
     /// Device type category. Optional.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub device_type: Option<DeviceType>,
@@ -215,6 +231,7 @@ mod tests {
             alias: "Nice Orange".to_string(),
             version: "2.1".to_string(),
             device_model: Some("Samsung".to_string()),
+            avatar_url: None,
             device_type: Some(DeviceType::Mobile),
             fingerprint: "random string".to_string(),
             port: 53317,
@@ -277,6 +294,7 @@ mod tests {
                 alias: "Sender".to_string(),
                 version: "2.1".to_string(),
                 device_model: None,
+                avatar_url: None,
                 device_type: None,
                 fingerprint: "sender-fingerprint".to_string(),
                 port: 53317,

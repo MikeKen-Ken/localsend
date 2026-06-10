@@ -2284,16 +2284,17 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   RegisterDto dco_decode_register_dto(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 8) throw Exception('unexpected arr length: expect 8 but see ${arr.length}');
+    if (arr.length != 9) throw Exception('unexpected arr length: expect 9 but see ${arr.length}');
     return RegisterDto(
       alias: dco_decode_String(arr[0]),
       version: dco_decode_String(arr[1]),
       deviceModel: dco_decode_opt_String(arr[2]),
-      deviceType: dco_decode_opt_box_autoadd_device_type(arr[3]),
-      token: dco_decode_String(arr[4]),
-      port: dco_decode_u_16(arr[5]),
-      protocol: dco_decode_protocol_type(arr[6]),
-      hasWebInterface: dco_decode_bool(arr[7]),
+      avatarUrl: dco_decode_opt_String(arr[3]),
+      deviceType: dco_decode_opt_box_autoadd_device_type(arr[4]),
+      token: dco_decode_String(arr[5]),
+      port: dco_decode_u_16(arr[6]),
+      protocol: dco_decode_protocol_type(arr[7]),
+      hasWebInterface: dco_decode_bool(arr[8]),
     );
   }
 
@@ -2301,14 +2302,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   RegisterResponseDto dco_decode_register_response_dto(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 6) throw Exception('unexpected arr length: expect 6 but see ${arr.length}');
+    if (arr.length != 7) throw Exception('unexpected arr length: expect 7 but see ${arr.length}');
     return RegisterResponseDto(
       alias: dco_decode_String(arr[0]),
       version: dco_decode_String(arr[1]),
       deviceModel: dco_decode_opt_String(arr[2]),
-      deviceType: dco_decode_opt_box_autoadd_device_type(arr[3]),
-      token: dco_decode_String(arr[4]),
-      hasWebInterface: dco_decode_bool(arr[5]),
+      avatarUrl: dco_decode_opt_String(arr[3]),
+      deviceType: dco_decode_opt_box_autoadd_device_type(arr[4]),
+      token: dco_decode_String(arr[5]),
+      hasWebInterface: dco_decode_bool(arr[6]),
     );
   }
 
@@ -3311,6 +3313,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_alias = sse_decode_String(deserializer);
     var var_version = sse_decode_String(deserializer);
     var var_deviceModel = sse_decode_opt_String(deserializer);
+    var var_avatarUrl = sse_decode_opt_String(deserializer);
     var var_deviceType = sse_decode_opt_box_autoadd_device_type(deserializer);
     var var_token = sse_decode_String(deserializer);
     var var_port = sse_decode_u_16(deserializer);
@@ -3320,6 +3323,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       alias: var_alias,
       version: var_version,
       deviceModel: var_deviceModel,
+      avatarUrl: var_avatarUrl,
       deviceType: var_deviceType,
       token: var_token,
       port: var_port,
@@ -3336,6 +3340,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_alias = sse_decode_String(deserializer);
     var var_version = sse_decode_String(deserializer);
     var var_deviceModel = sse_decode_opt_String(deserializer);
+    var var_avatarUrl = sse_decode_opt_String(deserializer);
     var var_deviceType = sse_decode_opt_box_autoadd_device_type(deserializer);
     var var_token = sse_decode_String(deserializer);
     var var_hasWebInterface = sse_decode_bool(deserializer);
@@ -3343,6 +3348,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       alias: var_alias,
       version: var_version,
       deviceModel: var_deviceModel,
+      avatarUrl: var_avatarUrl,
       deviceType: var_deviceType,
       token: var_token,
       hasWebInterface: var_hasWebInterface,
@@ -4433,6 +4439,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_String(self.alias, serializer);
     sse_encode_String(self.version, serializer);
     sse_encode_opt_String(self.deviceModel, serializer);
+    sse_encode_opt_String(self.avatarUrl, serializer);
     sse_encode_opt_box_autoadd_device_type(self.deviceType, serializer);
     sse_encode_String(self.token, serializer);
     sse_encode_u_16(self.port, serializer);
@@ -4449,6 +4456,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_String(self.alias, serializer);
     sse_encode_String(self.version, serializer);
     sse_encode_opt_String(self.deviceModel, serializer);
+    sse_encode_opt_String(self.avatarUrl, serializer);
     sse_encode_opt_box_autoadd_device_type(self.deviceType, serializer);
     sse_encode_String(self.token, serializer);
     sse_encode_bool(self.hasWebInterface, serializer);

@@ -9,6 +9,7 @@ class InfoDto with InfoDtoMappable {
   final String alias;
   final String? version; // v2, format: major.minor
   final String? deviceModel;
+  final String? avatarUrl;
   final DeviceType? deviceType;
   final String? fingerprint; // v2
   final bool? download; // v2
@@ -17,6 +18,7 @@ class InfoDto with InfoDtoMappable {
     required this.alias,
     required this.version,
     required this.deviceModel,
+    required this.avatarUrl,
     required this.deviceType,
     required this.fingerprint,
     required this.download,
@@ -38,6 +40,7 @@ extension InfoToDeviceExt on InfoDto {
       fingerprint: fingerprint ?? '',
       alias: alias,
       deviceModel: deviceModel,
+      avatarUrl: avatarUrl,
       deviceType: deviceType ?? DeviceType.desktop,
       download: download ?? false,
       discoveryMethods: {method},

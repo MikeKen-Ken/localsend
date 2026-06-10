@@ -141,6 +141,7 @@ class SendController {
         final session = server.getState().webSendState?.sessions[requestSessionId];
         if (session != null && session.responseHandler == null && session.ip == request.ip) {
           final deviceInfo = server.ref.read(deviceInfoProvider);
+          final avatarUrl = server.ref.read(settingsProvider).avatarUrl;
           return await request.respondJson(
             200,
             body: ReceiveRequestResponseDto(
@@ -148,6 +149,7 @@ class SendController {
                 alias: alias,
                 version: protocolVersion,
                 deviceModel: deviceInfo.deviceModel,
+                avatarUrl: avatarUrl,
                 deviceType: deviceInfo.deviceType,
                 fingerprint: fingerprint,
                 download: true,
@@ -223,6 +225,7 @@ class SendController {
       );
       _markSingleUseConsumed();
       final deviceInfo = server.ref.read(deviceInfoProvider);
+      final avatarUrl = server.ref.read(settingsProvider).avatarUrl;
       return await request.respondJson(
         200,
         body: ReceiveRequestResponseDto(
@@ -230,6 +233,7 @@ class SendController {
             alias: alias,
             version: protocolVersion,
             deviceModel: deviceInfo.deviceModel,
+            avatarUrl: avatarUrl,
             deviceType: deviceInfo.deviceType,
             fingerprint: fingerprint,
             download: true,

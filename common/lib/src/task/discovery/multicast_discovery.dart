@@ -44,6 +44,7 @@ class MulticastService {
       final sockets = await _getSockets(
         whitelist: syncState.networkWhitelist,
         blacklist: syncState.networkBlacklist,
+        excludeVpnInterfaces: syncState.networkExcludeVpnInterfaces,
         multicastGroup: syncState.multicastGroup,
         port: syncState.port,
       );
@@ -109,6 +110,7 @@ class MulticastService {
     final sockets = await _getSockets(
       whitelist: syncState.networkWhitelist,
       blacklist: syncState.networkBlacklist,
+      excludeVpnInterfaces: syncState.networkExcludeVpnInterfaces,
       multicastGroup: syncState.multicastGroup,
     );
     final dto = _getMulticastDto(announcement: true);
@@ -142,6 +144,7 @@ class MulticastService {
       final sockets = await _getSockets(
         whitelist: syncState.networkWhitelist,
         blacklist: syncState.networkBlacklist,
+        excludeVpnInterfaces: syncState.networkExcludeVpnInterfaces,
         multicastGroup: syncState.multicastGroup,
       );
       final dto = _getMulticastDto(announcement: false);
@@ -165,6 +168,7 @@ class MulticastService {
       version: protocolVersion,
       deviceModel: syncState.deviceInfo.deviceModel,
       deviceType: syncState.deviceInfo.deviceType,
+      avatarUrl: syncState.avatarUrl,
       fingerprint: syncState.securityContext.certificateHash,
       port: syncState.port,
       protocol: syncState.protocol,
@@ -182,6 +186,7 @@ class MulticastService {
       version: protocolVersion,
       deviceModel: syncState.deviceInfo.deviceModel,
       deviceType: syncState.deviceInfo.deviceType,
+      avatarUrl: syncState.avatarUrl,
       fingerprint: syncState.securityContext.certificateHash,
       port: syncState.port,
       protocol: syncState.protocol,
@@ -200,12 +205,14 @@ class _SocketResult {
 Future<List<_SocketResult>> _getSockets({
   required List<String>? whitelist,
   required List<String>? blacklist,
+  required bool excludeVpnInterfaces,
   required String multicastGroup,
   int? port,
 }) async {
   final interfaces = await getNetworkInterfaces(
     whitelist: whitelist,
     blacklist: blacklist,
+    excludeVpnInterfaces: excludeVpnInterfaces,
   );
   final sockets = <_SocketResult>[];
   for (final interface in interfaces) {

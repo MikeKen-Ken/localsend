@@ -85,6 +85,7 @@ class _NetworkInterfacesPageState extends State<NetworkInterfacesPage> {
                       networkWhitelist: settings.networkWhitelist,
                       networkBlacklist: settings.networkBlacklist,
                       interface: e.$2,
+                      excludeVpnInterfaces: settings.networkExcludeVpnInterfaces,
                     );
                     final style = ignored
                         ? const TextStyle(
@@ -108,6 +109,24 @@ class _NetworkInterfacesPageState extends State<NetworkInterfacesPage> {
                       ),
                     );
                   }).toList(),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            LabeledCheckbox(
+              label: t.networkInterfacesPage.excludeVpnInterfaces,
+              value: settings.networkExcludeVpnInterfaces,
+              onChanged: (value) async {
+                await context.notifier(settingsProvider).setNetworkExcludeVpnInterfaces(value ?? false);
+              },
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 10, top: 8),
+              child: Text(
+                t.networkInterfacesPage.excludeVpnInterfacesHint,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontSize: 13,
                 ),
               ),
             ),

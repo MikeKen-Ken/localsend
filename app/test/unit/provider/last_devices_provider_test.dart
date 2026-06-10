@@ -60,6 +60,7 @@ Device _createDevice(String ip) {
     fingerprint: '123',
     alias: 'A',
     deviceModel: 'A',
+    avatarUrl: null,
     deviceType: DeviceType.mobile,
     download: false,
     discoveryMethods: {},

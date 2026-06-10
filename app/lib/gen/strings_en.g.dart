@@ -325,6 +325,13 @@ class TranslationsNetworkInterfacesPageEn {
 
   /// en: 'Blacklist'
   String get blacklist => 'Blacklist';
+
+  /// en: 'Exclude common VPN IPs'
+  String get excludeVpnInterfaces => 'Exclude common VPN IPs';
+
+  /// en: 'Built-in ranges: 198.18.0.0/15 (Clash / Mihomo fake-ip), 100.64.0.0/10 (Tailscale, etc.), 10.8.0.0/16 (OpenVPN)'
+  String get excludeVpnInterfacesHint =>
+      'Built-in ranges: 198.18.0.0/15 (Clash / Mihomo fake-ip), 100.64.0.0/10 (Tailscale, etc.), 10.8.0.0/16 (OpenVPN)';
 }
 
 // Path: receiveHistoryPage
@@ -1085,6 +1092,9 @@ class TranslationsSettingsTabNetworkEn {
 
   /// en: 'Device name'
   String get alias => 'Device name';
+
+  /// en: 'Avatar URL'
+  String get avatarUrl => 'Avatar URL';
 
   /// en: 'Device type'
   String get deviceType => 'Device type';

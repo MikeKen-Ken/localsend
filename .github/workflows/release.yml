@@ -1,7 +1,43 @@
-name: Release Draft
+name: Release Build
 
 on:
   workflow_dispatch:
+    inputs:
+      build_all:
+        description: Build all platforms
+        type: boolean
+        default: true
+      build_android:
+        description: Build Android APK
+        type: boolean
+        default: false
+      build_windows:
+        description: Build Windows zip
+        type: boolean
+        default: false
+      build_linux_tar_x64:
+        description: Build Linux x64 tar.gz
+        type: boolean
+        default: false
+      build_linux_tar_arm64:
+        description: Build Linux arm64 tar.gz
+        type: boolean
+        default: false
+      build_linux_deb_x64:
+        description: Build Linux x64 deb
+        type: boolean
+        default: false
+      build_linux_deb_arm64:
+        description: Build Linux arm64 deb
+        type: boolean
+        default: false
+      build_linux_appimage:
+        description: Build Linux x64 AppImage
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
 
 env:
   FLUTTER_VERSION: "3.35.6"
@@ -25,6 +61,7 @@ jobs:
 
   build_apk:
     needs: build
+    if: ${{ inputs.build_all || inputs.build_android }}
     runs-on: ubuntu-22.04
 
     steps:
@@ -91,6 +128,7 @@ jobs:
 
   build_tar_x86_64:
     needs: build
+    if: ${{ inputs.build_all || inputs.build_linux_tar_x64 }}
     runs-on: ubuntu-24.04
 
     steps:
@@ -139,6 +177,7 @@ jobs:
   # Flutter currently doesn't provide Linux ARM64 binaries.
   build_tar_arm_64:
     needs: build
+    if: ${{ inputs.build_all || inputs.build_linux_tar_arm64 }}
     runs-on: [ self-hosted, linux, arm64 ]
 
     steps:
@@ -170,6 +209,7 @@ jobs:
 
   build_deb_x86_64:
     needs: build
+    if: ${{ inputs.build_all || inputs.build_linux_deb_x64 }}
     runs-on: ubuntu-24.04
 
     steps:
@@ -230,6 +270,7 @@ jobs:
   # Flutter currently doesn't provide Linux ARM64 binaries.
   build_deb_arm_64:
     needs: build
+    if: ${{ inputs.build_all || inputs.build_linux_deb_arm64 }}
     runs-on: [ self-hosted, linux, arm64 ]
 
     steps:
@@ -270,6 +311,7 @@ jobs:
 
   build_appimage_x86_64:
     needs: build
+    if: ${{ inputs.build_all || inputs.build_linux_appimage }}
     runs-on: ubuntu-24.04
 
     steps:
@@ -333,6 +375,7 @@ jobs:
 
   build_windows_zip_x86_64:
     needs: build
+    if: ${{ inputs.build_all || inputs.build_windows }}
     runs-on: windows-2022
 
     steps:
@@ -380,200 +423,165 @@ jobs:
           name: windows-zip-x86-64-result
           path: app/LocalSend.zip
 
-  release:
-    needs:
-      - build
-      - build_apk
-      - build_tar_x86_64
-      - build_tar_arm_64
-      - build_deb_x86_64
-      - build_deb_arm_64
-      - build_appimage_x86_64
-      - build_windows_zip_x86_64
+  upload_android:
+    needs: [build, build_apk]
+    if: ${{ (inputs.build_all || inputs.build_android) && needs.build_apk.result == 'success' }}
     runs-on: ubuntu-24.04
-
     steps:
       - uses: actions/checkout@v6
 
-      - name: Draft release
-        id: draft_release
-        uses: release-drafter/release-drafter@v6
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag: v${{ needs.build.outputs.version }}
-          name: v${{ needs.build.outputs.version }}
-
-      # APK
-      - name: Download apk file
-        uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v7
         with:
           name: apk-result
           path: apk-result
 
-      - name: Copy apk file to root
-        run: cp apk-result/*.apk .
-
-      - name: Upload Release Asset (arm32v7)
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload Android APKs to release
+        uses: ./.github/actions/publish-release-asset
         with:
-          upload_url: ${{ steps.draft_release.outputs.upload_url }}
-          asset_path: app-armeabi-v7a-release.apk
-          asset_name: LocalSend-${{ needs.build.outputs.version }}-android-arm32v7.apk
-          asset_content_type: application/vnd.android.package-archive
+          tag: v${{ needs.build.outputs.version }}
+          assets: |
+            apk-result/app-armeabi-v7a-release.apk#LocalSend-${{ needs.build.outputs.version }}-android-arm32v7.apk
+            apk-result/app-arm64-v8a-release.apk#LocalSend-${{ needs.build.outputs.version }}-android-arm64v8.apk
+            apk-result/app-x86_64-release.apk#LocalSend-${{ needs.build.outputs.version }}-android-x64.apk
 
-      - name: Upload Release Asset (arm64v8)
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.draft_release.outputs.upload_url }}
-          asset_path: app-arm64-v8a-release.apk
-          asset_name: LocalSend-${{ needs.build.outputs.version }}-android-arm64v8.apk
-          asset_content_type: application/vnd.android.package-archive
+  upload_linux_tar_x64:
+    needs: [build, build_tar_x86_64]
+    if: ${{ (inputs.build_all || inputs.build_linux_tar_x64) && needs.build_tar_x86_64.result == 'success' }}
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
 
-      - name: Upload Release Asset (x64)
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.draft_release.outputs.upload_url }}
-          asset_path: app-x86_64-release.apk
-          asset_name: LocalSend-${{ needs.build.outputs.version }}-android-x64.apk
-          asset_content_type: application/vnd.android.package-archive
-
-      # TAR.GZ (x86_64)
-      - name: Download tar.gz file
-        uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v7
         with:
           name: tar-gz-x86-64-result
           path: tar-gz-x86-64-result
 
-      - name: List files in tar.gz-directory
-        run: ls -l tar-gz-x86-64-result
+      - name: Prepare tar.gz asset
+        run: |
+          mkdir -p upload
+          cp tar-gz-x86-64-result/* upload/linux-x86-64.tar.gz
+        shell: bash
 
-      - name: Copy tar.gz file to root
-        run: cp tar-gz-x86-64-result/* result.tar.gz
-
-      - name: Upload Release Asset (tar.gz)
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload Linux x64 tar.gz to release
+        uses: ./.github/actions/publish-release-asset
         with:
-          upload_url: ${{ steps.draft_release.outputs.upload_url }}
-          asset_path: result.tar.gz
-          asset_name: LocalSend-${{ needs.build.outputs.version }}-linux-x86-64.tar.gz
-          asset_content_type: application/gzip
+          tag: v${{ needs.build.outputs.version }}
+          assets: upload/linux-x86-64.tar.gz#LocalSend-${{ needs.build.outputs.version }}-linux-x86-64.tar.gz
 
-      # TAR.GZ (arm_64)
-      - name: Download tar.gz file
-        uses: actions/download-artifact@v7
+  upload_linux_tar_arm64:
+    needs: [build, build_tar_arm_64]
+    if: ${{ (inputs.build_all || inputs.build_linux_tar_arm64) && needs.build_tar_arm_64.result == 'success' }}
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/download-artifact@v7
         with:
           name: tar-gz-arm-64-result
           path: tar-gz-arm-64-result
 
-      - name: List files in tar.gz-directory
-        run: ls -l tar-gz-arm-64-result
+      - name: Prepare tar.gz asset
+        run: |
+          mkdir -p upload
+          cp tar-gz-arm-64-result/* upload/linux-arm-64.tar.gz
+        shell: bash
 
-      - name: Copy tar.gz file to root
-        run: cp tar-gz-arm-64-result/* result.tar.gz
-
-      - name: Upload Release Asset (tar.gz)
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload Linux arm64 tar.gz to release
+        uses: ./.github/actions/publish-release-asset
         with:
-          upload_url: ${{ steps.draft_release.outputs.upload_url }}
-          asset_path: result.tar.gz
-          asset_name: LocalSend-${{ needs.build.outputs.version }}-linux-arm-64.tar.gz
-          asset_content_type: application/gzip
+          tag: v${{ needs.build.outputs.version }}
+          assets: upload/linux-arm-64.tar.gz#LocalSend-${{ needs.build.outputs.version }}-linux-arm-64.tar.gz
 
-      # DEB (x86_64)
-      - name: Download deb file
-        uses: actions/download-artifact@v7
+  upload_linux_deb_x64:
+    needs: [build, build_deb_x86_64]
+    if: ${{ (inputs.build_all || inputs.build_linux_deb_x64) && needs.build_deb_x86_64.result == 'success' }}
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/download-artifact@v7
         with:
           name: deb-x86-64-result
           path: deb-x86-64-result
 
-      - name: Copy deb file to root
-        run: cp deb-x86-64-result/*.deb result.deb
+      - name: Prepare deb asset
+        run: |
+          mkdir -p upload
+          cp deb-x86-64-result/*.deb upload/linux-x86-64.deb
+        shell: bash
 
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload Linux x64 deb to release
+        uses: ./.github/actions/publish-release-asset
         with:
-          upload_url: ${{ steps.draft_release.outputs.upload_url }}
-          asset_path: result.deb
-          asset_name: LocalSend-${{ needs.build.outputs.version }}-linux-x86-64.deb
-          asset_content_type: application/vnd.debian.binary-package
+          tag: v${{ needs.build.outputs.version }}
+          assets: upload/linux-x86-64.deb#LocalSend-${{ needs.build.outputs.version }}-linux-x86-64.deb
 
-      # DEB (arm_64)
-      - name: Download deb file
-        uses: actions/download-artifact@v7
+  upload_linux_deb_arm64:
+    needs: [build, build_deb_arm_64]
+    if: ${{ (inputs.build_all || inputs.build_linux_deb_arm64) && needs.build_deb_arm_64.result == 'success' }}
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/download-artifact@v7
         with:
           name: deb-arm-64-result
           path: deb-arm-64-result
 
-      - name: Copy deb file to root
-        run: cp deb-arm-64-result/*.deb result.deb
+      - name: Prepare deb asset
+        run: |
+          mkdir -p upload
+          cp deb-arm-64-result/*.deb upload/linux-arm-64.deb
+        shell: bash
 
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload Linux arm64 deb to release
+        uses: ./.github/actions/publish-release-asset
         with:
-          upload_url: ${{ steps.draft_release.outputs.upload_url }}
-          asset_path: result.deb
-          asset_name: LocalSend-${{ needs.build.outputs.version }}-linux-arm-64.deb
-          asset_content_type: application/vnd.debian.binary-package
+          tag: v${{ needs.build.outputs.version }}
+          assets: upload/linux-arm-64.deb#LocalSend-${{ needs.build.outputs.version }}-linux-arm-64.deb
 
-      # APPIMAGE (x86_64)
-      - name: Download AppImage file
-        uses: actions/download-artifact@v7
+  upload_linux_appimage:
+    needs: [build, build_appimage_x86_64]
+    if: ${{ (inputs.build_all || inputs.build_linux_appimage) && needs.build_appimage_x86_64.result == 'success' }}
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/download-artifact@v7
         with:
           name: appimage-x86-64-result
           path: appimage-x86-64-result
 
-      - name: List files in appimage-directory
-        run: ls -l appimage-x86-64-result
-
-      - name: Copy AppImage file to root
+      - name: Prepare AppImage asset
         run: |
+          mkdir -p upload
           for file in appimage-x86-64-result/*; do
             if [[ $file == *.AppImage && $file != *.AppImage.zsync ]]; then
-              cp "$file" result.AppImage
+              cp "$file" upload/linux-x86-64.AppImage
             fi
           done
+        shell: bash
 
-      - name: Upload Release Asset (AppImage)
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload Linux AppImage to release
+        uses: ./.github/actions/publish-release-asset
         with:
-          upload_url: ${{ steps.draft_release.outputs.upload_url }}
-          asset_path: result.AppImage
-          asset_name: LocalSend-${{ needs.build.outputs.version }}-linux-x86-64.AppImage
-          asset_content_type: application/x-appimage
+          tag: v${{ needs.build.outputs.version }}
+          assets: upload/linux-x86-64.AppImage#LocalSend-${{ needs.build.outputs.version }}-linux-x86-64.AppImage
 
-      # WINDOWS ZIP (x86_64)
-      - name: Download windows zip file
-        uses: actions/download-artifact@v7
+  upload_windows:
+    needs: [build, build_windows_zip_x86_64]
+    if: ${{ (inputs.build_all || inputs.build_windows) && needs.build_windows_zip_x86_64.result == 'success' }}
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/download-artifact@v7
         with:
           name: windows-zip-x86-64-result
           path: windows-zip-x86-64-result
 
-      - name: Copy zip file to root
-        run: cp windows-zip-x86-64-result/*.zip result.zip
-
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload Windows zip to release
+        uses: ./.github/actions/publish-release-asset
         with:
-          upload_url: ${{ steps.draft_release.outputs.upload_url }}
-          asset_path: result.zip
-          asset_name: LocalSend-${{ needs.build.outputs.version }}-windows-x86-64.zip
-          asset_content_type: application/zip
+          tag: v${{ needs.build.outputs.version }}
+          assets: windows-zip-x86-64-result/LocalSend.zip#LocalSend-${{ needs.build.outputs.version }}-windows-x86-64.zip

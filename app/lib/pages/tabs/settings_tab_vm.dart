@@ -11,6 +11,7 @@ part 'settings_tab_vm.mapper.dart';
 class SettingsTabVm with SettingsTabVmMappable {
   final bool advanced;
   final TextEditingController aliasController;
+  final TextEditingController avatarUrlController;
   final TextEditingController deviceModelController;
   final TextEditingController portController;
   final TextEditingController timeoutController;
@@ -38,6 +39,7 @@ class SettingsTabVm with SettingsTabVmMappable {
   SettingsTabVm({
     required this.advanced,
     required this.aliasController,
+    required this.avatarUrlController,
     required this.deviceModelController,
     required this.portController,
     required this.timeoutController,

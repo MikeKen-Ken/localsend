@@ -43,6 +43,7 @@ final deviceFullInfoProvider = ViewProvider((ref) {
     https: serverState?.https ?? true,
     fingerprint: securityContext.certificateHash,
     deviceModel: rawInfo.deviceModel,
+    avatarUrl: ref.watch(settingsProvider.select((s) => s.avatarUrl)),
     deviceType: rawInfo.deviceType,
     download: serverState?.webSendState != null,
     discoveryMethods: const {},

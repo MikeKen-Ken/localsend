@@ -18,9 +18,11 @@ class SyncState with SyncStateMappable {
   final StoredSecurityContext securityContext;
   final DeviceInfoResult deviceInfo;
   final String alias;
+  final String? avatarUrl;
   final int port;
   final List<String>? networkWhitelist;
   final List<String>? networkBlacklist;
+  final bool networkExcludeVpnInterfaces;
   final ProtocolType protocol;
   final String multicastGroup;
   final int discoveryTimeout;
@@ -35,9 +37,11 @@ class SyncState with SyncStateMappable {
     required this.securityContext,
     required this.deviceInfo,
     required this.alias,
+    required this.avatarUrl,
     required this.port,
     required this.networkWhitelist,
     required this.networkBlacklist,
+    required this.networkExcludeVpnInterfaces,
     required this.protocol,
     required this.multicastGroup,
     required this.discoveryTimeout,
@@ -47,7 +51,7 @@ class SyncState with SyncStateMappable {
 
   @override
   String toString() {
-    return 'SyncState(securityContext: <SecurityContext>, deviceInfo: $deviceInfo, alias: $alias, port: $port, networkWhitelist: $networkWhitelist, networkBlacklist: $networkBlacklist, protocol: $protocol, multicastGroup: $multicastGroup, discoveryTimeout: $discoveryTimeout, serverRunning: $serverRunning, download: $download)';
+    return 'SyncState(securityContext: <SecurityContext>, deviceInfo: $deviceInfo, alias: $alias, avatarUrl: $avatarUrl, port: $port, networkWhitelist: $networkWhitelist, networkBlacklist: $networkBlacklist, networkExcludeVpnInterfaces: $networkExcludeVpnInterfaces, protocol: $protocol, multicastGroup: $multicastGroup, discoveryTimeout: $discoveryTimeout, serverRunning: $serverRunning, download: $download)';
   }
 }
 

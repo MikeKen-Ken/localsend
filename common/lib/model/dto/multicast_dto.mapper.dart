@@ -74,6 +74,8 @@ class MulticastDtoMapper extends ClassMapperBase<MulticastDto> {
   static const Field<MulticastDto, String> _f$version = Field('version', _$version);
   static String? _$deviceModel(MulticastDto v) => v.deviceModel;
   static const Field<MulticastDto, String> _f$deviceModel = Field('deviceModel', _$deviceModel);
+  static String? _$avatarUrl(MulticastDto v) => v.avatarUrl;
+  static const Field<MulticastDto, String> _f$avatarUrl = Field('avatarUrl', _$avatarUrl);
   static DeviceType? _$deviceType(MulticastDto v) => v.deviceType;
   static const Field<MulticastDto, DeviceType> _f$deviceType = Field('deviceType', _$deviceType);
   static String _$fingerprint(MulticastDto v) => v.fingerprint;
@@ -94,6 +96,7 @@ class MulticastDtoMapper extends ClassMapperBase<MulticastDto> {
     #alias: _f$alias,
     #version: _f$version,
     #deviceModel: _f$deviceModel,
+    #avatarUrl: _f$avatarUrl,
     #deviceType: _f$deviceType,
     #fingerprint: _f$fingerprint,
     #port: _f$port,
@@ -108,6 +111,7 @@ class MulticastDtoMapper extends ClassMapperBase<MulticastDto> {
         alias: data.dec(_f$alias),
         version: data.dec(_f$version),
         deviceModel: data.dec(_f$deviceModel),
+        avatarUrl: data.dec(_f$avatarUrl),
         deviceType: data.dec(_f$deviceType),
         fingerprint: data.dec(_f$fingerprint),
         port: data.dec(_f$port),
@@ -165,6 +169,7 @@ abstract class MulticastDtoCopyWith<$R, $In extends MulticastDto, $Out> implemen
       {String? alias,
       String? version,
       String? deviceModel,
+      String? avatarUrl,
       DeviceType? deviceType,
       String? fingerprint,
       int? port,
@@ -185,6 +190,7 @@ class _MulticastDtoCopyWithImpl<$R, $Out> extends ClassCopyWithBase<$R, Multicas
           {String? alias,
           Object? version = $none,
           Object? deviceModel = $none,
+          Object? avatarUrl = $none,
           Object? deviceType = $none,
           String? fingerprint,
           Object? port = $none,
@@ -196,6 +202,7 @@ class _MulticastDtoCopyWithImpl<$R, $Out> extends ClassCopyWithBase<$R, Multicas
         if (alias != null) #alias: alias,
         if (version != $none) #version: version,
         if (deviceModel != $none) #deviceModel: deviceModel,
+        if (avatarUrl != $none) #avatarUrl: avatarUrl,
         if (deviceType != $none) #deviceType: deviceType,
         if (fingerprint != null) #fingerprint: fingerprint,
         if (port != $none) #port: port,
@@ -209,6 +216,7 @@ class _MulticastDtoCopyWithImpl<$R, $Out> extends ClassCopyWithBase<$R, Multicas
       alias: data.get(#alias, or: $value.alias),
       version: data.get(#version, or: $value.version),
       deviceModel: data.get(#deviceModel, or: $value.deviceModel),
+      avatarUrl: data.get(#avatarUrl, or: $value.avatarUrl),
       deviceType: data.get(#deviceType, or: $value.deviceType),
       fingerprint: data.get(#fingerprint, or: $value.fingerprint),
       port: data.get(#port, or: $value.port),
