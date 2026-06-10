@@ -4,7 +4,8 @@ on:
   workflow_dispatch:
 
 env:
-  FLUTTER_VERSION: "3.35.6"
+  # 3.38.2+ required: windows-latest ships VS 2026; older Flutter falls back to VS 2019 (not installed).
+  FLUTTER_VERSION: "3.38.10"
 
 jobs:
   build:
@@ -23,7 +24,7 @@ jobs:
 
   build_windows_zip:
     needs: build
-    runs-on: windows-latest
+    runs-on: windows-2022
 
     steps:
       - name: Fix long file paths
