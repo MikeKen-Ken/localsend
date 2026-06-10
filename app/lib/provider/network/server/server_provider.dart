@@ -203,8 +203,21 @@ class ServerService extends Notifier<ServerState?> {
   }
 
   /// Initializes the web send state.
-  Future<void> initializeWebSend(List<CrossFile> files) async {
-    await _sendController.initializeWebSend(files: files);
+  Future<void> initializeWebSend(
+    List<CrossFile> files, {
+    bool singleUse = false,
+    Duration? expiry,
+  }) async {
+    await _sendController.initializeWebSend(
+      files: files,
+      singleUse: singleUse,
+      expiry: expiry,
+    );
+  }
+
+  /// Clears the web send state without stopping the server.
+  void clearWebSend() {
+    _sendController.clearWebSend();
   }
 
   /// Updates the web send pin.

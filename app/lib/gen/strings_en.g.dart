@@ -1578,6 +1578,69 @@ class TranslationsDialogsQrEn {
 
   /// en: 'QR Code'
   String get title => 'QR Code';
+
+  /// en: 'Share via QR Code'
+  String get shareTitle => 'Share via QR Code';
+
+  /// en: 'Preparing share link…'
+  String get loading => 'Preparing share link…';
+
+  /// en: 'Expires in {time}'
+  String expiresIn({required String time}) => 'Expires in $time';
+
+  /// en: 'This share link has expired.'
+  String get expired => 'This share link has expired.';
+
+  /// en: 'Someone has accessed this link. The QR code is no longer valid.'
+  String get consumed => 'Someone has accessed this link. The QR code is no longer valid.';
+
+  /// en: 'Scan the QR code or copy the link below. Only works on the same local network.'
+  String get hint => 'Scan the QR code or copy the link below. Only works on the same local network.';
+
+  /// en: 'Could not start sharing. Check your network connection.'
+  String get error => 'Could not start sharing. Check your network connection.';
+
+  /// en: 'Scan QR Code'
+  String get scanTitle => 'Scan QR Code';
+
+  /// en: 'Point the camera at a LocalSend QR code to download files.'
+  String get scanHint => 'Point the camera at a LocalSend QR code to download files.';
+
+  /// en: 'This QR code is not a valid LocalSend share link.'
+  String get invalidCode => 'This QR code is not a valid LocalSend share link.';
+
+  /// en: 'Download via Link'
+  String get downloadTitle => 'Download via Link';
+
+  /// en: 'Connecting to sender…'
+  String get connecting => 'Connecting to sender…';
+
+  /// en: 'This share link has expired or is no longer valid.'
+  String get expiredOrInvalid => 'This share link has expired or is no longer valid.';
+
+  /// en: 'Files from {alias}'
+  String filesFrom({required String alias}) => 'Files from $alias';
+
+  /// en: 'Download all'
+  String get downloadAll => 'Download all';
+
+  /// en: 'All files downloaded successfully.'
+  String get downloadFinished => 'All files downloaded successfully.';
+
+  /// en: 'Open in browser'
+  String get openInBrowser => 'Open in browser';
+
+  /// en: 'Camera permission required'
+  String get cameraPermissionTitle => 'Camera permission required';
+
+  /// en: 'Camera permission is required to scan QR codes.'
+  String get cameraRequired => 'Camera permission is required to scan QR codes.';
+
+  /// en: 'Please grant camera permission in system settings to scan QR codes.'
+  String get cameraPermissionDenied => 'Please grant camera permission in system settings to scan QR codes.';
+
+  /// en: 'Open settings'
+  String get openSettings => 'Open settings';
 }
 
 // Path: dialogs.quickActions

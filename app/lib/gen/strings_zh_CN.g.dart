@@ -1346,6 +1346,69 @@ class _TranslationsDialogsQrZhCn extends TranslationsDialogsQrEn {
   // Translations
   @override
   String get title => '二维码';
+
+  @override
+  String get shareTitle => '二维码分享';
+
+  @override
+  String get loading => '正在准备分享链接…';
+
+  @override
+  String expiresIn({required String time}) => '将于 $time 后过期';
+
+  @override
+  String get expired => '分享链接已过期。';
+
+  @override
+  String get consumed => '已有人访问此链接，二维码已失效。';
+
+  @override
+  String get hint => '扫描二维码或复制下方链接即可下载，仅限同一局域网内使用。';
+
+  @override
+  String get error => '无法开始分享，请检查网络连接。';
+
+  @override
+  String get scanTitle => '扫描二维码';
+
+  @override
+  String get scanHint => '将相机对准 LocalSend 二维码即可下载文件。';
+
+  @override
+  String get invalidCode => '这不是有效的 LocalSend 分享二维码。';
+
+  @override
+  String get downloadTitle => '链接下载';
+
+  @override
+  String get connecting => '正在连接发送方…';
+
+  @override
+  String get expiredOrInvalid => '分享链接已过期或已失效。';
+
+  @override
+  String filesFrom({required String alias}) => '来自 $alias 的文件';
+
+  @override
+  String get downloadAll => '全部下载';
+
+  @override
+  String get downloadFinished => '所有文件已下载完成。';
+
+  @override
+  String get openInBrowser => '在浏览器中打开';
+
+  @override
+  String get cameraPermissionTitle => '需要相机权限';
+
+  @override
+  String get cameraRequired => '扫描二维码需要相机权限。';
+
+  @override
+  String get cameraPermissionDenied => '请在系统设置中授予相机权限后再扫描二维码。';
+
+  @override
+  String get openSettings => '打开设置';
 }
 
 // Path: dialogs.quickActions

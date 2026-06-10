@@ -41,6 +41,9 @@
     <key>ITSAppUsesNonExemptEncryption</key>
     <false/>
 
+    <key>NSCameraUsageDescription</key>
+    <string>LocalSend needs camera access to scan QR codes for file sharing.</string>
+
 	<key>CFBundleLocalizations</key>
     <array>
         <string>ar</string>

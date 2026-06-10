@@ -438,7 +438,28 @@
       "content": "此功能只在以下平台可用："
     },
     "qr": {
-      "title": "二维码"
+      "title": "二维码",
+      "shareTitle": "二维码分享",
+      "loading": "正在准备分享链接…",
+      "expiresIn": "将于 {time} 后过期",
+      "expired": "分享链接已过期。",
+      "consumed": "已有人访问此链接，二维码已失效。",
+      "hint": "扫描二维码或复制下方链接即可下载，仅限同一局域网内使用。",
+      "error": "无法开始分享，请检查网络连接。",
+      "scanTitle": "扫描二维码",
+      "scanHint": "将相机对准 LocalSend 二维码即可下载文件。",
+      "invalidCode": "这不是有效的 LocalSend 分享二维码。",
+      "downloadTitle": "链接下载",
+      "connecting": "正在连接发送方…",
+      "expiredOrInvalid": "分享链接已过期或已失效。",
+      "filesFrom": "来自 {alias} 的文件",
+      "downloadAll": "全部下载",
+      "downloadFinished": "所有文件已下载完成。",
+      "openInBrowser": "在浏览器中打开",
+      "cameraPermissionTitle": "需要相机权限",
+      "cameraRequired": "扫描二维码需要相机权限。",
+      "cameraPermissionDenied": "请在系统设置中授予相机权限后再扫描二维码。",
+      "openSettings": "打开设置"
     },
     "quickActions": {
       "title": "快速操作",

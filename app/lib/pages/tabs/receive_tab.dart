@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:localsend_app/gen/strings.g.dart';
 import 'package:localsend_app/pages/home_page.dart';
 import 'package:localsend_app/pages/home_page_controller.dart';
+import 'package:localsend_app/pages/qr_scan_page.dart';
 import 'package:localsend_app/pages/receive_history_page.dart';
 import 'package:localsend_app/pages/tabs/receive_tab_vm.dart';
 import 'package:localsend_app/provider/animation_provider.dart';
+import 'package:localsend_app/provider/tv_provider.dart';
 import 'package:localsend_app/util/ip_helper.dart';
 import 'package:localsend_app/util/native/platform_check.dart';
 import 'package:localsend_app/widget/animations/initial_fade_transition.dart';
@@ -168,6 +170,17 @@ class _CornerButtons extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
+            Consumer(
+              builder: (context, ref, _) {
+                if (!checkPlatformWithCamera() || ref.watch(tvProvider)) {
+                  return const SizedBox.shrink();
+                }
+                return CustomIconButton(
+                  onPressed: () async => QrScanPage.open(context),
+                  child: const Icon(Icons.qr_code_scanner),
+                );
+              },
+            ),
             if (!showAdvanced)
               AnimatedOpacity(
                 opacity: showHistoryButton ? 1 : 0,

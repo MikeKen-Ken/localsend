@@ -446,7 +446,28 @@
       "content": "This feature is only available on:"
     },
     "qr": {
-      "title": "QR Code"
+      "title": "QR Code",
+      "shareTitle": "Share via QR Code",
+      "loading": "Preparing share link…",
+      "expiresIn": "Expires in {time}",
+      "expired": "This share link has expired.",
+      "consumed": "Someone has accessed this link. The QR code is no longer valid.",
+      "hint": "Scan the QR code or copy the link below. Only works on the same local network.",
+      "error": "Could not start sharing. Check your network connection.",
+      "scanTitle": "Scan QR Code",
+      "scanHint": "Point the camera at a LocalSend QR code to download files.",
+      "invalidCode": "This QR code is not a valid LocalSend share link.",
+      "downloadTitle": "Download via Link",
+      "connecting": "Connecting to sender…",
+      "expiredOrInvalid": "This share link has expired or is no longer valid.",
+      "filesFrom": "Files from {alias}",
+      "downloadAll": "Download all",
+      "downloadFinished": "All files downloaded successfully.",
+      "openInBrowser": "Open in browser",
+      "cameraPermissionTitle": "Camera permission required",
+      "cameraRequired": "Camera permission is required to scan QR codes.",
+      "cameraPermissionDenied": "Please grant camera permission in system settings to scan QR codes.",
+      "openSettings": "Open settings"
     },
     "quickActions": {
       "title": "Quick Actions",

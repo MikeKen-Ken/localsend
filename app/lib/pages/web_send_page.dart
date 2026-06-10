@@ -153,10 +153,13 @@ class _WebSendPageState extends State<WebSendPage> with Refena {
                       children: [
                         ...networkState.localIps.map((ip) {
                           final url = '${_encrypted ? 'https' : 'http'}://$ip:${serverState.port}';
-                          final urlWithPin = switch (webSendState.pin) {
-                            String() => '$url/?pin=${Uri.encodeQueryComponent(webSendState.pin!)}',
-                            null => url,
+                          final queryParams = <String, String>{
+                            if (webSendState.shareToken != null) 'token': webSendState.shareToken!,
+                            if (webSendState.pin != null) 'pin': webSendState.pin!,
                           };
+                          final urlWithPin = queryParams.isEmpty
+                              ? url
+                              : Uri.parse(url).replace(queryParameters: queryParams).toString();
                           return Padding(
                             padding: const EdgeInsets.all(5),
                             child: Row(

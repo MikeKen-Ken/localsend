@@ -119,9 +119,9 @@ class FastDocumentFile(
                 return if (cursor != null && cursor.moveToFirst()) {
                     FastDocumentFile(
                         context = context,
-                        mime = cursor.getString(0),
+                        mime = cursor.getString(0) ?: "",
                         uri = documentUri,
-                        name = cursor.getString(1),
+                        name = cursor.getString(1) ?: documentUri.lastPathSegment ?: "unknown",
                         size = cursor.getLong(2),
                         lastModified = cursor.getLong(3),
                     )

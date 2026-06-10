@@ -24,12 +24,56 @@ import 'package:uri_content/uri_content.dart';
 import 'package:uuid/uuid.dart';
 
 const _uuid = Uuid();
+const quickShareExpiry = Duration(minutes: 10);
 
 /// Handles all requests for sending files.
 class SendController {
   final ServerUtils server;
 
   SendController(this.server);
+
+  WebSendState? get _webSendState => server.getState().webSendState;
+
+  bool _isWebShareActive() {
+    final state = _webSendState;
+    if (state == null) {
+      return false;
+    }
+
+    return !state.isInvalid;
+  }
+
+  bool _isShareTokenValid(String? token) {
+    final state = _webSendState;
+    if (state == null) {
+      return false;
+    }
+
+    if (state.shareToken != null && state.shareToken != token) {
+      return false;
+    }
+
+    return true;
+  }
+
+  void _markSingleUseConsumed() {
+    final state = _webSendState;
+    if (state == null || !state.singleUse || state.consumed) {
+      return;
+    }
+
+    server.setState(
+      (oldState) => oldState!.copyWith(
+        webSendState: oldState.webSendState!.copyWith(consumed: true),
+      ),
+    );
+  }
+
+  void clearWebSend() {
+    server.setState(
+      (oldState) => oldState?.copyWith(webSendState: null),
+    );
+  }
 
   /// Installs all routes for receiving files.
   void installRoutes({
@@ -38,9 +82,11 @@ class SendController {
     required String fingerprint,
   }) {
     router.get('/', (HttpRequest request) async {
-      final state = server.getState();
-      if (state.webSendState == null) {
-        // There is no web send state
+      if (_webSendState == null) {
+        return await request.respondAsset(403, Assets.web.error403);
+      }
+
+      if (!_isWebShareActive()) {
         return await request.respondAsset(403, Assets.web.error403);
       }
 
@@ -48,9 +94,11 @@ class SendController {
     });
 
     router.get('/main.js', (HttpRequest request) async {
-      final state = server.getState();
-      if (state.webSendState == null) {
-        // There is no web send state
+      if (_webSendState == null) {
+        return await request.respondAsset(403, Assets.web.error403);
+      }
+
+      if (!_isWebShareActive()) {
         return await request.respondAsset(403, Assets.web.error403);
       }
 
@@ -58,10 +106,12 @@ class SendController {
     });
 
     router.get('/i18n.json', (HttpRequest request) async {
-      final state = server.getState();
-      if (state.webSendState == null) {
-        // There is no web send state
+      if (_webSendState == null) {
         return await request.respondJson(403, message: 'Web send not initialized.');
+      }
+
+      if (!_isWebShareActive()) {
+        return await request.respondJson(403, message: 'Web send expired or invalid.');
       }
 
       return await request.respondJson(
@@ -82,7 +132,6 @@ class SendController {
     router.post(ApiRoute.prepareDownload.v2, (HttpRequest request) async {
       final state = server.getState();
       if (state.webSendState == null) {
-        // There is no web send state
         return request.respondJson(403, message: 'Web send not initialized.');
       }
 
@@ -110,6 +159,10 @@ class SendController {
             ).toJson(),
           );
         }
+      }
+
+      if (!_isWebShareActive() || !_isShareTokenValid(request.uri.queryParameters['token'])) {
+        return request.respondJson(403, message: 'Web send expired or invalid.');
       }
 
       final pinCorrect = await checkPin(
@@ -168,6 +221,7 @@ class SendController {
           ),
         ),
       );
+      _markSingleUseConsumed();
       final deviceInfo = server.ref.read(deviceInfoProvider);
       return await request.respondJson(
         200,
@@ -248,7 +302,14 @@ class SendController {
     });
   }
 
-  Future<void> initializeWebSend({required List<CrossFile> files}) async {
+  Future<void> initializeWebSend({
+    required List<CrossFile> files,
+    bool singleUse = false,
+    Duration? expiry,
+  }) async {
+    final shareToken = singleUse ? _uuid.v4() : null;
+    final expiresAt = singleUse ? DateTime.now().add(expiry ?? quickShareExpiry) : null;
+
     final webSendState = WebSendState(
       sessions: {},
       files: Map.fromEntries(
@@ -282,9 +343,12 @@ class SendController {
           }),
         ),
       ),
-      autoAccept: server.ref.read(settingsProvider).shareViaLinkAutoAccept,
+      autoAccept: singleUse ? true : server.ref.read(settingsProvider).shareViaLinkAutoAccept,
       pin: null,
       pinAttempts: {},
+      singleUse: singleUse,
+      shareToken: shareToken,
+      expiresAt: expiresAt,
     );
 
     server.setState(

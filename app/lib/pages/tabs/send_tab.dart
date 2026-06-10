@@ -16,6 +16,7 @@ import 'package:localsend_app/provider/network/send_provider.dart';
 import 'package:localsend_app/provider/progress_provider.dart';
 import 'package:localsend_app/provider/selection/selected_sending_files_provider.dart';
 import 'package:localsend_app/provider/settings_provider.dart';
+import 'package:localsend_app/provider/tv_provider.dart';
 import 'package:localsend_app/util/favorites.dart';
 import 'package:localsend_app/util/file_size_helper.dart';
 import 'package:localsend_app/util/native/file_picker.dart';
@@ -23,6 +24,8 @@ import 'package:localsend_app/util/native/platform_check.dart';
 import 'package:localsend_app/widget/big_button.dart';
 import 'package:localsend_app/widget/custom_icon_button.dart';
 import 'package:localsend_app/widget/dialogs/add_file_dialog.dart';
+import 'package:localsend_app/pages/qr_scan_page.dart';
+import 'package:localsend_app/widget/dialogs/qr_share_dialog.dart';
 import 'package:localsend_app/widget/dialogs/send_mode_help_dialog.dart';
 import 'package:localsend_app/widget/file_thumbnail.dart';
 import 'package:localsend_app/widget/list_tile/device_list_tile.dart';
@@ -98,6 +101,19 @@ class SendTab extends StatelessWidget {
                                 style: Theme.of(context).textTheme.titleMedium,
                               ),
                               const Spacer(),
+                              Tooltip(
+                                message: t.dialogs.qr.shareTitle,
+                                child: CustomIconButton(
+                                  onPressed: () async {
+                                    await QrShareDialog.open(
+                                      context: context,
+                                      files: vm.selectedFiles,
+                                    );
+                                  },
+                                  child: Icon(Icons.qr_code, color: Theme.of(context).colorScheme.primary),
+                                ),
+                              ),
+                              const SizedBox(width: 5),
                               CustomIconButton(
                                 onPressed: () => ref.redux(selectedSendingFilesProvider).dispatch(ClearSelectionAction()),
                                 child: Icon(Icons.close, color: Theme.of(context).colorScheme.secondary),
@@ -182,6 +198,14 @@ class SendTab extends StatelessWidget {
                     _ScanButton(
                       ips: vm.localIps,
                     ),
+                    if (checkPlatformWithCamera() && !ref.watch(tvProvider))
+                      Tooltip(
+                        message: t.dialogs.qr.scanTitle,
+                        child: CustomIconButton(
+                          onPressed: () async => QrScanPage.open(context),
+                          child: const Icon(Icons.qr_code_scanner),
+                        ),
+                      ),
                     Tooltip(
                       message: t.sendTab.manualSending,
                       child: CustomIconButton(

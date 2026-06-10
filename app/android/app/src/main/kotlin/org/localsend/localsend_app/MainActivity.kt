@@ -7,7 +7,9 @@ import android.content.Intent
 import android.database.Cursor
 import android.net.Uri
 import android.provider.DocumentsContract
+import android.provider.OpenableColumns
 import android.provider.Settings
+import android.util.Log
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodCall
@@ -18,6 +20,7 @@ private const val CHANNEL = "org.localsend.localsend_app/localsend"
 private const val REQUEST_CODE_PICK_DIRECTORY = 1
 private const val REQUEST_CODE_PICK_DIRECTORY_PATH = 2
 private const val REQUEST_CODE_PICK_FILE = 3
+private const val TAG = "MainActivity"
 
 class MainActivity : FlutterActivity() {
     private var pendingResult: MethodChannel.Result? = null
@@ -121,10 +124,8 @@ class MainActivity : FlutterActivity() {
         when (requestCode) {
             REQUEST_CODE_PICK_DIRECTORY -> {
                 val uri: Uri? = data.data
-                val takeFlags: Int =
-                    data.flags and (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
                 if (uri != null) {
-                    contentResolver.takePersistableUriPermission(uri, takeFlags)
+                    tryTakePersistableUriPermission(uri, data)
 
                     val files = mutableListOf<FileInfo>()
                     listFiles(uri, files)
@@ -139,10 +140,8 @@ class MainActivity : FlutterActivity() {
 
             REQUEST_CODE_PICK_DIRECTORY_PATH -> {
                 val uri: Uri? = data.data
-                val takeFlags: Int =
-                    data.flags and (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
                 if (uri != null) {
-                    contentResolver.takePersistableUriPermission(uri, takeFlags)
+                    tryTakePersistableUriPermission(uri, data)
                     pendingResult?.success(uri.toString())
                     pendingResult = null
                 } else {
@@ -169,25 +168,14 @@ class MainActivity : FlutterActivity() {
                     }
                 }
 
-                val takeFlags: Int =
-                    data.flags and (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-
                 val resultList = mutableListOf<FileInfo>()
                 for (uri in uriList) {
-                    contentResolver.takePersistableUriPermission(uri, takeFlags)
-                    val documentFile = FastDocumentFile.fromDocumentUri(this, uri)
-                    if (documentFile == null) {
+                    val fileInfo = buildFileInfo(uri, data)
+                    if (fileInfo == null) {
                         pendingResult?.error("Error", "Failed to access file", null)
                         return
                     }
-                    resultList.add(
-                        FileInfo(
-                            name = documentFile.name,
-                            size = documentFile.size,
-                            uri = uri.toString(),
-                            lastModified = documentFile.lastModified,
-                        )
-                    )
+                    resultList.add(fileInfo)
                 }
 
                 pendingResult?.success(resultList.map { it.toMap() })
@@ -270,6 +258,84 @@ class MainActivity : FlutterActivity() {
         intent.action = Intent.ACTION_VIEW
         intent.type = "image/*"
         startActivity(intent)
+    }
+
+    private fun tryTakePersistableUriPermission(uri: Uri, data: Intent) {
+        if (data.flags and Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION == 0) {
+            return
+        }
+
+        val takeFlags =
+            data.flags and (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+        try {
+            contentResolver.takePersistableUriPermission(uri, takeFlags)
+        } catch (e: SecurityException) {
+            // Many document providers do not support persistable permissions.
+            // The temporary read grant from the picker result is still valid for this session.
+            Log.w(TAG, "Could not take persistable URI permission for $uri", e)
+        }
+    }
+
+    private fun buildFileInfo(uri: Uri, data: Intent): FileInfo? {
+        tryTakePersistableUriPermission(uri, data)
+
+        val documentFile = FastDocumentFile.fromDocumentUri(this, uri)
+        if (documentFile != null) {
+            return FileInfo(
+                name = documentFile.name,
+                size = documentFile.size,
+                uri = uri.toString(),
+                lastModified = documentFile.lastModified,
+            )
+        }
+
+        return buildFileInfoFromOpenableColumns(uri)
+    }
+
+    private fun buildFileInfoFromOpenableColumns(uri: Uri): FileInfo? {
+        var name: String? = null
+        var size = 0L
+        var lastModified = 0L
+
+        var cursor: Cursor? = null
+        try {
+            cursor = contentResolver.query(uri, null, null, null, null)
+            if (cursor != null && cursor.moveToFirst()) {
+                val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                if (nameIndex >= 0) {
+                    name = cursor.getString(nameIndex)
+                }
+
+                val sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
+                if (sizeIndex >= 0 && !cursor.isNull(sizeIndex)) {
+                    size = cursor.getLong(sizeIndex)
+                }
+
+                val lastModifiedIndex = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)
+                if (lastModifiedIndex >= 0 && !cursor.isNull(lastModifiedIndex)) {
+                    lastModified = cursor.getLong(lastModifiedIndex)
+                }
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to query file metadata for $uri", e)
+        } finally {
+            cursor?.close()
+        }
+
+        if (name.isNullOrBlank()) {
+            name = uri.lastPathSegment
+        }
+
+        if (name.isNullOrBlank()) {
+            return null
+        }
+
+        return FileInfo(
+            name = name,
+            size = size,
+            uri = uri.toString(),
+            lastModified = lastModified,
+        )
     }
 }
 

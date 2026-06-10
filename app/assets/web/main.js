@@ -6,14 +6,20 @@ var i18n = {};
 var sessionId = sessionStorage.getItem('sessionId');
 var queryParams = location.search.slice(1).split('&');
 var queryPin = null;
+var queryToken = null;
 
 // Parse query parameters manually for IE
 for (var i = 0; i < queryParams.length; i++) {
   var pair = queryParams[i].split('=');
   if (pair[0] === 'pin') {
     queryPin = decodeURIComponent(pair[1]);
-    break;
+  } else if (pair[0] === 'token') {
+    queryToken = decodeURIComponent(pair[1]);
   }
+}
+
+function appendQueryParam(url, key, value) {
+  return url + (url.indexOf('?') >= 0 ? '&' : '?') + key + '=' + encodeURIComponent(value);
 }
 
 function firstRequestFiles() {
@@ -21,12 +27,20 @@ function firstRequestFiles() {
   var initialUrl = BASE_URL + '/prepare-download';
 
   if (sessionId) {
-    initialUrl += '?sessionId=' + encodeURIComponent(sessionId);
+    initialUrl = appendQueryParam(initialUrl, 'sessionId', sessionId);
     if (queryPin) {
-      initialUrl += '&pin=' + encodeURIComponent(queryPin);
+      initialUrl = appendQueryParam(initialUrl, 'pin', queryPin);
     }
-  } else if (queryPin) {
-    initialUrl += '?pin=' + encodeURIComponent(queryPin);
+    if (queryToken) {
+      initialUrl = appendQueryParam(initialUrl, 'token', queryToken);
+    }
+  } else {
+    if (queryPin) {
+      initialUrl = appendQueryParam(initialUrl, 'pin', queryPin);
+    }
+    if (queryToken) {
+      initialUrl = appendQueryParam(initialUrl, 'token', queryToken);
+    }
   }
 
   makeRequest(initialUrl, 'POST', function (response) {
@@ -61,7 +75,11 @@ function pinRequestFiles(firstAttempt) {
     return;
   }
 
-  makeRequest(BASE_URL + '/prepare-download?pin=' + encodeURIComponent(pin), 'POST', function (response) {
+  var pinUrl = appendQueryParam(BASE_URL + '/prepare-download', 'pin', pin);
+  if (queryToken) {
+    pinUrl = appendQueryParam(pinUrl, 'token', queryToken);
+  }
+  makeRequest(pinUrl, 'POST', function (response) {
     if (response.status === 401) {
       pinRequestFiles(false);
       return;
@@ -123,15 +141,15 @@ function handleSuccess(response) {
 }
 
 function handleFilesDisplay(files, sessionId) {
-  var html= '';
+  var html = '';
   var fileKeys = getKeys(files);
   for (var i = 0; i < fileKeys.length; i++) {
     var file = files[fileKeys[i]];
     html += '<a class="file-item" href="' + BASE_URL + '/download?sessionId=' + encodeURIComponent(sessionId) + '&fileId=' + encodeURIComponent(fileKeys[i]) + '">' +
-        '<div class="file-index-cell">' + (i + 1) + '</div>' +
-        '<div class="file-name-cell">' + escapeHtml(file.fileName) + '</div>' +
-        '<div class="file-size-cell">' + formatBytes(file.size) + '</div>' +
-        '</a>';
+      '<div class="file-index-cell">' + (i + 1) + '</div>' +
+      '<div class="file-name-cell">' + escapeHtml(file.fileName) + '</div>' +
+      '<div class="file-size-cell">' + formatBytes(file.size) + '</div>' +
+      '</a>';
   }
 
   if (fileKeys.length === 1) {
@@ -152,7 +170,7 @@ function escapeHtml(text) {
     '"': '&quot;',
     "'": '&#039;'
   };
-  return String(text).replace(/[&<>"']/g, function(m) { return map[m]; });
+  return String(text).replace(/[&<>"']/g, function (m) { return map[m]; });
 }
 
 function formatBytes(bytes) {
@@ -170,7 +188,7 @@ function formatBytes(bytes) {
 function getKeys(obj) {
   var keys = [];
   for (var key in obj) {
-      keys.push(key);
+    keys.push(key);
   }
   return keys;
 }

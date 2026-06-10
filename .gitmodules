@@ -1,3 +1,6 @@
 [submodule "submodules/flutter"]
 	path = submodules/flutter
 	url = https://github.com/flutter/flutter.git
+[submodule ".cursor"]
+	path = .cursor
+	url = https://github.com/MikeKen-Ken/cursor-rule.git

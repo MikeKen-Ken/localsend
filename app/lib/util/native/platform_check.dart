@@ -37,6 +37,11 @@ bool checkPlatformWithGallery() {
   return checkPlatform([TargetPlatform.android, TargetPlatform.iOS]);
 }
 
+/// This platform supports camera-based QR scanning
+bool checkPlatformWithCamera() {
+  return checkPlatform([TargetPlatform.android, TargetPlatform.iOS, TargetPlatform.macOS]);
+}
+
 /// This platform has access to file system
 /// On android, do not allow to change
 bool checkPlatformWithFileSystem() {

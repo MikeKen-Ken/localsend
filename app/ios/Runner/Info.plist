@@ -49,9 +49,12 @@
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 
-	<!-- Flag to skip question by Appstore -->
+    <!-- Flag to skip question by Appstore -->
 	<key>ITSAppUsesNonExemptEncryption</key>
     <false/>
+
+    <key>NSCameraUsageDescription</key>
+    <string>LocalSend needs camera access to scan QR codes for file sharing.</string>
 
 	<key>CFBundleLocalizations</key>
 	<array>
