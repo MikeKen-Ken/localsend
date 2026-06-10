@@ -1,13 +1,11 @@
 import 'package:collection/collection.dart';
 import 'package:common/isolate.dart';
-import 'package:common/model/dto/multicast_dto.dart';
 import 'package:common/model/device.dart';
 import 'package:flutter/material.dart';
 import 'package:localsend_app/gen/strings.g.dart';
 import 'package:localsend_app/model/persistence/color_mode.dart';
 import 'package:localsend_app/model/send_mode.dart';
 import 'package:localsend_app/model/state/settings_state.dart';
-import 'package:localsend_app/provider/network/server/server_provider.dart';
 import 'package:localsend_app/provider/persistence_provider.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 
@@ -40,18 +38,17 @@ final settingsProvider = NotifierProvider<SettingsService, SettingsState>(
     }
 
     if (syncState.avatarUrl != next.avatarUrl) {
-      final serverState = ref.read(serverProvider);
       ref.redux(parentIsolateProvider).dispatch(
             IsolateSyncServerStateAction(
-              alias: serverState?.alias ?? next.alias,
+              alias: syncState.alias,
               avatarUrl: next.avatarUrl,
-              port: serverState?.port ?? next.port,
-              protocol: (serverState?.https ?? next.https) ? ProtocolType.https : ProtocolType.http,
-              serverRunning: serverState != null,
-              download: serverState?.webSendState != null,
+              port: syncState.port,
+              protocol: syncState.protocol,
+              serverRunning: syncState.serverRunning,
+              download: syncState.download,
             ),
           );
-      if (serverState != null) {
+      if (syncState.serverRunning) {
         ref.redux(parentIsolateProvider).dispatch(IsolateSendMulticastAnnouncementAction());
       }
     }
