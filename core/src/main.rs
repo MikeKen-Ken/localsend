@@ -133,6 +133,7 @@ async fn server_test() -> Result<()> {
         alias: "Server-Test".to_string(),
         version: "1.2.3".to_string(),
         device_model: None,
+        avatar_url: None,
         device_type: None,
         token: "456".to_string(),
     };

@@ -1809,6 +1809,7 @@ const _: fn() = || {
         let _: String = RegisterDto.alias;
         let _: String = RegisterDto.version;
         let _: Option<String> = RegisterDto.device_model;
+        let _: Option<String> = RegisterDto.avatar_url;
         let _: Option<crate::api::model::DeviceType> = RegisterDto.device_type;
         let _: String = RegisterDto.token;
         let _: u16 = RegisterDto.port;
@@ -1820,6 +1821,7 @@ const _: fn() = || {
         let _: String = RegisterResponseDto.alias;
         let _: String = RegisterResponseDto.version;
         let _: Option<String> = RegisterResponseDto.device_model;
+        let _: Option<String> = RegisterResponseDto.avatar_url;
         let _: Option<crate::api::model::DeviceType> = RegisterResponseDto.device_type;
         let _: String = RegisterResponseDto.token;
         let _: bool = RegisterResponseDto.has_web_interface;
@@ -2610,6 +2612,7 @@ impl SseDecode for crate::api::model::RegisterDto {
         let mut var_alias = <String>::sse_decode(deserializer);
         let mut var_version = <String>::sse_decode(deserializer);
         let mut var_deviceModel = <Option<String>>::sse_decode(deserializer);
+        let mut var_avatarUrl = <Option<String>>::sse_decode(deserializer);
         let mut var_deviceType = <Option<crate::api::model::DeviceType>>::sse_decode(deserializer);
         let mut var_token = <String>::sse_decode(deserializer);
         let mut var_port = <u16>::sse_decode(deserializer);
@@ -2619,6 +2622,7 @@ impl SseDecode for crate::api::model::RegisterDto {
             alias: var_alias,
             version: var_version,
             device_model: var_deviceModel,
+            avatar_url: var_avatarUrl,
             device_type: var_deviceType,
             token: var_token,
             port: var_port,
@@ -2634,6 +2638,7 @@ impl SseDecode for crate::api::model::RegisterResponseDto {
         let mut var_alias = <String>::sse_decode(deserializer);
         let mut var_version = <String>::sse_decode(deserializer);
         let mut var_deviceModel = <Option<String>>::sse_decode(deserializer);
+        let mut var_avatarUrl = <Option<String>>::sse_decode(deserializer);
         let mut var_deviceType = <Option<crate::api::model::DeviceType>>::sse_decode(deserializer);
         let mut var_token = <String>::sse_decode(deserializer);
         let mut var_hasWebInterface = <bool>::sse_decode(deserializer);
@@ -2641,6 +2646,7 @@ impl SseDecode for crate::api::model::RegisterResponseDto {
             alias: var_alias,
             version: var_version,
             device_model: var_deviceModel,
+            avatar_url: var_avatarUrl,
             device_type: var_deviceType,
             token: var_token,
             has_web_interface: var_hasWebInterface,
@@ -3464,6 +3470,7 @@ impl flutter_rust_bridge::IntoDart for FrbWrapper<crate::api::model::RegisterDto
             self.0.alias.into_into_dart().into_dart(),
             self.0.version.into_into_dart().into_dart(),
             self.0.device_model.into_into_dart().into_dart(),
+            self.0.avatar_url.into_into_dart().into_dart(),
             self.0.device_type.into_into_dart().into_dart(),
             self.0.token.into_into_dart().into_dart(),
             self.0.port.into_into_dart().into_dart(),
@@ -3491,6 +3498,7 @@ impl flutter_rust_bridge::IntoDart for FrbWrapper<crate::api::model::RegisterRes
             self.0.alias.into_into_dart().into_dart(),
             self.0.version.into_into_dart().into_dart(),
             self.0.device_model.into_into_dart().into_dart(),
+            self.0.avatar_url.into_into_dart().into_dart(),
             self.0.device_type.into_into_dart().into_dart(),
             self.0.token.into_into_dart().into_dart(),
             self.0.has_web_interface.into_into_dart().into_dart(),
@@ -4302,6 +4310,7 @@ impl SseEncode for crate::api::model::RegisterDto {
         <String>::sse_encode(self.alias, serializer);
         <String>::sse_encode(self.version, serializer);
         <Option<String>>::sse_encode(self.device_model, serializer);
+        <Option<String>>::sse_encode(self.avatar_url, serializer);
         <Option<crate::api::model::DeviceType>>::sse_encode(self.device_type, serializer);
         <String>::sse_encode(self.token, serializer);
         <u16>::sse_encode(self.port, serializer);
@@ -4316,6 +4325,7 @@ impl SseEncode for crate::api::model::RegisterResponseDto {
         <String>::sse_encode(self.alias, serializer);
         <String>::sse_encode(self.version, serializer);
         <Option<String>>::sse_encode(self.device_model, serializer);
+        <Option<String>>::sse_encode(self.avatar_url, serializer);
         <Option<crate::api::model::DeviceType>>::sse_encode(self.device_type, serializer);
         <String>::sse_encode(self.token, serializer);
         <bool>::sse_encode(self.has_web_interface, serializer);

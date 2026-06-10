@@ -15,6 +15,9 @@ pub struct ClientInfo {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub device_model: Option<String>,
 
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub avatar_url: Option<String>,
+
     /// The device type of the peer.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub device_type: Option<DeviceType>,

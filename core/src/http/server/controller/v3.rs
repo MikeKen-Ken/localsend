@@ -65,6 +65,7 @@ pub(crate) async fn register(
             alias: info.alias,
             version: info.version,
             device_model: info.device_model,
+            avatar_url: info.avatar_url,
             device_type: info.device_type,
             token: info.token,
             has_web_interface,
