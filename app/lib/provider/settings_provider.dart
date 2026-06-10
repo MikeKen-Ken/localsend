@@ -11,7 +11,7 @@ import 'package:refena_flutter/refena_flutter.dart';
 
 final _listEq = const ListEquality().equals;
 
-final settingsProvider = NotifierProvider<SettingsService, SettingsState>(
+final NotifierProvider<SettingsService, SettingsState> settingsProvider = NotifierProvider<SettingsService, SettingsState>(
   (ref) {
     return SettingsService(ref.read(persistenceProvider));
   },
