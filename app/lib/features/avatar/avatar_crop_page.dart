@@ -6,7 +6,7 @@ import 'package:image/image.dart' as img;
 import 'package:localsend_app/gen/strings.g.dart';
 import 'package:routerino/routerino.dart';
 
-class AvatarCropPage extends StatefulWidget {
+class AvatarCropPage extends StatefulWidget with PopsWithResult<Uint8List?> {
   final Uint8List imageBytes;
 
   const AvatarCropPage({
@@ -17,7 +17,9 @@ class AvatarCropPage extends StatefulWidget {
     required BuildContext context,
     required Uint8List imageBytes,
   }) {
-    return context.push<Uint8List?>(() => AvatarCropPage(imageBytes: imageBytes));
+    return context.pushWithResult<Uint8List?, AvatarCropPage>(
+      () => AvatarCropPage(imageBytes: imageBytes),
+    );
   }
 
   @override
@@ -74,7 +76,8 @@ class _AvatarCropPageState extends State<AvatarCropPage> {
     final half = _cropSize / 2;
     final left = (_cropCenterX - half).round().clamp(0, _image.width - 1);
     final top = (_cropCenterY - half).round().clamp(0, _image.height - 1);
-    final size = _cropSize.round().clamp(1, min(_image.width - left, _image.height - top));
+    final maxSize = min<int>(_image.width - left, _image.height - top);
+    final size = _cropSize.round().clamp(1, maxSize);
     final cropped = img.copyCrop(_image, x: left, y: top, width: size, height: size);
     return Uint8List.fromList(img.encodePng(cropped));
   }
@@ -92,7 +95,7 @@ class _AvatarCropPageState extends State<AvatarCropPage> {
           TextButton(
             onPressed: () {
               final result = _cropImage();
-              context.pop(result);
+              widget.popWithResult(context, result);
             },
             child: Text(t.settingsTab.network.avatar.confirm),
           ),
