@@ -3,6 +3,8 @@ import 'package:common/constants.dart';
 import 'package:common/isolate.dart';
 import 'package:common/model/device.dart';
 import 'package:common/model/device_info_result.dart';
+import 'package:localsend_app/features/avatar/avatar_provider.dart';
+import 'package:localsend_app/features/avatar/avatar_service.dart';
 import 'package:localsend_app/provider/local_ip_provider.dart';
 import 'package:localsend_app/provider/network/server/server_provider.dart';
 import 'package:localsend_app/provider/security_provider.dart';
@@ -33,17 +35,25 @@ final deviceFullInfoProvider = ViewProvider((ref) {
   final networkInfo = ref.watch(localIpProvider);
   final serverState = ref.watch(serverProvider);
   final rawInfo = ref.watch(deviceInfoProvider);
+  final settings = ref.watch(settingsProvider.select((s) => (s.alias, s.avatarUrl, s.https)));
+  final hasLocalAvatar = ref.watch(avatarLocalProvider);
   final securityContext = ref.read(securityProvider);
   return Device(
     signalingId: null,
     ip: networkInfo.localIps.firstOrNull ?? '-',
     version: protocolVersion,
     port: serverState?.port ?? -1,
-    alias: serverState?.alias ?? '-',
+    alias: serverState?.alias ?? settings.$1,
     https: serverState?.https ?? true,
     fingerprint: securityContext.certificateHash,
     deviceModel: rawInfo.deviceModel,
-    avatarUrl: ref.watch(settingsProvider.select((s) => s.avatarUrl)),
+    avatarUrl: AvatarService.resolveAvatarUrl(
+      externalAvatarUrl: settings.$2,
+      hasLocalAvatar: hasLocalAvatar,
+      localIp: networkInfo.localIps.firstOrNull,
+      port: serverState?.port,
+      https: serverState?.https ?? settings.$3,
+    ),
     deviceType: rawInfo.deviceType,
     download: serverState?.webSendState != null,
     discoveryMethods: const {},

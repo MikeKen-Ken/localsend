@@ -132,6 +132,15 @@
       "server": "服务器",
       "alias": "设备名称",
       "avatarUrl": "头像 URL",
+      "avatar": {
+        "title": "头像",
+        "pickImage": "选择图片",
+        "remove": "移除",
+        "cropTitle": "裁剪头像",
+        "cropSize": "选区大小",
+        "confirm": "确定",
+        "cancel": "取消"
+      },
       "deviceType": "设备类型",
       "deviceModel": "设备型号",
       "port": "端口",

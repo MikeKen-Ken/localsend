@@ -12,6 +12,7 @@ import 'package:localsend_app/pages/about/about_page.dart';
 import 'package:localsend_app/pages/changelog_page.dart';
 import 'package:localsend_app/pages/donation/donation_page.dart';
 import 'package:localsend_app/pages/language_page.dart';
+import 'package:localsend_app/features/avatar/avatar_settings_entry.dart';
 import 'package:localsend_app/pages/settings/network_interfaces_page.dart';
 import 'package:localsend_app/pages/tabs/settings_tab_controller.dart';
 import 'package:localsend_app/provider/settings_provider.dart';
@@ -370,14 +371,15 @@ class SettingsTab extends StatelessWidget {
                           ],
                         ),
                       ),
-                      _SettingsEntry(
-                        label: t.settingsTab.network.avatarUrl,
-                        child: TextFieldTv(
-                          name: t.settingsTab.network.avatarUrl,
-                          controller: vm.avatarUrlController,
-                          onChanged: (s) async {
-                            await ref.notifier(settingsProvider).setAvatarUrl(s);
-                          },
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 15),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(t.settingsTab.network.avatar.title),
+                            const SizedBox(height: 10),
+                            AvatarSettingsEntry(urlController: vm.avatarUrlController),
+                          ],
                         ),
                       ),
                       if (vm.advanced)

@@ -15,6 +15,7 @@ import 'package:localsend_app/model/cross_file.dart';
 import 'package:localsend_app/model/state/send/web/web_send_file.dart';
 import 'package:localsend_app/model/state/send/web/web_send_session.dart';
 import 'package:localsend_app/model/state/send/web/web_send_state.dart';
+import 'package:localsend_app/features/avatar/avatar_server_helper.dart';
 import 'package:localsend_app/provider/device_info_provider.dart';
 import 'package:localsend_app/provider/network/server/controller/common.dart';
 import 'package:localsend_app/provider/network/server/server_utils.dart';
@@ -141,7 +142,7 @@ class SendController {
         final session = server.getState().webSendState?.sessions[requestSessionId];
         if (session != null && session.responseHandler == null && session.ip == request.ip) {
           final deviceInfo = server.ref.read(deviceInfoProvider);
-          final avatarUrl = server.ref.read(settingsProvider).avatarUrl;
+          final avatarUrl = resolveAvatarUrlForServer(server);
           return await request.respondJson(
             200,
             body: ReceiveRequestResponseDto(
@@ -225,7 +226,7 @@ class SendController {
       );
       _markSingleUseConsumed();
       final deviceInfo = server.ref.read(deviceInfoProvider);
-      final avatarUrl = server.ref.read(settingsProvider).avatarUrl;
+      final avatarUrl = resolveAvatarUrlForServer(server);
       return await request.respondJson(
         200,
         body: ReceiveRequestResponseDto(

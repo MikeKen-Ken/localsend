@@ -5,6 +5,7 @@ import 'package:common/model/session_status.dart';
 import 'package:flutter/material.dart';
 import 'package:localsend_app/config/theme.dart';
 import 'package:localsend_app/gen/strings.g.dart';
+import 'package:localsend_app/features/avatar/avatar_provider.dart';
 import 'package:localsend_app/provider/device_info_provider.dart';
 import 'package:localsend_app/provider/favorites_provider.dart';
 import 'package:localsend_app/provider/network/send_provider.dart';
@@ -78,6 +79,7 @@ class _SendPageState extends State<SendPage> with Refena {
       );
     }
     final myDevice = ref.watch(deviceFullInfoProvider);
+    final hasLocalAvatar = ref.watch(avatarLocalProvider);
     final targetDevice = sendState?.target ?? _targetDevice!;
     final targetFavoriteEntry = ref.watch(favoritesProvider.select((state) => state.findDevice(targetDevice)));
     final waiting = sendState?.status == SessionStatus.waiting;
@@ -107,6 +109,7 @@ class _SendPageState extends State<SendPage> with Refena {
                             duration: const Duration(milliseconds: 400),
                             child: DeviceListTile(
                               device: myDevice,
+                              useLocalAvatarFile: hasLocalAvatar,
                             ),
                           ),
                           const SizedBox(height: 20),

@@ -4,6 +4,7 @@ import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/material.dart';
 import 'package:localsend_app/config/init.dart';
+import 'package:localsend_app/features/avatar/avatar_provider.dart';
 import 'package:localsend_app/config/theme.dart';
 import 'package:localsend_app/gen/strings.g.dart';
 import 'package:localsend_app/pages/home_page_controller.dart';
@@ -70,6 +71,7 @@ class _HomePageState extends State<HomePage> with Refena {
   @override
   Widget build(BuildContext context) {
     Translations.of(context); // rebuild on locale change
+    ref.watch(avatarResolvedUrlProvider);
     final vm = context.watch(homePageControllerProvider);
 
     return DropTarget(

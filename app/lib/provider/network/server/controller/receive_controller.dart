@@ -24,6 +24,8 @@ import 'package:localsend_app/pages/home_page.dart';
 import 'package:localsend_app/pages/home_page_controller.dart';
 import 'package:localsend_app/pages/progress_page.dart';
 import 'package:localsend_app/pages/receive_page.dart';
+import 'package:localsend_app/features/avatar/avatar_server_helper.dart';
+import 'package:localsend_app/features/avatar/avatar_service.dart';
 import 'package:localsend_app/provider/device_info_provider.dart';
 import 'package:localsend_app/provider/favorites_provider.dart';
 import 'package:localsend_app/provider/http_provider.dart';
@@ -119,6 +121,27 @@ class ReceiveController {
     router.post(ApiRoute.show.v2, (HttpRequest request) async {
       return await _showHandler(request: request, showToken: showToken);
     });
+
+    router.get(ApiRoute.avatar.v1, (HttpRequest request) async {
+      return await _avatarHandler(request);
+    });
+
+    router.get(ApiRoute.avatar.v2, (HttpRequest request) async {
+      return await _avatarHandler(request);
+    });
+  }
+
+  Future<void> _avatarHandler(HttpRequest request) async {
+    final bytes = await AvatarService.readLocalAvatarBytes();
+    if (bytes == null) {
+      return request.respondJson(404, message: 'Avatar not found');
+    }
+
+    request.response
+      ..statusCode = HttpStatus.ok
+      ..headers.contentType = ContentType('image', 'png')
+      ..add(bytes);
+    await request.response.close();
   }
 
   Future<void> _infoHandler({
@@ -133,7 +156,7 @@ class ReceiveController {
     }
 
     final deviceInfo = server.ref.read(deviceInfoProvider);
-    final avatarUrl = server.ref.read(settingsProvider).avatarUrl;
+    final avatarUrl = resolveAvatarUrlForServer(server);
 
     final dto = InfoDto(
       alias: alias,
@@ -175,7 +198,7 @@ class ReceiveController {
     server.ref.notifier(discoveryLoggerProvider).addLog('[DISCOVER/TCP] Received "/register" HTTP request: ${requestDto.alias} (${request.ip})');
 
     final deviceInfo = server.ref.read(deviceInfoProvider);
-    final avatarUrl = server.ref.read(settingsProvider).avatarUrl;
+    final avatarUrl = resolveAvatarUrlForServer(server);
 
     final responseDto = InfoDto(
       alias: alias,

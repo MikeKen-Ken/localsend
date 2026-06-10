@@ -17,6 +17,7 @@ class DeviceListTile extends StatelessWidget {
   final double? progress;
   final VoidCallback? onTap;
   final VoidCallback? onFavoriteTap;
+  final bool useLocalAvatarFile;
 
   const DeviceListTile({
     required this.device,
@@ -26,13 +27,14 @@ class DeviceListTile extends StatelessWidget {
     this.progress,
     this.onTap,
     this.onFavoriteTap,
+    this.useLocalAvatarFile = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final badgeColor = Color.lerp(Theme.of(context).colorScheme.secondaryContainer, Colors.white, 0.3)!;
     return CustomListTile(
-      icon: DeviceAvatar(device: device),
+      icon: DeviceAvatar(device: device, useLocalAvatarFile: useLocalAvatarFile),
       title: Text(nameOverride ?? device.alias, style: const TextStyle(fontSize: 20)),
       trailing: onFavoriteTap != null
           ? IconButton(

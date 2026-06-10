@@ -947,6 +947,8 @@ class _TranslationsSettingsTabNetworkZhCn extends TranslationsSettingsTabNetwork
   @override
   String get avatarUrl => '头像 URL';
   @override
+  late final _TranslationsSettingsTabNetworkAvatarZhCn avatar = _TranslationsSettingsTabNetworkAvatarZhCn._(_root);
+  @override
   String get deviceType => '设备类型';
   @override
   String get deviceModel => '设备型号';
@@ -1545,6 +1547,29 @@ class _TranslationsSettingsTabGeneralLanguageOptionsZhCn extends TranslationsSet
   // Translations
   @override
   String get system => '跟随系统';
+}
+
+// Path: settingsTab.network.avatar
+class _TranslationsSettingsTabNetworkAvatarZhCn extends TranslationsSettingsTabNetworkAvatarEn {
+  _TranslationsSettingsTabNetworkAvatarZhCn._(TranslationsZhCn root) : this._root = root, super.internal(root);
+
+  final TranslationsZhCn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => '头像';
+  @override
+  String get pickImage => '选择图片';
+  @override
+  String get remove => '移除';
+  @override
+  String get cropTitle => '裁剪头像';
+  @override
+  String get cropSize => '选区大小';
+  @override
+  String get confirm => '确定';
+  @override
+  String get cancel => '取消';
 }
 
 // Path: settingsTab.network.networkOptions

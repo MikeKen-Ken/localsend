@@ -132,6 +132,15 @@
       "server": "Server",
       "alias": "Device name",
       "avatarUrl": "Avatar URL",
+      "avatar": {
+        "title": "Avatar",
+        "pickImage": "Choose image",
+        "remove": "Remove",
+        "cropTitle": "Crop avatar",
+        "cropSize": "Selection size",
+        "confirm": "Confirm",
+        "cancel": "Cancel"
+      },
       "deviceType": "Device type",
       "deviceModel": "Device model",
       "port": "Port",

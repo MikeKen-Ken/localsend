@@ -1096,6 +1096,8 @@ class TranslationsSettingsTabNetworkEn {
   /// en: 'Avatar URL'
   String get avatarUrl => 'Avatar URL';
 
+  late final TranslationsSettingsTabNetworkAvatarEn avatar = TranslationsSettingsTabNetworkAvatarEn.internal(_root);
+
   /// en: 'Device type'
   String get deviceType => 'Device type';
 
@@ -1801,6 +1803,36 @@ class TranslationsSettingsTabGeneralLanguageOptionsEn {
 
   /// en: 'System'
   String get system => 'System';
+}
+
+// Path: settingsTab.network.avatar
+class TranslationsSettingsTabNetworkAvatarEn {
+  TranslationsSettingsTabNetworkAvatarEn.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// en: 'Avatar'
+  String get title => 'Avatar';
+
+  /// en: 'Choose image'
+  String get pickImage => 'Choose image';
+
+  /// en: 'Remove'
+  String get remove => 'Remove';
+
+  /// en: 'Crop avatar'
+  String get cropTitle => 'Crop avatar';
+
+  /// en: 'Selection size'
+  String get cropSize => 'Selection size';
+
+  /// en: 'Confirm'
+  String get confirm => 'Confirm';
+
+  /// en: 'Cancel'
+  String get cancel => 'Cancel';
 }
 
 // Path: settingsTab.network.networkOptions

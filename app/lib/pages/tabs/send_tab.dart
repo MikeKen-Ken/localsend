@@ -10,6 +10,8 @@ import 'package:localsend_app/pages/selected_files_page.dart';
 import 'package:localsend_app/pages/tabs/send_tab_vm.dart';
 import 'package:localsend_app/pages/troubleshoot_page.dart';
 import 'package:localsend_app/provider/animation_provider.dart';
+import 'package:localsend_app/features/avatar/avatar_provider.dart';
+import 'package:localsend_app/provider/device_info_provider.dart';
 import 'package:localsend_app/provider/network/nearby_devices_provider.dart';
 import 'package:localsend_app/provider/network/scan_facade.dart';
 import 'package:localsend_app/provider/network/send_provider.dart';
@@ -53,12 +55,25 @@ class SendTab extends StatelessWidget {
         final sizingInformation = SizingInformation(MediaQuery.sizeOf(context).width);
         final buttonWidth = sizingInformation.isDesktop ? BigButton.desktopWidth : BigButton.mobileWidth;
         final ref = context.ref;
+        final myDevice = ref.watch(deviceFullInfoProvider);
+        final hasLocalAvatar = ref.watch(avatarLocalProvider);
         return Stack(
           children: [
             ResponsiveListView(
               padding: EdgeInsets.zero,
               children: [
                 const SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: _horizontalPadding),
+                  child: Text(
+                    t.sendTab.thisDevice,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 10, bottom: 10, left: _horizontalPadding, right: _horizontalPadding),
+                  child: DeviceListTile(device: myDevice, useLocalAvatarFile: hasLocalAvatar),
+                ),
                 if (vm.selectedFiles.isEmpty) ...[
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: _horizontalPadding),

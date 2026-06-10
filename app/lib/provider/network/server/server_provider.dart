@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:collection/collection.dart';
 import 'package:common/constants.dart';
 import 'package:common/isolate.dart';
 import 'package:common/model/dto/multicast_dto.dart';
@@ -8,6 +9,9 @@ import 'package:localsend_app/model/cross_file.dart';
 import 'package:localsend_app/model/state/server/server_state.dart';
 import 'package:localsend_app/provider/network/server/controller/receive_controller.dart';
 import 'package:localsend_app/provider/network/server/controller/send_controller.dart';
+import 'package:localsend_app/features/avatar/avatar_provider.dart';
+import 'package:localsend_app/features/avatar/avatar_service.dart';
+import 'package:localsend_app/provider/local_ip_provider.dart';
 import 'package:localsend_app/provider/network/server/server_utils.dart';
 import 'package:localsend_app/provider/security_provider.dart';
 import 'package:localsend_app/provider/settings_provider.dart';
@@ -29,10 +33,17 @@ final serverProvider = NotifierProvider<ServerService, ServerState?>(
   onChanged: (_, next, ref) {
     final settings = ref.read(settingsProvider);
     final syncState = ref.read(parentIsolateProvider).syncState;
+    final resolvedAvatarUrl = AvatarService.resolveAvatarUrl(
+      externalAvatarUrl: settings.avatarUrl,
+      hasLocalAvatar: ref.read(avatarLocalProvider),
+      localIp: ref.read(localIpProvider).localIps.firstOrNull,
+      port: next?.port ?? settings.port,
+      https: next?.https ?? settings.https,
+    );
     final syncStatePrev = (syncState.alias, syncState.avatarUrl, syncState.port, syncState.protocol, syncState.serverRunning, syncState.download);
     final syncStateNext = (
       next?.alias ?? settings.alias,
-      settings.avatarUrl,
+      resolvedAvatarUrl,
       next?.port ?? settings.port,
       (next?.https ?? settings.https) ? ProtocolType.https : ProtocolType.http,
       next != null,

@@ -37,21 +37,7 @@ final NotifierProvider<SettingsService, SettingsState> settingsProvider = Notifi
           );
     }
 
-    if (syncState.avatarUrl != next.avatarUrl) {
-      ref.redux(parentIsolateProvider).dispatch(
-            IsolateSyncServerStateAction(
-              alias: syncState.alias,
-              avatarUrl: next.avatarUrl,
-              port: syncState.port,
-              protocol: syncState.protocol,
-              serverRunning: syncState.serverRunning,
-              download: syncState.download,
-            ),
-          );
-      if (syncState.serverRunning) {
-        ref.redux(parentIsolateProvider).dispatch(IsolateSendMulticastAnnouncementAction());
-      }
-    }
+    // Avatar URL sync is handled by [avatarResolvedUrlProvider].
   },
 );
 
