@@ -2,6 +2,7 @@ import 'package:common/model/dto/file_dto.dart';
 import 'package:common/model/dto/receive_request_response_dto.dart';
 import 'package:common/model/file_type.dart';
 import 'package:flutter/material.dart';
+import 'package:localsend_app/config/theme.dart';
 import 'package:localsend_app/gen/strings.g.dart';
 import 'package:localsend_app/provider/receive_history_provider.dart';
 import 'package:localsend_app/util/file_size_helper.dart';

@@ -171,7 +171,7 @@ class _CornerButtons extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             Consumer(
-              builder: (context, ref, _) {
+              builder: (context, ref) {
                 if (!checkPlatformWithCamera() || ref.watch(tvProvider)) {
                   return const SizedBox.shrink();
                 }
