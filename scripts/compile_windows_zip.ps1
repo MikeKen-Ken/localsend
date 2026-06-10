@@ -2,6 +2,8 @@
 # git reset --hard origin/main
 # git pull
 
+.\scripts\compile_windows_msix_helper.ps1
+
 cd app
 
 fvm flutter clean

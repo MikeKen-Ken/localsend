@@ -352,6 +352,9 @@ jobs:
         working-directory: app
         run: flutter pub get
 
+      - name: Build MSIX helper package
+        run: .\scripts\compile_windows_msix_helper.ps1
+
       - name: Compile for Windows
         working-directory: app
         run: flutter build windows
