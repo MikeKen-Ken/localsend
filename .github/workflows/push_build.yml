@@ -10,7 +10,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: read
+  contents: write
 
 env:
   FLUTTER_VERSION: "3.38.10"
@@ -88,7 +88,7 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v6
         with:
-          name: android-arm64-v${{ needs.version.outputs.version }}-${{ github.sha }}
+          name: apk-result
           path: ${{ env.APK_BUILD_DIR }}/app/build/app/outputs/flutter-apk/app-release.apk
           retention-days: 30
 
@@ -138,6 +138,33 @@ jobs:
       - name: Upload zip
         uses: actions/upload-artifact@v6
         with:
-          name: windows-x64-v${{ needs.version.outputs.version }}-${{ github.sha }}
+          name: windows-zip-x86-64-result
           path: app/LocalSend.zip
           retention-days: 30
+
+  upload_release:
+    needs: [version, build_android, build_windows]
+    if: ${{ needs.build_android.result == 'success' && needs.build_windows.result == 'success' }}
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/download-artifact@v7
+        with:
+          name: apk-result
+          path: apk-result
+
+      - uses: actions/download-artifact@v7
+        with:
+          name: windows-zip-x86-64-result
+          path: windows-zip-x86-64-result
+
+      - name: Upload to GitHub Release
+        uses: ./.github/actions/publish-release-asset
+        with:
+          tag: v${{ needs.version.outputs.version }}
+          draft: "true"
+          assets: |
+            apk-result/app-release.apk#LocalSend-${{ needs.version.outputs.version }}-android-arm64v8.apk
+            windows-zip-x86-64-result/LocalSend.zip#LocalSend-${{ needs.version.outputs.version }}-windows-x86-64.zip
