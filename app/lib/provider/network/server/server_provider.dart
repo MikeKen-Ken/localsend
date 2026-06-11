@@ -219,15 +219,20 @@ class ServerService extends Notifier<ServerState?> {
   /// Initializes the web send state.
   Future<void> initializeWebSend(
     List<CrossFile> files, {
-    bool singleUse = false,
+    int? maxUses,
+    bool quickShare = false,
     Duration? expiry,
   }) async {
     await _sendController.initializeWebSend(
       files: files,
-      singleUse: singleUse,
+      maxUses: maxUses,
+      quickShare: quickShare,
       expiry: expiry,
     );
   }
+
+  /// Plain-HTTP port for browser QR downloads when the main server uses HTTPS.
+  int? get httpSharePort => _sendController.httpSharePort;
 
   /// Clears the web send state without stopping the server.
   void clearWebSend() {

@@ -19,17 +19,22 @@ enum _QrShareState { initializing, active, expired, consumed, error }
 
 class QrShareDialog extends StatefulWidget {
   final List<CrossFile> files;
+  final int? maxUses;
 
-  const QrShareDialog({required this.files});
+  const QrShareDialog({
+    required this.files,
+    required this.maxUses,
+  });
 
   static Future<void> open({
     required BuildContext context,
     required List<CrossFile> files,
+    required int? maxUses,
   }) async {
     await showDialog(
       context: context,
-      barrierDismissible: false,
-      builder: (_) => QrShareDialog(files: files),
+      barrierDismissible: true,
+      builder: (_) => QrShareDialog(files: files, maxUses: maxUses),
     );
   }
 
@@ -56,7 +61,8 @@ class _QrShareDialogState extends State<QrShareDialog> with Refena {
 
       await ref.notifier(serverProvider).initializeWebSend(
         widget.files,
-        singleUse: true,
+        maxUses: widget.maxUses,
+        quickShare: true,
       );
 
       if (!mounted) {
@@ -81,31 +87,22 @@ class _QrShareDialogState extends State<QrShareDialog> with Refena {
       return;
     }
 
-    if (webSendState.consumed && _state == _QrShareState.active) {
+    if (webSendState.isUsesExhausted && _state == _QrShareState.active) {
+      _timer?.cancel();
       setState(() => _state = _QrShareState.consumed);
-      _scheduleClose();
       return;
     }
 
     if (webSendState.isExpired && _state == _QrShareState.active) {
+      _timer?.cancel();
       setState(() => _state = _QrShareState.expired);
       ref.notifier(serverProvider).clearWebSend();
-      _scheduleClose();
       return;
     }
 
     if (mounted && _state == _QrShareState.active) {
       setState(() {});
     }
-  }
-
-  void _scheduleClose() {
-    _timer?.cancel();
-    Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) {
-        _close();
-      }
-    });
   }
 
   void _close() {
@@ -149,6 +146,31 @@ class _QrShareDialogState extends State<QrShareDialog> with Refena {
     final minutes = remaining.inMinutes.remainder(60).toString().padLeft(2, '0');
     final seconds = remaining.inSeconds.remainder(60).toString().padLeft(2, '0');
     return '$minutes:$seconds';
+  }
+
+  Widget _buildUsesStatusChip(BuildContext context, WebSendState webSendState) {
+    final maxUses = webSendState.maxUses;
+    final label = maxUses == null
+        ? t.dialogs.qr.usesStatusUnlimited
+        : t.dialogs.qr.usesStatusLimited(
+            remaining: webSendState.remainingUses ?? 0,
+            total: maxUses,
+          );
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.primaryContainer,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        label,
+        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+          color: Theme.of(context).colorScheme.onPrimaryContainer,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
   }
 
   @override
@@ -206,10 +228,12 @@ class _QrShareDialogState extends State<QrShareDialog> with Refena {
           return Text(t.dialogs.qr.error);
         }
 
+        final httpSharePort = ref.notifier(serverProvider).httpSharePort;
+        final useBrowserHttp = httpSharePort != null;
         final shareUrl = _buildShareUrl(
           ip: ip,
-          port: serverState.port,
-          https: serverState.https,
+          port: useBrowserHttp ? httpSharePort! : serverState.port,
+          https: useBrowserHttp ? false : serverState.https,
           webSendState: webSendState,
         );
         final remaining = webSendState.expiresAt!.difference(DateTime.now());
@@ -217,6 +241,8 @@ class _QrShareDialogState extends State<QrShareDialog> with Refena {
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            _buildUsesStatusChip(context, webSendState),
+            const SizedBox(height: 12),
             Padding(
               padding: const EdgeInsets.all(8),
               child: SizedBox(
@@ -241,6 +267,16 @@ class _QrShareDialogState extends State<QrShareDialog> with Refena {
                 color: Theme.of(context).colorScheme.warning,
               ),
             ),
+            if (serverState.https && !useBrowserHttp) ...[
+              const SizedBox(height: 8),
+              Text(
+                t.dialogs.qr.httpsBrowserWarning,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.warning,
+                ),
+              ),
+            ],
             const SizedBox(height: 8),
             Text(
               t.dialogs.qr.hint,

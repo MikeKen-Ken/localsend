@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -41,7 +42,9 @@
             background-color: #009688;
         }
 
-        .file-name-cell, .file-size-cell, .file-index-cell {
+        .file-name-cell,
+        .file-size-cell,
+        .file-index-cell {
             display: table-cell;
             vertical-align: middle;
         }
@@ -51,7 +54,8 @@
             padding: 0 0.5em;
         }
 
-        .file-size-cell, .file-index-cell {
+        .file-size-cell,
+        .file-index-cell {
             font-size: 0.8em;
             white-space: nowrap;
             color: #E0E0E0;
@@ -67,6 +71,7 @@
                 width: 48%;
                 margin-right: 2%;
             }
+
             #file-list.file-item:nth-child(2n) {
                 margin-right: 0;
             }
@@ -82,17 +87,79 @@
             padding: 0 1em;
             margin: 0 auto;
         }
+
+        #sender-info {
+            display: none;
+            max-width: 400px;
+            margin: 0 auto 1.5em;
+            padding: 0 1em;
+        }
+
+        #sender-card {
+            display: flex;
+            align-items: center;
+            gap: 1em;
+            padding: 1em;
+            background-color: #E0F2F1;
+            border-radius: 0.75em;
+            text-align: left;
+        }
+
+        #sender-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            object-fit: cover;
+            background-color: #B2DFDB;
+            flex-shrink: 0;
+        }
+
+        #sender-avatar-placeholder {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background-color: #00796B;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        #sender-name {
+            margin: 0;
+            font-size: 1.1em;
+        }
+
+        #uses-status {
+            margin: 0.25em 0 0;
+            font-size: 0.85em;
+            color: #555555;
+        }
     </style>
     <script src="main.js" defer></script>
 </head>
-<body>
-<noscript>
-    LocalSend requires JavaScript, which is currently disabled. Please enable it and try again.
-</noscript>
 
-<h1 style="padding: 0.5em">LocalSend</h1>
-<p id="status-text"></p>
-<div id="file-list"></div>
-<div id="single-file"></div>
+<body>
+    <noscript>
+        LocalSend requires JavaScript, which is currently disabled. Please enable it and try again.
+    </noscript>
+
+    <h1 style="padding: 0.5em">LocalSend</h1>
+    <div id="sender-info">
+        <div id="sender-card">
+            <div id="sender-avatar-wrap"></div>
+            <div>
+                <h2 id="sender-name"></h2>
+                <p id="uses-status"></p>
+            </div>
+        </div>
+    </div>
+    <p id="status-text"></p>
+    <div id="file-list"></div>
+    <div id="single-file"></div>
 </body>
+
 </html>

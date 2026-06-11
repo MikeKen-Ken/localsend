@@ -195,6 +195,7 @@
     "openFolder": "打开目录",
     "deleteHistory": "删除历史记录",
     "empty": "无历史记录。",
+    "sentTo": "发送至 {alias}",
     "entryActions": {
       "open": "打开文件",
       "showInFolder": "在文件管理器中显示",
@@ -421,6 +422,7 @@
       "path": "路径：",
       "size": "大小：",
       "sender": "发送者：",
+      "recipient": "接收者：",
       "time": "时间："
     },
     "fileNameInput": {
@@ -458,8 +460,17 @@
       "loading": "正在准备分享链接…",
       "expiresIn": "将于 {time} 后过期",
       "expired": "分享链接已过期。",
-      "consumed": "已有人访问此链接，二维码已失效。",
+      "consumed": "分享次数已用完，二维码已失效。",
+      "usesRemaining": "还可使用 {n} 次",
+      "usesStatusLimited": "剩余 {remaining}/{total} 次扫码",
+      "usesStatusUnlimited": "扫码次数：不限",
+      "useLimit": "二维码使用次数",
+      "useLimitSingle": "1 次",
+      "useLimitTriple": "3 次",
+      "useLimitFive": "5 次",
+      "useLimitUnlimited": "不限次数",
       "hint": "扫描二维码或复制下方链接即可下载，仅限同一局域网内使用。",
+      "httpsBrowserWarning": "已启用 HTTPS，浏览器打开链接时可能提示证书不受信任。请在设置中关闭 HTTPS，或改用 LocalSend 应用扫码下载。",
       "error": "无法开始分享，请检查网络连接。",
       "scanTitle": "扫描二维码",
       "scanHint": "将相机对准 LocalSend 二维码即可下载文件。",
@@ -527,7 +538,10 @@
     "rejected": "已拒绝",
     "files": "文件",
     "fileName": "文件名",
-    "size": "大小"
+    "size": "大小",
+    "filesFrom": "来自 {alias} 的文件",
+    "usesStatusLimited": "剩余 {remaining}/{total} 次扫码",
+    "usesStatusUnlimited": "扫码次数：不限"
   },
   "assetPicker": {
     "@info": "Android 和 iPhone 媒体选择工具的翻译",

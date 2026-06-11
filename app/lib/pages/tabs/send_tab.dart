@@ -17,6 +17,7 @@ import 'package:localsend_app/provider/network/scan_facade.dart';
 import 'package:localsend_app/provider/network/send_provider.dart';
 import 'package:localsend_app/provider/progress_provider.dart';
 import 'package:localsend_app/provider/selection/selected_sending_files_provider.dart';
+import 'package:localsend_app/provider/persistence_provider.dart';
 import 'package:localsend_app/provider/settings_provider.dart';
 import 'package:localsend_app/provider/tv_provider.dart';
 import 'package:localsend_app/util/favorites.dart';
@@ -121,17 +122,14 @@ class SendTab extends StatelessWidget {
                                 style: Theme.of(context).textTheme.titleMedium,
                               ),
                               const Spacer(),
-                              Tooltip(
-                                message: t.dialogs.qr.shareTitle,
-                                child: CustomIconButton(
-                                  onPressed: () async {
-                                    await QrShareDialog.open(
-                                      context: context,
-                                      files: vm.selectedFiles,
-                                    );
-                                  },
-                                  child: Icon(Icons.qr_code, color: Theme.of(context).colorScheme.primary),
-                                ),
+                              _QrShareLimitButton(
+                                onShare: (maxUses) async {
+                                  await QrShareDialog.open(
+                                    context: context,
+                                    files: vm.selectedFiles,
+                                    maxUses: maxUses,
+                                  );
+                                },
                               ),
                               const SizedBox(width: 5),
                               CustomIconButton(
@@ -324,6 +322,99 @@ class SendTab extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+}
+
+/// Converts persisted QR share limit (0 = unlimited) to [maxUses] for web send.
+int? _qrShareMaxUsesFromPersistence(int value) => value == 0 ? null : value;
+
+String _qrShareLimitLabel(int value) {
+  return switch (value) {
+    0 => '∞',
+    _ => '×$value',
+  };
+}
+
+/// Selects how many times a QR share link can be used, then opens the QR dialog.
+class _QrShareLimitButton extends StatefulWidget {
+  final Future<void> Function(int? maxUses) onShare;
+
+  const _QrShareLimitButton({required this.onShare});
+
+  @override
+  State<_QrShareLimitButton> createState() => _QrShareLimitButtonState();
+}
+
+class _QrShareLimitButtonState extends State<_QrShareLimitButton> with Refena {
+  late int _maxUsesSetting;
+
+  static const _options = [1, 3, 5, 0];
+
+  @override
+  void initState() {
+    super.initState();
+    _maxUsesSetting = ref.read(persistenceProvider).getQrShareMaxUses();
+  }
+
+  Future<void> _setMaxUses(int value) async {
+    setState(() => _maxUsesSetting = value);
+    await ref.read(persistenceProvider).setQrShareMaxUses(value);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _CircularPopupButton<int>(
+          tooltip: t.dialogs.qr.useLimit,
+          onSelected: _setMaxUses,
+          itemBuilder: (_) => _options.map((value) {
+            return PopupMenuItem(
+              value: value,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Visibility(
+                    visible: _maxUsesSetting == value,
+                    maintainSize: true,
+                    maintainAnimation: true,
+                    maintainState: true,
+                    child: const Icon(Icons.check_circle),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(switch (value) {
+                    1 => t.dialogs.qr.useLimitSingle,
+                    3 => t.dialogs.qr.useLimitTriple,
+                    5 => t.dialogs.qr.useLimitFive,
+                    _ => t.dialogs.qr.useLimitUnlimited,
+                  }),
+                ],
+              ),
+            );
+          }).toList(),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            child: Text(
+              _qrShareLimitLabel(_maxUsesSetting),
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 2),
+        Tooltip(
+          message: t.dialogs.qr.shareTitle,
+          child: CustomIconButton(
+            onPressed: () => widget.onShare(_qrShareMaxUsesFromPersistence(_maxUsesSetting)),
+            child: Icon(Icons.qr_code, color: Theme.of(context).colorScheme.primary),
+          ),
+        ),
+      ],
     );
   }
 }

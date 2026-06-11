@@ -22,6 +22,11 @@ class ReceiveHistoryEntry with ReceiveHistoryEntryMappable {
 
   final int fileSize;
   final String senderAlias;
+
+  /// True when this device sent the file (e.g. via QR code or link share).
+  @MappableField(hook: IsOutgoingHook())
+  final bool isOutgoing;
+
   final DateTime timestamp;
 
   const ReceiveHistoryEntry({
@@ -33,6 +38,7 @@ class ReceiveHistoryEntry with ReceiveHistoryEntryMappable {
     required this.isMessage,
     required this.fileSize,
     required this.senderAlias,
+    this.isOutgoing = false,
     required this.timestamp,
   });
 
@@ -49,6 +55,15 @@ class ReceiveHistoryEntry with ReceiveHistoryEntryMappable {
 
 class IsMessageHook extends MappingHook {
   const IsMessageHook();
+
+  @override
+  Object? beforeDecode(Object? value) {
+    return value == true;
+  }
+}
+
+class IsOutgoingHook extends MappingHook {
+  const IsOutgoingHook();
 
   @override
   Object? beforeDecode(Object? value) {

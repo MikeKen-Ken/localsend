@@ -53,7 +53,7 @@ class FileInfoDialog extends StatelessWidget {
                   ),
                   TableRow(
                     children: [
-                      Text(t.dialogs.fileInfo.sender),
+                      Text(entry.isOutgoing ? t.dialogs.fileInfo.recipient : t.dialogs.fileInfo.sender),
                       const SizedBox(width: 10),
                       SelectableText(entry.senderAlias),
                     ],

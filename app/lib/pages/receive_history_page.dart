@@ -185,7 +185,7 @@ class ReceiveHistoryPage extends StatelessWidget {
                               softWrap: false,
                             ),
                             Text(
-                              '${entry.timestampString} - ${entry.fileSize.asReadableFileSize} - ${entry.senderAlias}',
+                              '${entry.timestampString} - ${entry.fileSize.asReadableFileSize} - ${entry.isOutgoing ? t.receiveHistoryPage.sentTo(alias: entry.senderAlias) : entry.senderAlias}',
                               maxLines: 1,
                               overflow: TextOverflow.fade,
                               softWrap: false,

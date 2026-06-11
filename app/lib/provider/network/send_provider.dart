@@ -11,6 +11,7 @@ import 'package:common/model/session_status.dart';
 import 'package:common/util/sleep.dart';
 import 'package:flutter/material.dart';
 import 'package:localsend_app/model/cross_file.dart';
+import 'package:localsend_app/util/file_path_helper.dart';
 import 'package:localsend_app/model/send_mode.dart';
 import 'package:localsend_app/model/state/send/send_session_state.dart';
 import 'package:localsend_app/model/state/send/sending_file.dart';
@@ -78,7 +79,7 @@ class SendNotifier extends Notifier<Map<String, SendSessionState>> {
               SendingFile(
                 file: FileDto(
                   id: id,
-                  fileName: file.name,
+                  fileName: file.name.normalizeRelativePath(),
                   size: file.size,
                   fileType: file.fileType,
                   hash: null,

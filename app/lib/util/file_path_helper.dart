@@ -18,8 +18,13 @@ extension FilePathStringExt on String {
   }
 
   String withFileNameKeepExtension(String fileNameWithoutExt) {
-    return '$fileNameWithoutExt.$extension';
+    final newName = extension.isEmpty ? fileNameWithoutExt : '$fileNameWithoutExt.$extension';
+    final dir = parentPath();
+    return dir.isEmpty ? newName : '$dir/$newName';
   }
+
+  /// Normalizes a relative path for cross-platform folder sharing.
+  String normalizeRelativePath() => replaceAll('\\', '/');
 
   String withExtension(String ext) {
     if (ext == '') {

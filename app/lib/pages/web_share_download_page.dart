@@ -4,6 +4,7 @@ import 'package:common/model/file_type.dart';
 import 'package:flutter/material.dart';
 import 'package:localsend_app/config/theme.dart';
 import 'package:localsend_app/gen/strings.g.dart';
+import 'package:localsend_app/provider/device_info_provider.dart';
 import 'package:localsend_app/provider/receive_history_provider.dart';
 import 'package:localsend_app/util/file_size_helper.dart';
 import 'package:localsend_app/util/native/directories.dart';
@@ -154,6 +155,9 @@ class _WebShareDownloadPageState extends State<WebShareDownloadPage> with Refena
             });
           }
         },
+        lastModified: file.metadata?.lastModified,
+        lastAccessed: file.metadata?.lastAccessed,
+        androidSdkInt: ref.read(deviceInfoProvider).androidSdkInt,
         createdDirectories: createdDirectories,
       );
 

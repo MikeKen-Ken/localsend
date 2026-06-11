@@ -213,6 +213,7 @@ Future<(String, String?, String)> digestFilePathAndPrepareDirectory({
   required String fileName,
   required Set<String> createdDirectories,
 }) async {
+  fileName = fileName.normalizeRelativePath();
   if (parentDirectory.startsWith('content://')) {
     final String documentUri;
     if (fileName.contains('/')) {

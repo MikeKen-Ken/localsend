@@ -43,12 +43,11 @@ class WebSendStateMapper extends ClassMapperBase<WebSendState> {
     'pinAttempts',
     _$pinAttempts,
   );
-  static bool _$singleUse(WebSendState v) => v.singleUse;
-  static const Field<WebSendState, bool> _f$singleUse = Field(
-    'singleUse',
-    _$singleUse,
+  static int? _$maxUses(WebSendState v) => v.maxUses;
+  static const Field<WebSendState, int> _f$maxUses = Field(
+    'maxUses',
+    _$maxUses,
     opt: true,
-    def: false,
   );
   static String? _$shareToken(WebSendState v) => v.shareToken;
   static const Field<WebSendState, String> _f$shareToken = Field(
@@ -62,12 +61,12 @@ class WebSendStateMapper extends ClassMapperBase<WebSendState> {
     _$expiresAt,
     opt: true,
   );
-  static bool _$consumed(WebSendState v) => v.consumed;
-  static const Field<WebSendState, bool> _f$consumed = Field(
-    'consumed',
-    _$consumed,
+  static int _$useCount(WebSendState v) => v.useCount;
+  static const Field<WebSendState, int> _f$useCount = Field(
+    'useCount',
+    _$useCount,
     opt: true,
-    def: false,
+    def: 0,
   );
 
   @override
@@ -77,10 +76,10 @@ class WebSendStateMapper extends ClassMapperBase<WebSendState> {
     #autoAccept: _f$autoAccept,
     #pin: _f$pin,
     #pinAttempts: _f$pinAttempts,
-    #singleUse: _f$singleUse,
+    #maxUses: _f$maxUses,
     #shareToken: _f$shareToken,
     #expiresAt: _f$expiresAt,
-    #consumed: _f$consumed,
+    #useCount: _f$useCount,
   };
 
   static WebSendState _instantiate(DecodingData data) {
@@ -90,10 +89,10 @@ class WebSendStateMapper extends ClassMapperBase<WebSendState> {
       autoAccept: data.dec(_f$autoAccept),
       pin: data.dec(_f$pin),
       pinAttempts: data.dec(_f$pinAttempts),
-      singleUse: data.dec(_f$singleUse),
+      maxUses: data.dec(_f$maxUses),
       shareToken: data.dec(_f$shareToken),
       expiresAt: data.dec(_f$expiresAt),
-      consumed: data.dec(_f$consumed),
+      useCount: data.dec(_f$useCount),
     );
   }
 
@@ -180,10 +179,10 @@ abstract class WebSendStateCopyWith<$R, $In extends WebSendState, $Out>
     bool? autoAccept,
     String? pin,
     Map<String, int>? pinAttempts,
-    bool? singleUse,
+    int? maxUses,
     String? shareToken,
     DateTime? expiresAt,
-    bool? consumed,
+    int? useCount,
   });
   WebSendStateCopyWith<$R2, $In, $Out2> $chain<$R2, $Out2>(Then<$Out2, $R2> t);
 }
@@ -234,10 +233,10 @@ class _WebSendStateCopyWithImpl<$R, $Out>
     bool? autoAccept,
     Object? pin = $none,
     Map<String, int>? pinAttempts,
-    bool? singleUse,
+    Object? maxUses = $none,
     Object? shareToken = $none,
     Object? expiresAt = $none,
-    bool? consumed,
+    int? useCount,
   }) => $apply(
     FieldCopyWithData({
       if (sessions != null) #sessions: sessions,
@@ -245,10 +244,10 @@ class _WebSendStateCopyWithImpl<$R, $Out>
       if (autoAccept != null) #autoAccept: autoAccept,
       if (pin != $none) #pin: pin,
       if (pinAttempts != null) #pinAttempts: pinAttempts,
-      if (singleUse != null) #singleUse: singleUse,
+      if (maxUses != $none) #maxUses: maxUses,
       if (shareToken != $none) #shareToken: shareToken,
       if (expiresAt != $none) #expiresAt: expiresAt,
-      if (consumed != null) #consumed: consumed,
+      if (useCount != null) #useCount: useCount,
     }),
   );
   @override
@@ -258,10 +257,10 @@ class _WebSendStateCopyWithImpl<$R, $Out>
     autoAccept: data.get(#autoAccept, or: $value.autoAccept),
     pin: data.get(#pin, or: $value.pin),
     pinAttempts: data.get(#pinAttempts, or: $value.pinAttempts),
-    singleUse: data.get(#singleUse, or: $value.singleUse),
+    maxUses: data.get(#maxUses, or: $value.maxUses),
     shareToken: data.get(#shareToken, or: $value.shareToken),
     expiresAt: data.get(#expiresAt, or: $value.expiresAt),
-    consumed: data.get(#consumed, or: $value.consumed),
+    useCount: data.get(#useCount, or: $value.useCount),
   );
 
   @override
@@ -269,4 +268,3 @@ class _WebSendStateCopyWithImpl<$R, $Out>
     Then<$Out2, $R2> t,
   ) => _WebSendStateCopyWithImpl<$R2, $Out2>($value, $cast, t);
 }
-

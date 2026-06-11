@@ -119,9 +119,52 @@ function fetchI18n(then) {
   makeRequest('/i18n.json', 'GET', function (response) {
     if (response.status === 200) {
       i18n = JSON.parse(response.responseText);
+      renderSenderInfo(i18n);
       then();
     }
   });
+}
+
+function renderSenderInfo(data) {
+  if (!data.senderAlias) {
+    return;
+  }
+
+  var senderInfo = document.getElementById('sender-info');
+  var avatarWrap = document.getElementById('sender-avatar-wrap');
+  var senderName = document.getElementById('sender-name');
+  var usesStatus = document.getElementById('uses-status');
+
+  senderName.innerText = data.filesFrom || data.senderAlias;
+  if (data.usesStatus) {
+    usesStatus.innerText = data.usesStatus;
+    usesStatus.style.display = 'block';
+  } else {
+    usesStatus.style.display = 'none';
+  }
+
+  avatarWrap.innerHTML = '';
+  if (data.avatarUrl) {
+    var img = document.createElement('img');
+    img.id = 'sender-avatar';
+    img.alt = data.senderAlias;
+    img.src = data.avatarUrl;
+    img.onerror = function () {
+      renderAvatarPlaceholder(avatarWrap, data.senderAlias);
+    };
+    avatarWrap.appendChild(img);
+  } else {
+    renderAvatarPlaceholder(avatarWrap, data.senderAlias);
+  }
+
+  senderInfo.style.display = 'block';
+}
+
+function renderAvatarPlaceholder(container, alias) {
+  var placeholder = document.createElement('div');
+  placeholder.id = 'sender-avatar-placeholder';
+  placeholder.innerText = alias && alias.length > 0 ? alias.charAt(0).toUpperCase() : '?';
+  container.appendChild(placeholder);
 }
 
 function init() {
@@ -133,6 +176,15 @@ function handleSuccess(response) {
   var files = data.files;
   sessionId = data.sessionId;
   sessionStorage.setItem('sessionId', sessionId);
+
+  if (data.info && data.info.alias) {
+    renderSenderInfo({
+      senderAlias: data.info.alias,
+      avatarUrl: data.info.avatarUrl,
+      filesFrom: (i18n.filesFrom || '{alias}').replace('{alias}', data.info.alias),
+      usesStatus: i18n.usesStatus
+    });
+  }
 
   document.getElementById('status-text').innerText = i18n.files + ' (' + getKeys(data.files).length + ')';
 

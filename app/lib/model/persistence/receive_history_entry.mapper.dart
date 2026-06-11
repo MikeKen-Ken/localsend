@@ -60,6 +60,14 @@ class ReceiveHistoryEntryMapper extends ClassMapperBase<ReceiveHistoryEntry> {
     'senderAlias',
     _$senderAlias,
   );
+  static bool _$isOutgoing(ReceiveHistoryEntry v) => v.isOutgoing;
+  static const Field<ReceiveHistoryEntry, bool> _f$isOutgoing = Field(
+    'isOutgoing',
+    _$isOutgoing,
+    hook: IsOutgoingHook(),
+    opt: true,
+    def: false,
+  );
   static DateTime _$timestamp(ReceiveHistoryEntry v) => v.timestamp;
   static const Field<ReceiveHistoryEntry, DateTime> _f$timestamp = Field(
     'timestamp',
@@ -82,6 +90,7 @@ class ReceiveHistoryEntryMapper extends ClassMapperBase<ReceiveHistoryEntry> {
     #isMessage: _f$isMessage,
     #fileSize: _f$fileSize,
     #senderAlias: _f$senderAlias,
+    #isOutgoing: _f$isOutgoing,
     #timestamp: _f$timestamp,
     #timestampString: _f$timestampString,
   };
@@ -96,6 +105,7 @@ class ReceiveHistoryEntryMapper extends ClassMapperBase<ReceiveHistoryEntry> {
       isMessage: data.dec(_f$isMessage),
       fileSize: data.dec(_f$fileSize),
       senderAlias: data.dec(_f$senderAlias),
+      isOutgoing: data.dec(_f$isOutgoing),
       timestamp: data.dec(_f$timestamp),
     );
   }
@@ -179,6 +189,7 @@ abstract class ReceiveHistoryEntryCopyWith<
     bool? isMessage,
     int? fileSize,
     String? senderAlias,
+    bool? isOutgoing,
     DateTime? timestamp,
   });
   ReceiveHistoryEntryCopyWith<$R2, $In, $Out2> $chain<$R2, $Out2>(
@@ -204,6 +215,7 @@ class _ReceiveHistoryEntryCopyWithImpl<$R, $Out>
     bool? isMessage,
     int? fileSize,
     String? senderAlias,
+    bool? isOutgoing,
     DateTime? timestamp,
   }) => $apply(
     FieldCopyWithData({
@@ -215,6 +227,7 @@ class _ReceiveHistoryEntryCopyWithImpl<$R, $Out>
       if (isMessage != null) #isMessage: isMessage,
       if (fileSize != null) #fileSize: fileSize,
       if (senderAlias != null) #senderAlias: senderAlias,
+      if (isOutgoing != null) #isOutgoing: isOutgoing,
       if (timestamp != null) #timestamp: timestamp,
     }),
   );
@@ -228,6 +241,7 @@ class _ReceiveHistoryEntryCopyWithImpl<$R, $Out>
     isMessage: data.get(#isMessage, or: $value.isMessage),
     fileSize: data.get(#fileSize, or: $value.fileSize),
     senderAlias: data.get(#senderAlias, or: $value.senderAlias),
+    isOutgoing: data.get(#isOutgoing, or: $value.isOutgoing),
     timestamp: data.get(#timestamp, or: $value.timestamp),
   );
 

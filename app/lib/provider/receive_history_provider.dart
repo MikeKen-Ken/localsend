@@ -30,6 +30,7 @@ class AddHistoryEntryAction extends AsyncReduxAction<ReceiveHistoryService, List
   final bool isMessage;
   final int fileSize;
   final String senderAlias;
+  final bool isOutgoing;
   final DateTime timestamp;
 
   AddHistoryEntryAction({
@@ -41,6 +42,7 @@ class AddHistoryEntryAction extends AsyncReduxAction<ReceiveHistoryService, List
     required this.isMessage,
     required this.fileSize,
     required this.senderAlias,
+    this.isOutgoing = false,
     required this.timestamp,
   });
 
@@ -60,6 +62,7 @@ class AddHistoryEntryAction extends AsyncReduxAction<ReceiveHistoryService, List
         isMessage: isMessage,
         fileSize: fileSize,
         senderAlias: senderAlias,
+        isOutgoing: isOutgoing,
         timestamp: timestamp,
       ),
       ...state,

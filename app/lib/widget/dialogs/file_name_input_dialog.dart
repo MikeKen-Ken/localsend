@@ -24,10 +24,13 @@ class _FileNameInputDialogState extends State<FileNameInputDialog> {
   final _textController = TextEditingController();
   String _errorMessage = '';
 
+  bool get _hasDirectoryPath => widget.originalName.replaceAll('\\', '/').contains('/');
+
   @override
   void initState() {
     super.initState();
-    _textController.text = widget.initialName;
+    // When sharing folders, only edit the file name; keep the directory path.
+    _textController.text = _hasDirectoryPath ? widget.initialName.fileName : widget.initialName;
   }
 
   bool _validate(String input) {
@@ -58,14 +61,20 @@ class _FileNameInputDialogState extends State<FileNameInputDialog> {
     if (mounted) {
       String input = _textController.text.trim();
 
-      if (!_validate(_textController.text)) {
+      if (!_validate(input)) {
         return;
       }
 
-      if (!input.contains('.') && widget.originalName.contains('.')) {
+      if (!input.contains('.') && widget.originalName.fileName.contains('.')) {
         // user forgot extension, we fix it
         input = input.withExtension(widget.originalName.extension);
       }
+
+      if (_hasDirectoryPath) {
+        final dir = widget.originalName.parentPath();
+        input = dir.isEmpty ? input : '$dir/$input';
+      }
+
       context.pop(input);
     }
   }

@@ -204,6 +204,7 @@
     "openFolder": "Open folder",
     "deleteHistory": "Delete history",
     "empty": "The history is empty.",
+    "sentTo": "Sent to {alias}",
     "entryActions": {
       "open": "Open file",
       "showInFolder": "Show in folder",
@@ -431,6 +432,7 @@
       "path": "Path:",
       "size": "Size:",
       "sender": "Sender:",
+      "recipient": "Recipient:",
       "time": "Time:"
     },
     "fileNameInput": {
@@ -468,8 +470,17 @@
       "loading": "Preparing share link…",
       "expiresIn": "Expires in {time}",
       "expired": "This share link has expired.",
-      "consumed": "Someone has accessed this link. The QR code is no longer valid.",
+      "consumed": "All uses have been consumed. The QR code is no longer valid.",
+      "usesRemaining": "{n} uses remaining",
+      "usesStatusLimited": "{remaining}/{total} scans remaining",
+      "usesStatusUnlimited": "Scans: unlimited",
+      "useLimit": "QR share use limit",
+      "useLimitSingle": "1 use",
+      "useLimitTriple": "3 uses",
+      "useLimitFive": "5 uses",
+      "useLimitUnlimited": "Unlimited",
       "hint": "Scan the QR code or copy the link below. Only works on the same local network.",
+      "httpsBrowserWarning": "HTTPS is enabled. Browsers may warn about an untrusted certificate. Disable HTTPS in settings, or scan with the LocalSend app instead.",
       "error": "Could not start sharing. Check your network connection.",
       "scanTitle": "Scan QR Code",
       "scanHint": "Point the camera at a LocalSend QR code to download files.",
@@ -537,7 +548,10 @@
     "rejected": "Rejected",
     "files": "Files",
     "fileName": "File name",
-    "size": "Size"
+    "size": "Size",
+    "filesFrom": "Files from {alias}",
+    "usesStatusLimited": "{remaining}/{total} scans remaining",
+    "usesStatusUnlimited": "Scans: unlimited"
   },
   "assetPicker": {
     "@info": "Translations for the Media selection tool for Android and iPhone",

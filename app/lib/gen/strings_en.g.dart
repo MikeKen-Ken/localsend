@@ -354,6 +354,9 @@ class TranslationsReceiveHistoryPageEn {
   /// en: 'The history is empty.'
   String get empty => 'The history is empty.';
 
+  /// en: 'Sent to {alias}'
+  String sentTo({required String alias}) => 'Sent to $alias';
+
   late final TranslationsReceiveHistoryPageEntryActionsEn entryActions = TranslationsReceiveHistoryPageEntryActionsEn.internal(_root);
 }
 
@@ -779,6 +782,15 @@ class TranslationsWebEn {
 
   /// en: 'Size'
   String get size => 'Size';
+
+  /// en: 'Files from {alias}'
+  String filesFrom({required String alias}) => 'Files from $alias';
+
+  /// en: '{remaining}/{total} scans remaining'
+  String usesStatusLimited({required Object remaining, required Object total}) => '$remaining/$total scans remaining';
+
+  /// en: 'Scans: unlimited'
+  String get usesStatusUnlimited => 'Scans: unlimited';
 }
 
 // Path: assetPicker
@@ -1467,6 +1479,9 @@ class TranslationsDialogsFileInfoEn {
   /// en: 'Sender:'
   String get sender => 'Sender:';
 
+  /// en: 'Recipient:'
+  String get recipient => 'Recipient:';
+
   /// en: 'Time:'
   String get time => 'Time:';
 }
@@ -1603,11 +1618,38 @@ class TranslationsDialogsQrEn {
   /// en: 'This share link has expired.'
   String get expired => 'This share link has expired.';
 
-  /// en: 'Someone has accessed this link. The QR code is no longer valid.'
-  String get consumed => 'Someone has accessed this link. The QR code is no longer valid.';
+  /// en: 'All uses have been consumed. The QR code is no longer valid.'
+  String get consumed => 'All uses have been consumed. The QR code is no longer valid.';
+
+  /// en: '{n} uses remaining'
+  String usesRemaining({required Object n}) => '$n uses remaining';
+
+  /// en: '{remaining}/{total} scans remaining'
+  String usesStatusLimited({required Object remaining, required Object total}) => '$remaining/$total scans remaining';
+
+  /// en: 'Scans: unlimited'
+  String get usesStatusUnlimited => 'Scans: unlimited';
+
+  /// en: 'QR share use limit'
+  String get useLimit => 'QR share use limit';
+
+  /// en: '1 use'
+  String get useLimitSingle => '1 use';
+
+  /// en: '3 uses'
+  String get useLimitTriple => '3 uses';
+
+  /// en: '5 uses'
+  String get useLimitFive => '5 uses';
+
+  /// en: 'Unlimited'
+  String get useLimitUnlimited => 'Unlimited';
 
   /// en: 'Scan the QR code or copy the link below. Only works on the same local network.'
   String get hint => 'Scan the QR code or copy the link below. Only works on the same local network.';
+
+  /// en: 'HTTPS is enabled. Browsers may warn about an untrusted certificate. Disable HTTPS in settings, or scan with the LocalSend app instead.'
+  String get httpsBrowserWarning => 'HTTPS is enabled. Browsers may warn about an untrusted certificate. Disable HTTPS in settings, or scan with the LocalSend app instead.';
 
   /// en: 'Could not start sharing. Check your network connection.'
   String get error => 'Could not start sharing. Check your network connection.';

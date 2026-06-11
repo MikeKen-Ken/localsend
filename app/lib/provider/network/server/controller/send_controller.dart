@@ -12,13 +12,16 @@ import 'package:common/util/stream.dart';
 import 'package:localsend_app/gen/assets.gen.dart';
 import 'package:localsend_app/gen/strings.g.dart';
 import 'package:localsend_app/model/cross_file.dart';
+import 'package:localsend_app/util/file_path_helper.dart';
 import 'package:localsend_app/model/state/send/web/web_send_file.dart';
 import 'package:localsend_app/model/state/send/web/web_send_session.dart';
 import 'package:localsend_app/model/state/send/web/web_send_state.dart';
 import 'package:localsend_app/features/avatar/avatar_server_helper.dart';
+import 'package:localsend_app/features/avatar/avatar_service.dart';
 import 'package:localsend_app/provider/device_info_provider.dart';
 import 'package:localsend_app/provider/network/server/controller/common.dart';
 import 'package:localsend_app/provider/network/server/server_utils.dart';
+import 'package:localsend_app/provider/receive_history_provider.dart';
 import 'package:localsend_app/provider/settings_provider.dart';
 import 'package:localsend_app/util/simple_server.dart';
 import 'package:uri_content/uri_content.dart';
@@ -32,6 +35,12 @@ class SendController {
   final ServerUtils server;
 
   SendController(this.server);
+
+  SimpleServer? _httpShareServer;
+  int? httpSharePort;
+
+  String _routeAlias = '';
+  String _routeFingerprint = '';
 
   WebSendState? get _webSendState => server.getState().webSendState;
 
@@ -57,23 +66,102 @@ class SendController {
     return true;
   }
 
-  void _markSingleUseConsumed() {
+  void _incrementUseCount() {
     final state = _webSendState;
-    if (state == null || !state.singleUse || state.consumed) {
+    if (state == null || state.maxUses == null || state.isUsesExhausted) {
       return;
     }
 
     server.setState(
       (oldState) => oldState!.copyWith(
-        webSendState: oldState.webSendState!.copyWith(consumed: true),
+        webSendState: oldState.webSendState!.copyWith(useCount: state.useCount + 1),
+      ),
+    );
+  }
+
+  Future<void> _recordSendHistory({
+    required WebSendFile file,
+    required WebSendSession session,
+  }) async {
+    final peerLabel = session.deviceInfo.isNotEmpty ? session.deviceInfo : session.ip;
+    await server.ref.redux(receiveHistoryProvider).dispatchAsync(
+      AddHistoryEntryAction(
+        entryId: _uuid.v4(),
+        fileName: file.file.fileName,
+        fileType: file.file.fileType,
+        path: file.path,
+        savedToGallery: false,
+        isMessage: file.file.fileType == FileType.text,
+        fileSize: file.file.size,
+        senderAlias: peerLabel,
+        isOutgoing: true,
+        timestamp: DateTime.now().toUtc(),
       ),
     );
   }
 
   void clearWebSend() {
+    _stopHttpShareServer();
     server.setState(
       (oldState) => oldState?.copyWith(webSendState: null),
     );
+  }
+
+  Future<void> _stopHttpShareServer() async {
+    final httpServer = _httpShareServer;
+    _httpShareServer = null;
+    httpSharePort = null;
+    if (httpServer != null) {
+      await httpServer.close();
+    }
+  }
+
+  Future<void> _startHttpShareServer() async {
+    final state = server.getStateOrNull();
+    if (state == null || !state.https || _httpShareServer != null) {
+      return;
+    }
+
+    for (var offset = 1; offset <= 10; offset++) {
+      final port = state.port + offset;
+      if (port > 65535) {
+        break;
+      }
+
+      try {
+        final router = SimpleServerRouteBuilder();
+        installRoutes(
+          router: router,
+          alias: _routeAlias,
+          fingerprint: _routeFingerprint,
+        );
+        _installAvatarRoute(router);
+
+        final httpServer = await HttpServer.bind('0.0.0.0', port);
+        _httpShareServer = SimpleServer.start(server: httpServer, routes: router);
+        httpSharePort = port;
+        return;
+      } on SocketException {
+        continue;
+      }
+    }
+  }
+
+  void _installAvatarRoute(SimpleServerRouteBuilder router) {
+    for (final route in [ApiRoute.avatar.v1, ApiRoute.avatar.v2]) {
+      router.get(route, (HttpRequest request) async {
+        final bytes = await AvatarService.readLocalAvatarBytes();
+        if (bytes == null) {
+          return request.respondJson(404, message: 'Avatar not found');
+        }
+
+        request.response
+          ..statusCode = HttpStatus.ok
+          ..headers.contentType = ContentType('image', 'png')
+          ..add(bytes);
+        await request.response.close();
+      });
+    }
   }
 
   /// Installs all routes for receiving files.
@@ -82,6 +170,9 @@ class SendController {
     required String alias,
     required String fingerprint,
   }) {
+    _routeAlias = alias;
+    _routeFingerprint = fingerprint;
+
     router.get('/', (HttpRequest request) async {
       if (_webSendState == null) {
         return await request.respondAsset(403, Assets.web.error403);
@@ -107,13 +198,17 @@ class SendController {
     });
 
     router.get('/i18n.json', (HttpRequest request) async {
-      if (_webSendState == null) {
+      final webSendState = _webSendState;
+      if (webSendState == null) {
         return await request.respondJson(403, message: 'Web send not initialized.');
       }
 
       if (!_isWebShareActive()) {
         return await request.respondJson(403, message: 'Web send expired or invalid.');
       }
+
+      final maxUses = webSendState.maxUses;
+      final remainingUses = webSendState.remainingUses;
 
       return await request.respondJson(
         200,
@@ -126,6 +221,14 @@ class SendController {
           'files': t.web.files,
           'fileName': t.web.fileName,
           'size': t.web.size,
+          'senderAlias': _routeAlias,
+          'avatarUrl': resolveAvatarUrlForRequest(server, request),
+          'remainingUses': remainingUses,
+          'maxUses': maxUses,
+          'usesStatus': maxUses == null
+              ? t.web.usesStatusUnlimited
+              : t.web.usesStatusLimited(remaining: remainingUses ?? 0, total: maxUses),
+          'filesFrom': t.web.filesFrom(alias: _routeAlias),
         },
       );
     });
@@ -142,7 +245,7 @@ class SendController {
         final session = server.getState().webSendState?.sessions[requestSessionId];
         if (session != null && session.responseHandler == null && session.ip == request.ip) {
           final deviceInfo = server.ref.read(deviceInfoProvider);
-          final avatarUrl = resolveAvatarUrlForServer(server);
+          final avatarUrl = resolveAvatarUrlForRequest(server, request);
           return await request.respondJson(
             200,
             body: ReceiveRequestResponseDto(
@@ -224,9 +327,9 @@ class SendController {
           ),
         ),
       );
-      _markSingleUseConsumed();
+      _incrementUseCount();
       final deviceInfo = server.ref.read(deviceInfoProvider);
-      final avatarUrl = resolveAvatarUrlForServer(server);
+      final avatarUrl = resolveAvatarUrlForRequest(server, request);
       return await request.respondJson(
         200,
         body: ReceiveRequestResponseDto(
@@ -282,11 +385,12 @@ class SendController {
         final byteStream = Stream.fromIterable([file.bytes!]);
         final (streamController, subscription) = byteStream.digested();
 
-        await request.response.addStream(streamController.stream).then((_) {
+        await request.response.addStream(streamController.stream).then((_) async {
           // ignore: discarded_futures
           request.response.close();
           // ignore: discarded_futures
           subscription.cancel();
+          await _recordSendHistory(file: file, session: session);
         });
       } else {
         final path = file.path!;
@@ -299,9 +403,10 @@ class SendController {
         final fileStream = isContentUri ? UriContent().getContentStream(Uri.parse(path)) : File(path).openRead();
         final (streamController, subscription) = fileStream.digested();
 
-        await request.response.addStream(streamController.stream).then((_) {
+        await request.response.addStream(streamController.stream).then((_) async {
           request.response.close(); // ignore: discarded_futures
           subscription.cancel(); // ignore: discarded_futures
+          await _recordSendHistory(file: file, session: session);
         });
       }
     });
@@ -309,11 +414,12 @@ class SendController {
 
   Future<void> initializeWebSend({
     required List<CrossFile> files,
-    bool singleUse = false,
+    int? maxUses,
+    bool quickShare = false,
     Duration? expiry,
   }) async {
-    final shareToken = singleUse ? _uuid.v4() : null;
-    final expiresAt = singleUse ? DateTime.now().add(expiry ?? quickShareExpiry) : null;
+    final shareToken = quickShare ? _uuid.v4() : null;
+    final expiresAt = quickShare ? DateTime.now().add(expiry ?? quickShareExpiry) : null;
 
     final webSendState = WebSendState(
       sessions: {},
@@ -326,7 +432,7 @@ class SendController {
               WebSendFile(
                 file: FileDto(
                   id: id,
-                  fileName: file.name,
+                  fileName: file.name.normalizeRelativePath(),
                   size: file.size,
                   fileType: file.fileType,
                   hash: null,
@@ -348,12 +454,13 @@ class SendController {
           }),
         ),
       ),
-      autoAccept: singleUse ? true : server.ref.read(settingsProvider).shareViaLinkAutoAccept,
+      autoAccept: quickShare ? true : server.ref.read(settingsProvider).shareViaLinkAutoAccept,
       pin: null,
       pinAttempts: {},
-      singleUse: singleUse,
+      maxUses: quickShare ? maxUses : null,
       shareToken: shareToken,
       expiresAt: expiresAt,
+      useCount: 0,
     );
 
     server.setState(
@@ -361,6 +468,10 @@ class SendController {
         webSendState: webSendState,
       ),
     );
+
+    if (quickShare) {
+      await _startHttpShareServer();
+    }
   }
 
   void acceptRequest(String sessionId) {

@@ -91,7 +91,11 @@ const _deviceType = 'ls_device_type';
 const _deviceModel = 'ls_device_model';
 const _avatarUrl = 'ls_avatar_url';
 const _shareViaLinkAutoAccept = 'ls_share_via_link_auto_accept';
+const _qrShareMaxUses = 'ls_qr_share_max_uses';
 const _advancedSettingsKey = 'ls_advanced_settings';
+
+/// 0 = unlimited, otherwise the max number of QR share uses.
+const defaultQrShareMaxUses = 1;
 
 final persistenceProvider = Provider<PersistenceService>((ref) {
   throw Exception('persistenceProvider not initialized');
@@ -375,6 +379,14 @@ class PersistenceService {
 
   Future<void> setShareViaLinkAutoAccept(bool shareViaLinkAutoAccept) async {
     await _prefs.setBool(_shareViaLinkAutoAccept, shareViaLinkAutoAccept);
+  }
+
+  int getQrShareMaxUses() {
+    return _prefs.getInt(_qrShareMaxUses) ?? defaultQrShareMaxUses;
+  }
+
+  Future<void> setQrShareMaxUses(int maxUses) async {
+    await _prefs.setInt(_qrShareMaxUses, maxUses);
   }
 
   String getMulticastGroup() {

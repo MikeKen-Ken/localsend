@@ -23,7 +23,7 @@ class SelectedReceivingFilesNotifier extends Notifier<Map<String, String>> {
 
   void setFiles(List<FileDto> files) {
     state = {
-      for (final f in files) f.id: f.fileName, // by default, accept all files and take their original name
+      for (final f in files) f.id: f.fileName.normalizeRelativePath(), // by default, accept all files and take their original name
     };
   }
 
@@ -34,7 +34,7 @@ class SelectedReceivingFilesNotifier extends Notifier<Map<String, String>> {
   void select(FileDto file) {
     state = {
       ...state,
-      file.id: file.fileName,
+      file.id: file.fileName.normalizeRelativePath(),
     };
   }
 

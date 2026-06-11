@@ -288,6 +288,8 @@ class _TranslationsReceiveHistoryPageZhCn extends TranslationsReceiveHistoryPage
   @override
   String get empty => '无历史记录。';
   @override
+  String sentTo({required String alias}) => '发送至 $alias';
+  @override
   late final _TranslationsReceiveHistoryPageEntryActionsZhCn entryActions = _TranslationsReceiveHistoryPageEntryActionsZhCn._(_root);
 }
 
@@ -680,6 +682,12 @@ class _TranslationsWebZhCn extends TranslationsWebEn {
   String get fileName => '文件名';
   @override
   String get size => '大小';
+  @override
+  String filesFrom({required String alias}) => '来自 $alias 的文件';
+  @override
+  String usesStatusLimited({required Object remaining, required Object total}) => '剩余 $remaining/$total 次扫码';
+  @override
+  String get usesStatusUnlimited => '扫码次数：不限';
 }
 
 // Path: assetPicker
@@ -1250,6 +1258,8 @@ class _TranslationsDialogsFileInfoZhCn extends TranslationsDialogsFileInfoEn {
   @override
   String get sender => '发送者：';
   @override
+  String get recipient => '接收者：';
+  @override
   String get time => '时间：';
 }
 
@@ -1369,10 +1379,37 @@ class _TranslationsDialogsQrZhCn extends TranslationsDialogsQrEn {
   String get expired => '分享链接已过期。';
 
   @override
-  String get consumed => '已有人访问此链接，二维码已失效。';
+  String get consumed => '分享次数已用完，二维码已失效。';
+
+  @override
+  String usesRemaining({required Object n}) => '还可使用 $n 次';
+
+  @override
+  String usesStatusLimited({required Object remaining, required Object total}) => '剩余 $remaining/$total 次扫码';
+
+  @override
+  String get usesStatusUnlimited => '扫码次数：不限';
+
+  @override
+  String get useLimit => '二维码使用次数';
+
+  @override
+  String get useLimitSingle => '1 次';
+
+  @override
+  String get useLimitTriple => '3 次';
+
+  @override
+  String get useLimitFive => '5 次';
+
+  @override
+  String get useLimitUnlimited => '不限次数';
 
   @override
   String get hint => '扫描二维码或复制下方链接即可下载，仅限同一局域网内使用。';
+
+  @override
+  String get httpsBrowserWarning => '已启用 HTTPS，浏览器打开链接时可能提示证书不受信任。请在设置中关闭 HTTPS，或改用 LocalSend 应用扫码下载。';
 
   @override
   String get error => '无法开始分享，请检查网络连接。';

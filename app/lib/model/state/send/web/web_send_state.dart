@@ -11,10 +11,10 @@ class WebSendState with WebSendStateMappable {
   final bool autoAccept; // automatically accept incoming requests
   final String? pin;
   final Map<String, int> pinAttempts; // IP address -> attempts (will be reset on session end)
-  final bool singleUse; // invalidate after first successful access
+  final int? maxUses; // null = unlimited uses
   final String? shareToken; // required token in URL for protected shares
   final DateTime? expiresAt; // auto-expire time
-  final bool consumed; // true after first successful prepare-download in single-use mode
+  final int useCount; // number of successful prepare-download accesses
 
   const WebSendState({
     required this.sessions,
@@ -22,18 +22,22 @@ class WebSendState with WebSendStateMappable {
     required this.autoAccept,
     required this.pin,
     required this.pinAttempts,
-    this.singleUse = false,
+    this.maxUses,
     this.shareToken,
     this.expiresAt,
-    this.consumed = false,
+    this.useCount = 0,
   });
 
   bool get isExpired => expiresAt != null && DateTime.now().isAfter(expiresAt!);
 
-  bool get isInvalid => isExpired || (singleUse && consumed);
+  bool get isUsesExhausted => maxUses != null && useCount >= maxUses!;
+
+  bool get isInvalid => isExpired || isUsesExhausted;
+
+  int? get remainingUses => maxUses != null ? maxUses! - useCount : null;
 
   @override
   String toString() {
-    return 'WebSendState(sessions: $sessions, files: <${files.keys}>, autoAccept: $autoAccept, pin: $pin, pinAttempts: $pinAttempts, singleUse: $singleUse, shareToken: $shareToken, expiresAt: $expiresAt, consumed: $consumed)';
+    return 'WebSendState(sessions: $sessions, files: <${files.keys}>, autoAccept: $autoAccept, pin: $pin, pinAttempts: $pinAttempts, maxUses: $maxUses, shareToken: $shareToken, expiresAt: $expiresAt, useCount: $useCount)';
   }
 }
