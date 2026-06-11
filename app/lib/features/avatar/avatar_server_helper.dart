@@ -15,8 +15,9 @@ String? resolveAvatarUrlForRequest(ServerUtils server, HttpRequest request) {
   }
 
   // HttpRequest.uri often omits host/port/scheme; use the socket the request arrived on.
+  final localIps = server.ref.read(localIpProvider).localIps;
   final localPort = request.connectionInfo?.localPort ?? state.port;
-  final localIp = request.connectionInfo?.localAddress.address ?? server.ref.read(localIpProvider).localIps.firstOrNull;
+  final localIp = _resolveLocalIpForConnection(request, localIps);
   final https = state.https && localPort == state.port;
 
   return AvatarService.resolveAvatarUrl(
@@ -27,6 +28,30 @@ String? resolveAvatarUrlForRequest(ServerUtils server, HttpRequest request) {
     port: localPort,
     https: https,
   );
+}
+
+/// Picks the local IP that best matches the socket [request] arrived on.
+///
+/// `HttpConnectionInfo` no longer exposes `localAddress`; infer from the client's
+/// remote address and our known LAN interfaces (same /24 prefix).
+String? _resolveLocalIpForConnection(HttpRequest request, List<String> localIps) {
+  if (localIps.isEmpty) {
+    return null;
+  }
+  if (localIps.length == 1) {
+    return localIps.first;
+  }
+
+  final remoteIp = request.connectionInfo?.remoteAddress.address;
+  if (remoteIp == null || remoteIp.contains(':')) {
+    return localIps.firstOrNull;
+  }
+
+  final remotePrefix = remoteIp.split('.').take(3).join('.');
+  return localIps
+          .where((ip) => !ip.contains(':') && ip.split('.').take(3).join('.') == remotePrefix)
+          .firstOrNull ??
+      localIps.firstOrNull;
 }
 
 String? resolveAvatarUrlForServer(ServerUtils server) {
