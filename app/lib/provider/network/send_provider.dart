@@ -142,6 +142,66 @@ class SendNotifier extends Notifier<Map<String, SendSessionState>> {
       );
     }
 
+    await _prepareAndSend(
+      sessionId: sessionId,
+      target: target,
+      background: background,
+      requestDto: requestDto,
+      files: requestState.files,
+    );
+  }
+
+  /// Retries a session that failed during the prepare-upload phase.
+  Future<void> retrySession(String sessionId) async {
+    final session = state[sessionId];
+    if (session == null || session.status != SessionStatus.finishedWithErrors) {
+      return;
+    }
+
+    final originDevice = ref.read(deviceFullInfoProvider);
+    final requestDto = rust_model.PrepareUploadRequestDto(
+      info: rust_model.RegisterDto(
+        alias: originDevice.alias,
+        version: originDevice.version,
+        deviceModel: originDevice.deviceModel,
+        avatarUrl: originDevice.avatarUrl,
+        deviceType: originDevice.deviceType.toRust(),
+        token: originDevice.fingerprint,
+        port: originDevice.port,
+        protocol: originDevice.https ? rust_model.ProtocolType.https : rust_model.ProtocolType.http,
+        hasWebInterface: originDevice.download,
+      ),
+      files: {
+        for (final entry in session.files.entries) entry.key: entry.value.file.toRust(),
+      },
+    );
+
+    state = state.updateSession(
+      sessionId: sessionId,
+      state: (s) => s?.copyWith(
+        status: SessionStatus.waiting,
+        errorMessage: null,
+      ),
+    );
+
+    await _prepareAndSend(
+      sessionId: sessionId,
+      target: session.target,
+      background: session.background,
+      requestDto: requestDto,
+      files: session.files,
+    );
+  }
+
+  Future<void> _prepareAndSend({
+    required String sessionId,
+    required Device target,
+    required bool background,
+    required rust_model.PrepareUploadRequestDto requestDto,
+    required Map<String, SendingFile> files,
+  }) async {
+    final client = ref.read(httpProvider).v2;
+
     rust_http.PrepareUploadResult? response;
     bool invalidPin;
     bool pinFirstAttempt = true;
@@ -282,7 +342,7 @@ class SendNotifier extends Notifier<Map<String, SendSessionState>> {
     }
 
     final sendingFiles = {
-      for (final file in requestState.files.values)
+      for (final file in files.values)
         file.file.id: fileMap.containsKey(file.file.id) ? file.copyWith(token: fileMap[file.file.id]) : file.copyWith(status: FileStatus.skipped),
     };
 
@@ -504,6 +564,60 @@ class SendNotifier extends Notifier<Map<String, SendSessionState>> {
     }
 
     return true;
+  }
+
+  /// Retries all failed files in a session.
+  Future<void> retryFailedFiles(String sessionId) async {
+    final sessionState = state[sessionId];
+    if (sessionState == null) {
+      return;
+    }
+
+    final failedFiles = sessionState.files.values.where((f) => f.status == FileStatus.failed && f.token != null).toList();
+    if (failedFiles.isEmpty) {
+      return;
+    }
+
+    state = state.updateSession(
+      sessionId: sessionId,
+      state: (s) => s?.copyWith(
+        status: SessionStatus.sending,
+        errorMessage: null,
+        endTime: null,
+        files: s!.files.map((key, value) {
+          if (value.status == FileStatus.failed) {
+            return MapEntry(key, value.copyWith(status: FileStatus.queue, errorMessage: null));
+          }
+          return MapEntry(key, value);
+        }),
+      ),
+    );
+
+    final queue = Queue<SendingFile>()..addAll(failedFiles);
+    final concurrency = ref.read(parentIsolateProvider).uploadIsolateCount;
+
+    final futures = List.generate(concurrency, (index) async {
+      while (true) {
+        final file = switch (queue.isEmpty) {
+          true => null,
+          false => queue.removeFirst(),
+        };
+
+        if (file == null) {
+          break;
+        }
+
+        await sendFile(
+          sessionId: sessionId,
+          isolateIndex: index,
+          file: file,
+          isRetry: false,
+        );
+      }
+    });
+
+    await Future.wait(futures);
+    _finish(sessionId: sessionId);
   }
 
   /// Closes the send-session and sends a cancel event to the receiver.

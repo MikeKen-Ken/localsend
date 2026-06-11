@@ -179,7 +179,12 @@ class _SendPageState extends State<SendPage> with Refena {
                                         ),
                                         onPressed: () async => showDialog(
                                           context: context,
-                                          builder: (_) => ErrorDialog(error: sendState.errorMessage!),
+                                          builder: (_) => ErrorDialog(
+                                            error: sendState.errorMessage!,
+                                            onRetry: () async {
+                                              await ref.notifier(sendProvider).retrySession(widget.sessionId);
+                                            },
+                                          ),
                                         ),
                                         child: const Icon(Icons.info),
                                       ),
@@ -188,6 +193,17 @@ class _SendPageState extends State<SendPage> with Refena {
                               ),
                               _ => const SizedBox(),
                             },
+                            if (sendState.status == SessionStatus.finishedWithErrors)
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 10),
+                                child: FilledButton.icon(
+                                  onPressed: () async {
+                                    await ref.notifier(sendProvider).retrySession(widget.sessionId);
+                                  },
+                                  icon: const Icon(Icons.refresh),
+                                  label: Text(t.general.retry),
+                                ),
+                              ),
                             Center(
                               child: FilledButton.icon(
                                 onPressed: () {

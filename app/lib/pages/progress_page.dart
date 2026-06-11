@@ -226,6 +226,7 @@ class _ProgressPageState extends State<ProgressPage> with Refena {
 
     final fileStatusMap = receiveSession?.files.map((k, f) => MapEntry(k, f.status)) ?? sendSession!.files.map((k, f) => MapEntry(k, f.status));
     final finishedCount = fileStatusMap.values.where((s) => s == FileStatus.finished).length;
+    final hasFailedFiles = sendSession != null && fileStatusMap.values.any((s) => s == FileStatus.failed);
 
     return PopScope(
       onPopInvokedWithResult: (didPop, result) {
@@ -396,7 +397,21 @@ class _ProgressPageState extends State<ProgressPage> with Refena {
                                         onTap: () async {
                                           await showDialog(
                                             context: context,
-                                            builder: (_) => ErrorDialog(error: errorMessage!),
+                                            builder: (_) => ErrorDialog(
+                                              error: errorMessage!,
+                                              onRetry: sendSession != null && fileStatus == FileStatus.failed
+                                                  ? () async {
+                                                      await ref
+                                                          .notifier(sendProvider)
+                                                          .sendFile(
+                                                            sessionId: widget.sessionId,
+                                                            isolateIndex: 0,
+                                                            file: sendSession.files[file.id]!,
+                                                            isRetry: true,
+                                                          );
+                                                    }
+                                                  : null,
+                                            ),
                                           );
                                         },
                                         child: Padding(
@@ -504,6 +519,15 @@ class _ProgressPageState extends State<ProgressPage> with Refena {
                                 icon: const Icon(Icons.info),
                                 label: Text(_advanced ? t.general.hide : t.general.advanced),
                               ),
+                              if (status == SessionStatus.finishedWithErrors && hasFailedFiles)
+                                TextButton.icon(
+                                  style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.onSurface),
+                                  onPressed: () async {
+                                    await ref.notifier(sendProvider).retryFailedFiles(widget.sessionId);
+                                  },
+                                  icon: const Icon(Icons.refresh),
+                                  label: Text(t.general.retry),
+                                ),
                               TextButton.icon(
                                 style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.onSurface),
                                 onPressed: () => _exit(closeSession: true),

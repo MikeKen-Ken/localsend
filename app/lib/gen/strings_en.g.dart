@@ -169,6 +169,9 @@ class TranslationsGeneralEn {
   /// en: 'Undo changes'
   String get reset => 'Undo changes';
 
+  /// en: 'Retry'
+  String get retry => 'Retry';
+
   /// en: 'Restart'
   String get restart => 'Restart';
 

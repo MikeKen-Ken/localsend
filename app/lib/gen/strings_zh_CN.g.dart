@@ -157,6 +157,8 @@ class _TranslationsGeneralZhCn extends TranslationsGeneralEn {
   @override
   String get reset => '重置';
   @override
+  String get retry => '重试';
+  @override
   String get restart => '重启';
   @override
   String get settings => '设置';
