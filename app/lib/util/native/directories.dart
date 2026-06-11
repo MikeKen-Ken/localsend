@@ -6,8 +6,13 @@ import 'package:path_provider/path_provider.dart' as path;
 Future<String> getDefaultDestinationDirectory() async {
   switch (defaultTargetPlatform) {
     case TargetPlatform.android:
-      final dir = await path.getDownloadsDirectory();
-      return dir?.path ?? '/storage/emulated/0/Download';
+      // path_provider 返回的是应用私有目录（Android/data/<package>/files/Download），
+      // 这里改用系统公共 Download/localsend 子目录，便于在系统「下载」应用中查看。
+      const dir = '/storage/emulated/0/Download/localsend';
+      try {
+        await Directory(dir).create(recursive: true);
+      } catch (_) {}
+      return dir;
     case TargetPlatform.iOS:
       return (await path.getApplicationDocumentsDirectory()).path;
     case TargetPlatform.linux:
