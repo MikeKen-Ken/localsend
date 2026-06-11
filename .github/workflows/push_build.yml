@@ -131,15 +131,13 @@ jobs:
           Copy-Item ../scripts/windows/x64/vcruntime140.dll build/windows/x64/runner/Release/
           Copy-Item ../scripts/windows/x64/vcruntime140_1.dll build/windows/x64/runner/Release/
 
-      - name: Zip compiled files
-        working-directory: app
-        run: Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath LocalSend.zip -Force
-
-      - name: Upload zip
+      # Upload the Release folder directly (not a zip). GitHub Actions already
+      # wraps artifacts in an archive when downloading from the Artifacts UI.
+      - name: Upload Windows build
         uses: actions/upload-artifact@v6
         with:
-          name: windows-zip-x86-64-result
-          path: app/LocalSend.zip
+          name: windows-release
+          path: app/build/windows/x64/runner/Release/
           retention-days: 30
 
   upload_release:
@@ -157,8 +155,13 @@ jobs:
 
       - uses: actions/download-artifact@v7
         with:
-          name: windows-zip-x86-64-result
-          path: windows-zip-x86-64-result
+          name: windows-release
+          path: windows-release
+
+      - name: Zip Windows build for release
+        run: |
+          cd windows-release
+          zip -r ../LocalSend-${{ needs.version.outputs.version }}-windows-x86-64.zip .
 
       - name: Upload to GitHub Release
         uses: ./.github/actions/publish-release-asset
@@ -167,4 +170,4 @@ jobs:
           draft: "true"
           assets: |
             apk-result/app-release.apk#LocalSend-${{ needs.version.outputs.version }}-android-arm64v8.apk
-            windows-zip-x86-64-result/LocalSend.zip#LocalSend-${{ needs.version.outputs.version }}-windows-x86-64.zip
+            LocalSend-${{ needs.version.outputs.version }}-windows-x86-64.zip#LocalSend-${{ needs.version.outputs.version }}-windows-x86-64.zip
