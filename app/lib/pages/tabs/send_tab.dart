@@ -56,7 +56,8 @@ class SendTab extends StatelessWidget {
         final buttonWidth = sizingInformation.isDesktop ? BigButton.desktopWidth : BigButton.mobileWidth;
         final ref = context.ref;
         final myDevice = ref.watch(deviceFullInfoProvider);
-        final hasLocalAvatar = ref.watch(avatarLocalProvider);
+        final avatarRevision = ref.watch(avatarLocalProvider);
+        final hasLocalAvatar = avatarRevision > 0;
         return Stack(
           children: [
             ResponsiveListView(
@@ -72,7 +73,11 @@ class SendTab extends StatelessWidget {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 10, bottom: 10, left: _horizontalPadding, right: _horizontalPadding),
-                  child: DeviceListTile(device: myDevice, useLocalAvatarFile: hasLocalAvatar),
+                  child: DeviceListTile(
+                    device: myDevice,
+                    useLocalAvatarFile: hasLocalAvatar,
+                    localAvatarRevision: avatarRevision,
+                  ),
                 ),
                 if (vm.selectedFiles.isEmpty) ...[
                   Padding(

@@ -49,9 +49,14 @@ abstract final class AvatarService {
     required String ip,
     required int port,
     required bool https,
+    int? revision,
   }) {
     final scheme = https ? 'https' : 'http';
-    return '$scheme://$ip:$port${ApiRoute.avatar.v2}';
+    final url = '$scheme://$ip:$port${ApiRoute.avatar.v2}';
+    if (revision != null && revision > 0) {
+      return '$url?v=$revision';
+    }
+    return url;
   }
 
   static String? resolveAvatarUrl({
@@ -60,9 +65,10 @@ abstract final class AvatarService {
     required String? localIp,
     required int? port,
     required bool https,
+    int localAvatarRevision = 0,
   }) {
     if (hasLocalAvatar && localIp != null && port != null && port > 0) {
-      return buildServeUrl(ip: localIp, port: port, https: https);
+      return buildServeUrl(ip: localIp, port: port, https: https, revision: localAvatarRevision);
     }
 
     final trimmed = externalAvatarUrl?.trim();

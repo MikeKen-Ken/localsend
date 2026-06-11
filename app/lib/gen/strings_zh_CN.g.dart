@@ -1561,11 +1561,19 @@ class _TranslationsSettingsTabNetworkAvatarZhCn extends TranslationsSettingsTabN
   @override
   String get pickImage => '选择图片';
   @override
+  String get edit => '编辑裁剪';
+  @override
   String get remove => '移除';
+  @override
+  String get urlHint => 'https://example.com/avatar.png';
   @override
   String get cropTitle => '裁剪头像';
   @override
   String get cropSize => '选区大小';
+  @override
+  String cropSizePixels({required Object size}) => '${size} × ${size} 像素';
+  @override
+  String cropSizeRangeHint({required Object min, required Object max}) => '可调范围：${min} – ${max} 像素（取决于原图较短边）';
   @override
   String get confirm => '确定';
   @override

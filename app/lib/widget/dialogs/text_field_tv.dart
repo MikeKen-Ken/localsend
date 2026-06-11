@@ -12,12 +12,14 @@ class TextFieldTv extends StatefulWidget {
   final TextEditingController controller;
   final ValueChanged<String>? onChanged;
   final VoidCallback? onDelete;
+  final String? hintText;
 
   const TextFieldTv({
     required this.name,
     required this.controller,
     this.onChanged,
     this.onDelete,
+    this.hintText,
   });
 
   @override
@@ -47,6 +49,7 @@ class _TextFieldTvState extends State<TextFieldTv> with Refena {
                   textAlign: TextAlign.center,
                   onChanged: widget.onChanged,
                   autofocus: true,
+                  decoration: InputDecoration(hintText: widget.hintText),
                   onFieldSubmitted: (_) => context.pop(),
                 ),
                 actions: [
@@ -74,6 +77,7 @@ class _TextFieldTvState extends State<TextFieldTv> with Refena {
         textAlign: TextAlign.center,
         onChanged: widget.onChanged,
         decoration: InputDecoration(
+          hintText: widget.hintText,
           suffixIcon: widget.onDelete != null
               ? IconButton(
                   icon: Icon(Icons.clear),

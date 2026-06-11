@@ -66,8 +66,8 @@ class _AvatarCropPageState extends State<AvatarCropPage> {
 
   void _onCropDrag(Offset delta, double scale) {
     setState(() {
-      _cropCenterX -= delta.dx / scale;
-      _cropCenterY -= delta.dy / scale;
+      _cropCenterX += delta.dx / scale;
+      _cropCenterY += delta.dy / scale;
       _clampCropCenter();
     });
   }
@@ -152,12 +152,33 @@ class _AvatarCropPageState extends State<AvatarCropPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(t.settingsTab.network.avatar.cropSize),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(t.settingsTab.network.avatar.cropSize),
+                    Text(
+                      t.settingsTab.network.avatar.cropSizePixels(size: _cropSize.round()),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                    ),
+                  ],
+                ),
                 Slider(
                   min: _minCropSize,
                   max: _maxCropSize,
                   value: _cropSize.clamp(_minCropSize, _maxCropSize),
                   onChanged: _onCropSizeChanged,
+                ),
+                Text(
+                  t.settingsTab.network.avatar.cropSizeRangeHint(
+                    min: _minCropSize.round(),
+                    max: _maxCropSize.round(),
+                  ),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                 ),
               ],
             ),

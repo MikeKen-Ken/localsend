@@ -135,9 +135,13 @@
       "avatar": {
         "title": "Avatar",
         "pickImage": "Choose image",
+        "edit": "Edit crop",
         "remove": "Remove",
+        "urlHint": "https://example.com/avatar.png",
         "cropTitle": "Crop avatar",
         "cropSize": "Selection size",
+        "cropSizePixels": "{size} × {size} px",
+        "cropSizeRangeHint": "Range: {min} – {max} px (shortest image side)",
         "confirm": "Confirm",
         "cancel": "Cancel"
       },

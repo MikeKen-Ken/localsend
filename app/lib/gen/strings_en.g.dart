@@ -1819,14 +1819,26 @@ class TranslationsSettingsTabNetworkAvatarEn {
   /// en: 'Choose image'
   String get pickImage => 'Choose image';
 
+  /// en: 'Edit crop'
+  String get edit => 'Edit crop';
+
   /// en: 'Remove'
   String get remove => 'Remove';
+
+  /// en: 'https://example.com/avatar.png'
+  String get urlHint => 'https://example.com/avatar.png';
 
   /// en: 'Crop avatar'
   String get cropTitle => 'Crop avatar';
 
   /// en: 'Selection size'
   String get cropSize => 'Selection size';
+
+  /// en: '{size} × {size} px'
+  String cropSizePixels({required Object size}) => '${size} × ${size} px';
+
+  /// en: 'Range: {min} – {max} px (shortest image side)'
+  String cropSizeRangeHint({required Object min, required Object max}) => 'Range: ${min} – ${max} px (shortest image side)';
 
   /// en: 'Confirm'
   String get confirm => 'Confirm';

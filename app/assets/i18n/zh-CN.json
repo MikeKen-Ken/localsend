@@ -135,9 +135,13 @@
       "avatar": {
         "title": "头像",
         "pickImage": "选择图片",
+        "edit": "编辑裁剪",
         "remove": "移除",
+        "urlHint": "https://example.com/avatar.png",
         "cropTitle": "裁剪头像",
         "cropSize": "选区大小",
+        "cropSizePixels": "{size} × {size} 像素",
+        "cropSizeRangeHint": "可调范围：{min} – {max} 像素（取决于原图较短边）",
         "confirm": "确定",
         "cancel": "取消"
       },

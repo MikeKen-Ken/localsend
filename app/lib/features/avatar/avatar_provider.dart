@@ -9,8 +9,8 @@ import 'package:localsend_app/provider/network/server/server_provider.dart';
 import 'package:localsend_app/provider/settings_provider.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 
-/// 是否存在本地裁剪头像。
-final avatarLocalProvider = NotifierProvider<AvatarLocalService, bool>(
+/// 本地头像版本号：0 表示无本地头像，>0 表示存在且每次保存递增（用于刷新缓存）。
+final avatarLocalProvider = NotifierProvider<AvatarLocalService, int>(
   (ref) => AvatarLocalService(),
 );
 
@@ -24,7 +24,8 @@ final avatarResolvedUrlProvider = ViewProvider<String?>(
     final server = ref.read(serverProvider);
     return AvatarService.resolveAvatarUrl(
       externalAvatarUrl: externalUrl,
-      hasLocalAvatar: ref.read(avatarLocalProvider),
+      hasLocalAvatar: ref.read(avatarLocalProvider) > 0,
+      localAvatarRevision: ref.read(avatarLocalProvider),
       localIp: ref.read(localIpProvider).localIps.firstOrNull,
       port: server?.port,
       https: server?.https ?? https,
@@ -51,26 +52,26 @@ final avatarResolvedUrlProvider = ViewProvider<String?>(
   },
 );
 
-class AvatarLocalService extends Notifier<bool> {
+class AvatarLocalService extends Notifier<int> {
   @override
-  bool init() {
+  int init() {
     unawaited(_refresh());
-    return false;
+    return 0;
   }
 
   Future<void> _refresh() async {
-    state = await AvatarService.hasLocalAvatar();
+    state = (await AvatarService.hasLocalAvatar()) ? 1 : 0;
   }
 
   Future<void> saveCropped(Uint8List pngBytes, Ref ref) async {
     await AvatarService.saveCroppedAvatar(pngBytes);
-    state = true;
+    state = state > 0 ? state + 1 : 1;
     _triggerMulticast(ref);
   }
 
   Future<void> clear(Ref ref) async {
     await AvatarService.clearLocalAvatar();
-    state = false;
+    state = 0;
     _triggerMulticast(ref);
   }
 

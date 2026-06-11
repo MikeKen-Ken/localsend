@@ -35,7 +35,8 @@ final serverProvider = NotifierProvider<ServerService, ServerState?>(
     final syncState = ref.read(parentIsolateProvider).syncState;
     final resolvedAvatarUrl = AvatarService.resolveAvatarUrl(
       externalAvatarUrl: settings.avatarUrl,
-      hasLocalAvatar: ref.read(avatarLocalProvider),
+      hasLocalAvatar: ref.read(avatarLocalProvider) > 0,
+      localAvatarRevision: ref.read(avatarLocalProvider),
       localIp: ref.read(localIpProvider).localIps.firstOrNull,
       port: next?.port ?? settings.port,
       https: next?.https ?? settings.https,

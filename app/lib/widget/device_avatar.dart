@@ -10,10 +10,14 @@ class DeviceAvatar extends StatelessWidget {
   final double size;
   final bool useLocalAvatarFile;
 
+  /// 本地头像版本号，用于在文件路径不变时强制刷新 [Image.file] 缓存。
+  final int localAvatarRevision;
+
   const DeviceAvatar({
     required this.device,
     this.size = 46,
     this.useLocalAvatarFile = false,
+    this.localAvatarRevision = 0,
   });
 
   @override
@@ -27,6 +31,7 @@ class DeviceAvatar extends StatelessWidget {
             return ClipOval(
               child: Image.file(
                 file,
+                key: ValueKey('${file.path}-$localAvatarRevision'),
                 width: size,
                 height: size,
                 fit: BoxFit.cover,
@@ -51,6 +56,7 @@ class DeviceAvatar extends StatelessWidget {
     return ClipOval(
       child: Image.network(
         avatarUrl,
+        key: ValueKey(avatarUrl),
         width: size,
         height: size,
         fit: BoxFit.cover,

@@ -14,7 +14,8 @@ String? resolveAvatarUrlForServer(ServerUtils server) {
 
   return AvatarService.resolveAvatarUrl(
     externalAvatarUrl: settings.avatarUrl,
-    hasLocalAvatar: server.ref.read(avatarLocalProvider),
+    hasLocalAvatar: server.ref.read(avatarLocalProvider) > 0,
+    localAvatarRevision: server.ref.read(avatarLocalProvider),
     localIp: server.ref.read(localIpProvider).localIps.firstOrNull,
     port: state.port,
     https: state.https,

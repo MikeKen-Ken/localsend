@@ -49,7 +49,8 @@ final deviceFullInfoProvider = ViewProvider((ref) {
     deviceModel: rawInfo.deviceModel,
     avatarUrl: AvatarService.resolveAvatarUrl(
       externalAvatarUrl: settings.$2,
-      hasLocalAvatar: hasLocalAvatar,
+      hasLocalAvatar: hasLocalAvatar > 0,
+      localAvatarRevision: hasLocalAvatar,
       localIp: networkInfo.localIps.firstOrNull,
       port: serverState?.port,
       https: serverState?.https ?? settings.$3,

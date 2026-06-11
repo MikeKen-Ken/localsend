@@ -79,7 +79,8 @@ class _SendPageState extends State<SendPage> with Refena {
       );
     }
     final myDevice = ref.watch(deviceFullInfoProvider);
-    final hasLocalAvatar = ref.watch(avatarLocalProvider);
+    final avatarRevision = ref.watch(avatarLocalProvider);
+    final hasLocalAvatar = avatarRevision > 0;
     final targetDevice = sendState?.target ?? _targetDevice!;
     final targetFavoriteEntry = ref.watch(favoritesProvider.select((state) => state.findDevice(targetDevice)));
     final waiting = sendState?.status == SessionStatus.waiting;
@@ -110,6 +111,7 @@ class _SendPageState extends State<SendPage> with Refena {
                             child: DeviceListTile(
                               device: myDevice,
                               useLocalAvatarFile: hasLocalAvatar,
+                              localAvatarRevision: avatarRevision,
                             ),
                           ),
                           const SizedBox(height: 20),
