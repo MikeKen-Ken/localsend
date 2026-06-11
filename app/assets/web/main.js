@@ -135,7 +135,7 @@ function renderSenderInfo(data) {
   var senderName = document.getElementById('sender-name');
   var usesStatus = document.getElementById('uses-status');
 
-  senderName.innerText = data.filesFrom || data.senderAlias;
+  senderName.innerText = data.senderAlias;
   if (data.usesStatus) {
     usesStatus.innerText = data.usesStatus;
     usesStatus.style.display = 'block';
@@ -150,6 +150,7 @@ function renderSenderInfo(data) {
     img.alt = data.senderAlias;
     img.src = data.avatarUrl;
     img.onerror = function () {
+      avatarWrap.innerHTML = '';
       renderAvatarPlaceholder(avatarWrap, data.senderAlias);
     };
     avatarWrap.appendChild(img);
@@ -177,19 +178,24 @@ function handleSuccess(response) {
   sessionId = data.sessionId;
   sessionStorage.setItem('sessionId', sessionId);
 
-  if (data.info && data.info.alias) {
-    renderSenderInfo({
-      senderAlias: data.info.alias,
-      avatarUrl: data.info.avatarUrl,
-      filesFrom: (i18n.filesFrom || '{alias}').replace('{alias}', data.info.alias),
-      usesStatus: i18n.usesStatus
-    });
-  }
-
   document.getElementById('status-text').innerText = i18n.files + ' (' + getKeys(data.files).length + ')';
+
+  refreshUsesStatus();
 
   // Handling file display
   handleFilesDisplay(files, sessionId);
+}
+
+function refreshUsesStatus() {
+  makeRequest('/i18n.json', 'GET', function (response) {
+    if (response.status !== 200) {
+      return;
+    }
+    var data = JSON.parse(response.responseText);
+    if (data.usesStatus) {
+      document.getElementById('uses-status').innerText = data.usesStatus;
+    }
+  });
 }
 
 function handleFilesDisplay(files, sessionId) {

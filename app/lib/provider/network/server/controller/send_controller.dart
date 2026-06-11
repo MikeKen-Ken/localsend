@@ -228,7 +228,6 @@ class SendController {
           'usesStatus': maxUses == null
               ? t.web.usesStatusUnlimited
               : t.web.usesStatusLimited(remaining: remainingUses ?? 0, total: maxUses),
-          'filesFrom': t.web.filesFrom(alias: _routeAlias),
         },
       );
     });
