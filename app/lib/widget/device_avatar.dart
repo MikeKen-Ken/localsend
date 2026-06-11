@@ -78,6 +78,12 @@ class _RemoteAvatarImageState extends State<_RemoteAvatarImage> {
   @override
   void initState() {
     super.initState();
+    final cached = AvatarService.getCachedRemoteAvatarBytes(widget.avatarUrl);
+    if (cached != null) {
+      _bytes = cached;
+      _loading = false;
+      return;
+    }
     unawaited(_load(widget.avatarUrl));
   }
 
@@ -85,6 +91,12 @@ class _RemoteAvatarImageState extends State<_RemoteAvatarImage> {
   void didUpdateWidget(_RemoteAvatarImage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.avatarUrl != widget.avatarUrl) {
+      final cached = AvatarService.getCachedRemoteAvatarBytes(widget.avatarUrl);
+      if (cached != null) {
+        _bytes = cached;
+        _loading = false;
+        return;
+      }
       unawaited(_load(widget.avatarUrl));
     }
   }
