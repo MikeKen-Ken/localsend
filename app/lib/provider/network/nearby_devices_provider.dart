@@ -88,8 +88,10 @@ class RegisterDeviceAction extends AsyncReduxAction<NearbyDevicesService, Nearby
     } else {
       await Future.microtask(() {});
     }
+    final existing = state.devices[device.ip!];
+    final merged = existing != null ? mergeDiscoveredDevices(device, existing) : device;
     return state.copyWith(
-      devices: {...state.devices}..update(device.ip!, (_) => device, ifAbsent: () => device),
+      devices: {...state.devices, device.ip!: merged},
     );
   }
 }

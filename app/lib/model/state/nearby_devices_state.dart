@@ -28,7 +28,7 @@ class NearbyDevicesState with NearbyDevicesStateMappable {
       for (final device in devices) {
         final currentDevice = allDevices[device.fingerprint];
         if (currentDevice != null && currentDevice.alias == device.alias) {
-          allDevices[device.fingerprint] = currentDevice.merge(device);
+          allDevices[device.fingerprint] = mergeDiscoveredDevices(device, currentDevice);
         } else {
           allDevices[device.fingerprint] = device;
         }
@@ -38,24 +38,23 @@ class NearbyDevicesState with NearbyDevicesStateMappable {
   }
 }
 
-extension on Device {
-  Device merge(Device other) {
-    return Device(
-      signalingId: signalingId ?? other.signalingId,
-      ip: ip ?? other.ip,
-      version: version,
-      port: port,
-      https: https,
-      fingerprint: fingerprint,
-      alias: alias,
-      deviceModel: deviceModel,
-      avatarUrl: avatarUrl ?? other.avatarUrl,
-      deviceType: deviceType,
-      download: download,
-      discoveryMethods: {
-        ...discoveryMethods,
-        ...other.discoveryMethods,
-      },
-    );
-  }
+/// Merges [incoming] over [existing], keeping non-null fields from [existing] when [incoming] omits them.
+Device mergeDiscoveredDevices(Device incoming, Device existing) {
+  return Device(
+    signalingId: incoming.signalingId ?? existing.signalingId,
+    ip: incoming.ip ?? existing.ip,
+    version: incoming.version,
+    port: incoming.port,
+    https: incoming.https,
+    fingerprint: incoming.fingerprint,
+    alias: incoming.alias,
+    deviceModel: incoming.deviceModel ?? existing.deviceModel,
+    avatarUrl: incoming.avatarUrl ?? existing.avatarUrl,
+    deviceType: incoming.deviceType,
+    download: incoming.download,
+    discoveryMethods: {
+      ...existing.discoveryMethods,
+      ...incoming.discoveryMethods,
+    },
+  );
 }

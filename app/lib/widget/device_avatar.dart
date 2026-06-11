@@ -72,33 +72,69 @@ class _RemoteAvatarImage extends StatefulWidget {
 }
 
 class _RemoteAvatarImageState extends State<_RemoteAvatarImage> {
+  static const _retryDelays = <Duration>[
+    Duration(seconds: 5),
+    Duration(seconds: 15),
+    Duration(seconds: 30),
+    Duration(seconds: 60),
+  ];
+
   Uint8List? _bytes;
   bool _loading = true;
+  Timer? _retryTimer;
+  int _retryAttempt = 0;
 
   @override
   void initState() {
     super.initState();
-    final cached = AvatarService.getCachedRemoteAvatarBytes(widget.avatarUrl);
-    if (cached != null) {
-      _bytes = cached;
-      _loading = false;
-      return;
-    }
-    unawaited(_load(widget.avatarUrl));
+    _startLoad(widget.avatarUrl);
   }
 
   @override
   void didUpdateWidget(_RemoteAvatarImage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.avatarUrl != widget.avatarUrl) {
-      final cached = AvatarService.getCachedRemoteAvatarBytes(widget.avatarUrl);
-      if (cached != null) {
-        _bytes = cached;
-        _loading = false;
+      _cancelRetry();
+      _retryAttempt = 0;
+      _startLoad(widget.avatarUrl);
+    }
+  }
+
+  @override
+  void dispose() {
+    _cancelRetry();
+    super.dispose();
+  }
+
+  void _cancelRetry() {
+    _retryTimer?.cancel();
+    _retryTimer = null;
+  }
+
+  void _startLoad(String url) {
+    final cached = AvatarService.getCachedRemoteAvatarBytes(url);
+    if (cached != null) {
+      _bytes = cached;
+      _loading = false;
+      return;
+    }
+    unawaited(_load(url));
+  }
+
+  void _scheduleRetry(String url) {
+    _cancelRetry();
+    if (_bytes != null || !mounted || url != widget.avatarUrl) {
+      return;
+    }
+
+    final delay = _retryDelays[_retryAttempt.clamp(0, _retryDelays.length - 1)];
+    _retryAttempt++;
+    _retryTimer = Timer(delay, () {
+      if (!mounted || url != widget.avatarUrl || _bytes != null) {
         return;
       }
-      unawaited(_load(widget.avatarUrl));
-    }
+      unawaited(_load(url));
+    });
   }
 
   Future<void> _load(String url) async {
@@ -125,6 +161,13 @@ class _RemoteAvatarImageState extends State<_RemoteAvatarImage> {
       _bytes = bytes;
       _loading = false;
     });
+
+    if (bytes != null) {
+      _retryAttempt = 0;
+      _cancelRetry();
+    } else {
+      _scheduleRetry(url);
+    }
   }
 
   @override

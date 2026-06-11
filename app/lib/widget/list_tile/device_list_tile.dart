@@ -37,6 +37,7 @@ class DeviceListTile extends StatelessWidget {
     final badgeColor = Color.lerp(Theme.of(context).colorScheme.secondaryContainer, Colors.white, 0.3)!;
     return CustomListTile(
       icon: DeviceAvatar(
+        key: ValueKey('avatar-${device.fingerprint}'),
         device: device,
         useLocalAvatarFile: useLocalAvatarFile,
         localAvatarRevision: localAvatarRevision,
