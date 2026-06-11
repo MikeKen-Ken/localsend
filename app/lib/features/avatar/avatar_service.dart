@@ -53,6 +53,9 @@ abstract final class AvatarService {
     }
 
     final client = HttpClient();
+    if (_isLocalServeUrl(uri)) {
+      client.badCertificateCallback = (_, __, ___) => true;
+    }
     try {
       final request = await client.getUrl(uri);
       final response = await request.close();
@@ -65,6 +68,11 @@ abstract final class AvatarService {
     } finally {
       client.close();
     }
+  }
+
+  /// LocalSend serves avatars from the device HTTP(S) server (self-signed TLS).
+  static bool _isLocalServeUrl(Uri uri) {
+    return uri.path.contains(ApiRoute.avatar.v2) || uri.path.contains(ApiRoute.avatar.v1);
   }
 
   static String buildServeUrl({

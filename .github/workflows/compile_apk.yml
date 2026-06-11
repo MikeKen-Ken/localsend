@@ -82,16 +82,14 @@ jobs:
 
       - name: Build APK
         working-directory: ${{ env.APK_BUILD_DIR }}/app
-        run: flutter build apk --split-per-abi
+        run: flutter build apk --split-per-abi --target-platform android-arm64
 
       - name: Upload APK
         uses: actions/upload-artifact@v6
         with:
           name: apk-result
           path: |
-            ${{ env.APK_BUILD_DIR }}/app/build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
             ${{ env.APK_BUILD_DIR }}/app/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
-            ${{ env.APK_BUILD_DIR }}/app/build/app/outputs/flutter-apk/app-x86_64-release.apk
 
   upload_release:
     needs: [build, build_apk]
@@ -110,6 +108,4 @@ jobs:
         with:
           tag: v${{ needs.build.outputs.version }}
           assets: |
-            apk-result/app-armeabi-v7a-release.apk#LocalSend-${{ needs.build.outputs.version }}-android-arm32v7.apk
             apk-result/app-arm64-v8a-release.apk#LocalSend-${{ needs.build.outputs.version }}-android-arm64v8.apk
-            apk-result/app-x86_64-release.apk#LocalSend-${{ needs.build.outputs.version }}-android-x64.apk
