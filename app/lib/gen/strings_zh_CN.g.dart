@@ -1578,6 +1578,8 @@ class _TranslationsSettingsTabNetworkAvatarZhCn extends TranslationsSettingsTabN
   String get confirm => '确定';
   @override
   String get cancel => '取消';
+  @override
+  String get fetchFailed => '无法从 URL 加载图片';
 }
 
 // Path: settingsTab.network.networkOptions

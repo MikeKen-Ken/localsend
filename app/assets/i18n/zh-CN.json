@@ -143,7 +143,8 @@
         "cropSizePixels": "{size} × {size} 像素",
         "cropSizeRangeHint": "可调范围：{min} – {max} 像素（取决于原图较短边）",
         "confirm": "确定",
-        "cancel": "取消"
+        "cancel": "取消",
+        "fetchFailed": "无法从 URL 加载图片"
       },
       "deviceType": "设备类型",
       "deviceModel": "设备型号",

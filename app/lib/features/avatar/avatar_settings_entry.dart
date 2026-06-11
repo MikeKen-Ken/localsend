@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 import 'package:localsend_app/features/avatar/avatar_crop_page.dart';
 import 'package:localsend_app/features/avatar/avatar_provider.dart';
@@ -8,7 +9,9 @@ import 'package:localsend_app/features/avatar/avatar_service.dart';
 import 'package:localsend_app/gen/strings.g.dart';
 import 'package:localsend_app/provider/device_info_provider.dart';
 import 'package:localsend_app/provider/settings_provider.dart';
+import 'package:localsend_app/util/ui/snackbar.dart';
 import 'package:localsend_app/widget/device_avatar.dart';
+import 'package:localsend_app/widget/dialogs/loading_dialog.dart';
 import 'package:localsend_app/widget/dialogs/text_field_tv.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 
@@ -24,6 +27,9 @@ class AvatarSettingsEntry extends StatelessWidget {
     final ref = context.ref;
     final avatarRevision = ref.watch(avatarLocalProvider);
     final hasLocal = avatarRevision > 0;
+    final avatarUrl = ref.watch(settingsProvider.select((s) => s.avatarUrl));
+    final hasUrl = avatarUrl != null && avatarUrl.trim().isNotEmpty;
+    final hasAvatar = hasLocal || hasUrl;
     final previewDevice = ref.watch(deviceFullInfoProvider);
 
     return Column(
@@ -48,16 +54,14 @@ class AvatarSettingsEntry extends StatelessWidget {
                     icon: const Icon(Icons.image_outlined, size: 18),
                     label: Text(t.settingsTab.network.avatar.pickImage),
                   ),
-                  if (hasLocal) ...[
+                  if (hasAvatar) ...[
                     OutlinedButton.icon(
                       onPressed: () async => _editExisting(context, ref),
                       icon: const Icon(Icons.crop_outlined, size: 18),
                       label: Text(t.settingsTab.network.avatar.edit),
                     ),
                     OutlinedButton.icon(
-                      onPressed: () async {
-                        await ref.notifier(avatarLocalProvider).clear(ref);
-                      },
+                      onPressed: () async => _removeAvatar(context, ref),
                       icon: const Icon(Icons.delete_outline, size: 18),
                       label: Text(t.settingsTab.network.avatar.remove),
                     ),
@@ -106,12 +110,55 @@ class AvatarSettingsEntry extends StatelessWidget {
   }
 
   Future<void> _editExisting(BuildContext context, Ref ref) async {
-    final bytes = await AvatarService.readLocalAvatarBytes();
-    if (bytes == null || !context.mounted) {
+    Uint8List? bytes;
+    if (ref.read(avatarLocalProvider) > 0) {
+      bytes = await AvatarService.readLocalAvatarBytes();
+    } else {
+      final url = ref.read(settingsProvider).avatarUrl?.trim();
+      if (url == null || url.isEmpty) {
+        return;
+      }
+
+      if (!context.mounted) {
+        return;
+      }
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => const LoadingDialog(),
+      );
+      bytes = await AvatarService.fetchUrlImageBytes(url);
+      if (context.mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
+      }
+      if (bytes == null) {
+        if (context.mounted) {
+          context.showSnackBar(t.settingsTab.network.avatar.fetchFailed);
+        }
+        return;
+      }
+    }
+
+    if (bytes == null || img.decodeImage(bytes) == null) {
+      if (context.mounted) {
+        context.showSnackBar(t.settingsTab.network.avatar.fetchFailed);
+      }
+      return;
+    }
+
+    if (!context.mounted) {
       return;
     }
 
     await _cropAndSave(context, ref, bytes);
+  }
+
+  Future<void> _removeAvatar(BuildContext context, Ref ref) async {
+    if (ref.read(avatarLocalProvider) > 0) {
+      await ref.notifier(avatarLocalProvider).clear(ref);
+    }
+    urlController.text = '';
+    await ref.notifier(settingsProvider).setAvatarUrl(null);
   }
 
   Future<void> _cropAndSave(BuildContext context, Ref ref, Uint8List bytes) async {

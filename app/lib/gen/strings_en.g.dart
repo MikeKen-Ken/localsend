@@ -1845,6 +1845,9 @@ class TranslationsSettingsTabNetworkAvatarEn {
 
   /// en: 'Cancel'
   String get cancel => 'Cancel';
+
+  /// en: 'Could not load image from URL'
+  String get fetchFailed => 'Could not load image from URL';
 }
 
 // Path: settingsTab.network.networkOptions

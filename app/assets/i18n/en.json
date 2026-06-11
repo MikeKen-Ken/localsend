@@ -143,7 +143,8 @@
         "cropSizePixels": "{size} × {size} px",
         "cropSizeRangeHint": "Range: {min} – {max} px (shortest image side)",
         "confirm": "Confirm",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "fetchFailed": "Could not load image from URL"
       },
       "deviceType": "Device type",
       "deviceModel": "Device model",

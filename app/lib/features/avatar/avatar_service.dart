@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:common/api_route_builder.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 
 const _avatarFileName = 'avatar.png';
@@ -42,6 +43,27 @@ abstract final class AvatarService {
     final file = await _avatarFile;
     if (file.existsSync()) {
       await file.delete();
+    }
+  }
+
+  static Future<Uint8List?> fetchUrlImageBytes(String url) async {
+    final uri = Uri.tryParse(url.trim());
+    if (uri == null || !uri.hasScheme || (uri.scheme != 'http' && uri.scheme != 'https')) {
+      return null;
+    }
+
+    final client = HttpClient();
+    try {
+      final request = await client.getUrl(uri);
+      final response = await request.close();
+      if (response.statusCode != HttpStatus.ok) {
+        return null;
+      }
+      return await consolidateHttpClientResponseBytes(response);
+    } catch (_) {
+      return null;
+    } finally {
+      client.close();
     }
   }
 
