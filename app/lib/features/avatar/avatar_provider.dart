@@ -37,20 +37,8 @@ final avatarResolvedUrlProvider = ViewProvider<String?>(
     );
   },
   onChanged: (_, next, ref) {
+    _syncResolvedAvatarUrl(ref, resolvedAvatarUrl: next);
     final syncState = ref.read(parentIsolateProvider).syncState;
-    if (syncState.avatarUrl == next) {
-      return;
-    }
-    ref.redux(parentIsolateProvider).dispatch(
-          IsolateSyncServerStateAction(
-            alias: syncState.alias,
-            avatarUrl: next,
-            port: syncState.port,
-            protocol: syncState.protocol,
-            serverRunning: syncState.serverRunning,
-            download: syncState.download,
-          ),
-        );
     if (syncState.serverRunning) {
       ref.redux(parentIsolateProvider).dispatch(IsolateSendMulticastAnnouncementAction());
     }
@@ -72,6 +60,7 @@ class AvatarLocalService extends Notifier<int> {
     } else {
       ref.notifier(avatarLocalBytesProvider).clear();
     }
+    _triggerMulticast(ref);
   }
 
   Future<void> saveCropped(Uint8List pngBytes, Ref ref) async {
@@ -89,7 +78,7 @@ class AvatarLocalService extends Notifier<int> {
   }
 
   void _triggerMulticast(Ref ref) {
-    ref.read(avatarResolvedUrlProvider);
+    _syncCurrentResolvedAvatarUrl(ref);
     final syncState = ref.read(parentIsolateProvider).syncState;
     if (syncState.serverRunning) {
       ref.redux(parentIsolateProvider).dispatch(IsolateSendMulticastAnnouncementAction());
@@ -108,4 +97,26 @@ class AvatarLocalBytesService extends Notifier<Uint8List?> {
   void clear() {
     state = null;
   }
+}
+
+void _syncCurrentResolvedAvatarUrl(Ref ref) {
+  _syncResolvedAvatarUrl(ref, resolvedAvatarUrl: ref.read(avatarResolvedUrlProvider));
+}
+
+void _syncResolvedAvatarUrl(Ref ref, {required String? resolvedAvatarUrl}) {
+  final syncState = ref.read(parentIsolateProvider).syncState;
+  if (syncState.avatarUrl == resolvedAvatarUrl) {
+    return;
+  }
+
+  ref.redux(parentIsolateProvider).dispatch(
+        IsolateSyncServerStateAction(
+          alias: syncState.alias,
+          avatarUrl: resolvedAvatarUrl,
+          port: syncState.port,
+          protocol: syncState.protocol,
+          serverRunning: syncState.serverRunning,
+          download: syncState.download,
+        ),
+      );
 }

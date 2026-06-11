@@ -42,13 +42,13 @@ class DeviceAvatar extends StatelessWidget {
   }
 
   Widget _buildNetworkOrFallback() {
-    final avatarUrl = device.avatarUrl;
-    if (avatarUrl == null || avatarUrl.isEmpty) {
+    final fetchUrl = AvatarService.resolveFetchUrl(device);
+    if (fetchUrl == null) {
       return Icon(device.deviceType.icon, size: size);
     }
 
     return _RemoteAvatarImage(
-      avatarUrl: avatarUrl,
+      avatarUrl: fetchUrl,
       size: size,
       fallback: Icon(device.deviceType.icon, size: size),
     );
@@ -94,7 +94,17 @@ class _RemoteAvatarImageState extends State<_RemoteAvatarImage> {
       _loading = true;
     });
 
-    final bytes = await AvatarService.fetchUrlImageBytes(url);
+    Uint8List? bytes;
+    for (var attempt = 0; attempt < 3; attempt++) {
+      bytes = await AvatarService.fetchUrlImageBytes(url);
+      if (bytes != null || !mounted || url != widget.avatarUrl) {
+        break;
+      }
+      if (attempt < 2) {
+        await Future<void>.delayed(Duration(milliseconds: 500 * (attempt + 1)));
+      }
+    }
+
     if (!mounted || url != widget.avatarUrl) {
       return;
     }

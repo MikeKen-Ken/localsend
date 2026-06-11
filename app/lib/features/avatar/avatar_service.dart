@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:common/api_route_builder.dart';
+import 'package:common/model/device.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -53,7 +54,7 @@ abstract final class AvatarService {
     }
 
     final client = HttpClient();
-    if (_isLocalServeUrl(uri)) {
+    if (isLocalServeUrl(uri)) {
       client.badCertificateCallback = (_, __, ___) => true;
     }
     try {
@@ -71,8 +72,43 @@ abstract final class AvatarService {
   }
 
   /// LocalSend serves avatars from the device HTTP(S) server (self-signed TLS).
-  static bool _isLocalServeUrl(Uri uri) {
+  static bool isLocalServeUrl(Uri uri) {
     return uri.path.contains(ApiRoute.avatar.v2) || uri.path.contains(ApiRoute.avatar.v1);
+  }
+
+  /// Resolves the URL used to fetch a peer avatar.
+  ///
+  /// Announcements may embed [Device.ip] from another interface (VPN/TUN, multi-NIC).
+  /// Rewrite local avatar URLs to the IP we actually use to reach the device.
+  static String? resolveFetchUrl(Device device) {
+    final raw = device.avatarUrl?.trim();
+    if (raw == null || raw.isEmpty) {
+      return null;
+    }
+    return normalizeAvatarUrlForDevice(raw, device);
+  }
+
+  static String normalizeAvatarUrlForDevice(String avatarUrl, Device device) {
+    final uri = Uri.tryParse(avatarUrl.trim());
+    if (uri == null || !isLocalServeUrl(uri)) {
+      return avatarUrl.trim();
+    }
+
+    final ip = device.ip;
+    if (ip == null || ip.isEmpty || ip == '-') {
+      return avatarUrl.trim();
+    }
+
+    final port = device.port > 0 ? device.port : uri.port;
+    final scheme = device.https ? 'https' : 'http';
+
+    return Uri(
+      scheme: scheme,
+      host: ip,
+      port: port,
+      path: uri.path,
+      query: uri.hasQuery ? uri.query : null,
+    ).toString();
   }
 
   static String buildServeUrl({

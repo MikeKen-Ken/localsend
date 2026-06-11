@@ -22,6 +22,7 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       version: ${{ steps.get_version.outputs.version }}
+      build_number: ${{ steps.get_version.outputs.build_number }}
     steps:
       - uses: actions/checkout@v6
 
@@ -29,7 +30,12 @@ jobs:
         id: get_version
         run: |
           VERSION=$(sed -n 's/^version: \([0-9]*\.[0-9]*\.[0-9]*\).*/\1/p' app/pubspec.yaml)
+          PUBSPEC_BUILD=$(sed -n 's/^version: [0-9.]*+\([0-9]*\).*/\1/p' app/pubspec.yaml)
+          # pubspec build-number + workflow run counter → monotonic versionCode per CI build
+          BUILD_NUMBER=$((PUBSPEC_BUILD + ${{ github.run_number }}))
           echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "build_number=$BUILD_NUMBER" >> $GITHUB_OUTPUT
+          echo "Android build-number: $BUILD_NUMBER (pubspec +$PUBSPEC_BUILD, run #${{ github.run_number }})"
 
   build_android:
     needs: version
@@ -83,7 +89,7 @@ jobs:
 
       - name: Build APK
         working-directory: ${{ env.APK_BUILD_DIR }}/app
-        run: flutter build apk --target-platform android-arm64
+        run: flutter build apk --target-platform android-arm64 --build-number=${{ needs.version.outputs.build_number }}
 
       - name: Upload APK
         uses: actions/upload-artifact@v6
