@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:common/model/device.dart';
 import 'package:flutter/material.dart';
@@ -23,15 +23,16 @@ class DeviceAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (useLocalAvatarFile) {
-      return FutureBuilder<File?>(
-        future: AvatarService.getLocalAvatarFile(),
+      return FutureBuilder<Uint8List?>(
+        key: ValueKey(localAvatarRevision),
+        future: AvatarService.readLocalAvatarBytes(),
         builder: (context, snapshot) {
-          final file = snapshot.data;
-          if (file != null) {
+          final bytes = snapshot.data;
+          if (bytes != null) {
             return ClipOval(
-              child: Image.file(
-                file,
-                key: ValueKey('${file.path}-$localAvatarRevision'),
+              child: Image.memory(
+                bytes,
+                key: ValueKey(localAvatarRevision),
                 width: size,
                 height: size,
                 fit: BoxFit.cover,
