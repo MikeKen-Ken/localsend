@@ -18,6 +18,7 @@ class DeviceAvatar extends StatelessWidget {
   final int localAvatarRevision;
 
   const DeviceAvatar({
+    super.key,
     required this.device,
     this.size = 46,
     this.useLocalAvatarFile = false,
