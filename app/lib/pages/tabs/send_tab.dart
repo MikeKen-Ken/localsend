@@ -58,7 +58,8 @@ class SendTab extends StatelessWidget {
         final ref = context.ref;
         final myDevice = ref.watch(deviceFullInfoProvider);
         final avatarRevision = ref.watch(avatarLocalProvider);
-        final hasLocalAvatar = avatarRevision > 0;
+        final avatarBytes = ref.watch(avatarLocalBytesProvider);
+        final hasLocalAvatar = avatarRevision > 0 || avatarBytes != null;
         return Stack(
           children: [
             ResponsiveListView(

@@ -9,7 +9,6 @@ import 'package:localsend_app/provider/device_info_provider.dart';
 import 'package:localsend_app/provider/tv_provider.dart';
 import 'package:localsend_app/util/ip_helper.dart';
 import 'package:localsend_app/util/native/platform_check.dart';
-import 'package:localsend_app/widget/animations/initial_fade_transition.dart';
 import 'package:localsend_app/widget/column_list_view.dart';
 import 'package:localsend_app/widget/custom_icon_button.dart';
 import 'package:localsend_app/widget/device_avatar.dart';
@@ -47,34 +46,27 @@ class ReceiveTab extends StatelessWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        InitialFadeTransition(
-                          duration: const Duration(milliseconds: 300),
-                          delay: const Duration(milliseconds: 200),
-                          child: Consumer(
-                            builder: (context, ref) {
-                              final myDevice = ref.watch(deviceFullInfoProvider);
-                              final avatarRevision = ref.watch(avatarLocalProvider);
-                              return DeviceAvatar(
-                                device: myDevice,
-                                size: 140,
-                                useLocalAvatarFile: avatarRevision > 0,
-                                localAvatarRevision: avatarRevision,
-                              );
-                            },
-                          ),
+                        Consumer(
+                          builder: (context, ref) {
+                            final myDevice = ref.watch(deviceFullInfoProvider);
+                            final avatarRevision = ref.watch(avatarLocalProvider);
+                            final avatarBytes = ref.watch(avatarLocalBytesProvider);
+                            return DeviceAvatar(
+                              device: myDevice,
+                              size: 140,
+                              useLocalAvatarFile: avatarRevision > 0 || avatarBytes != null,
+                              localAvatarRevision: avatarRevision,
+                            );
+                          },
                         ),
                         FittedBox(
                           fit: BoxFit.scaleDown,
                           child: Text(vm.serverState?.alias ?? vm.aliasSettings, style: const TextStyle(fontSize: 48)),
                         ),
-                        InitialFadeTransition(
-                          duration: const Duration(milliseconds: 300),
-                          delay: const Duration(milliseconds: 500),
-                          child: Text(
-                            vm.serverState == null ? t.general.offline : vm.localIps.map((ip) => '#${ip.visualId}').toSet().join(' '),
-                            style: const TextStyle(fontSize: 24),
-                            textAlign: TextAlign.center,
-                          ),
+                        Text(
+                          vm.serverState == null ? t.general.offline : vm.localIps.map((ip) => '#${ip.visualId}').toSet().join(' '),
+                          style: const TextStyle(fontSize: 24),
+                          textAlign: TextAlign.center,
                         ),
                       ],
                     ),

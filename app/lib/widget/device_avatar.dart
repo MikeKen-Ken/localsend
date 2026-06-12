@@ -36,7 +36,8 @@ class DeviceAvatar extends StatelessWidget {
           fallback: Icon(device.deviceType.icon, size: size),
         );
       }
-      return _buildNetworkOrFallback();
+      // Local avatar is loading from disk — avoid HTTP fetch + spinner for own device.
+      return Icon(device.deviceType.icon, size: size);
     }
 
     return _buildNetworkOrFallback();

@@ -80,7 +80,7 @@ class _SendPageState extends State<SendPage> with Refena {
     }
     final myDevice = ref.watch(deviceFullInfoProvider);
     final avatarRevision = ref.watch(avatarLocalProvider);
-    final hasLocalAvatar = avatarRevision > 0;
+    final hasLocalAvatar = avatarRevision > 0 || ref.watch(avatarLocalBytesProvider) != null;
     final targetDevice = sendState?.target ?? _targetDevice!;
     final targetFavoriteEntry = ref.watch(favoritesProvider.select((state) => state.findDevice(targetDevice)));
     final waiting = sendState?.status == SessionStatus.waiting;

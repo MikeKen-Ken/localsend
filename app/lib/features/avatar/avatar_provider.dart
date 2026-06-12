@@ -48,6 +48,9 @@ final avatarResolvedUrlProvider = ViewProvider<String?>(
 class AvatarLocalService extends Notifier<int> {
   @override
   int init() {
+    if (ref.read(avatarLocalBytesProvider) != null) {
+      return 1;
+    }
     unawaited(_refresh());
     return 0;
   }

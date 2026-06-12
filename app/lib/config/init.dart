@@ -14,6 +14,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:localsend_app/config/refena.dart';
+import 'package:localsend_app/features/avatar/avatar_provider.dart';
+import 'package:localsend_app/features/avatar/avatar_service.dart';
 import 'package:localsend_app/config/theme.dart';
 import 'package:localsend_app/pages/home_page.dart';
 import 'package:localsend_app/pages/home_page_controller.dart';
@@ -195,6 +197,13 @@ Future<RefenaContainer> preInit(List<String> args) async {
           uriContentStreamResolver: AndroidUriContentStreamResolver(),
         ),
       );
+
+  // Preload local avatar bytes before the home UI builds to avoid a flash of spinner / device icon.
+  final localAvatarBytes = await AvatarService.readLocalAvatarBytes();
+  if (localAvatarBytes != null) {
+    container.read(avatarLocalBytesProvider);
+    container.notifier(avatarLocalBytesProvider).setBytes(localAvatarBytes);
+  }
 
   return container;
 }
