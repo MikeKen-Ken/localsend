@@ -320,6 +320,9 @@ class ReceiveController {
                 isMessage: true,
                 fileSize: utf8.encode(message).length,
                 senderAlias: server.getState().session!.senderAlias,
+                senderFingerprint: server.getState().session!.sender.fingerprint,
+                senderAvatarUrl: server.getState().session!.sender.avatarUrl,
+                senderDeviceType: server.getState().session!.sender.deviceType,
                 timestamp: DateTime.now().toUtc(),
               ),
             );
@@ -580,6 +583,9 @@ class ReceiveController {
               isMessage: false,
               fileSize: receivingFile.file.size,
               senderAlias: receiveState.senderAlias,
+              senderFingerprint: receiveState.sender.fingerprint,
+              senderAvatarUrl: receiveState.sender.avatarUrl,
+              senderDeviceType: receiveState.sender.deviceType,
               timestamp: DateTime.now().toUtc(),
             ),
           );

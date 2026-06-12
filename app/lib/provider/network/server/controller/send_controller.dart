@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:common/api_route_builder.dart';
 import 'package:common/constants.dart';
+import 'package:common/model/device.dart';
 import 'package:common/model/dto/file_dto.dart';
 import 'package:common/model/dto/info_dto.dart';
 import 'package:common/model/dto/receive_request_response_dto.dart';
@@ -94,6 +95,7 @@ class SendController {
         isMessage: file.file.fileType == FileType.text,
         fileSize: file.file.size,
         senderAlias: peerLabel,
+        senderDeviceType: DeviceType.web,
         isOutgoing: true,
         timestamp: DateTime.now().toUtc(),
       ),

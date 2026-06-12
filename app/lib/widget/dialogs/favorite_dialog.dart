@@ -8,7 +8,9 @@ import 'package:localsend_app/provider/favorites_provider.dart';
 import 'package:localsend_app/provider/http_provider.dart';
 import 'package:localsend_app/provider/settings_provider.dart';
 import 'package:localsend_app/rust/api/model.dart';
+import 'package:localsend_app/util/device_resolver.dart';
 import 'package:localsend_app/util/rust.dart';
+import 'package:localsend_app/widget/device_avatar.dart';
 import 'package:localsend_app/widget/dialogs/error_dialog.dart';
 import 'package:localsend_app/widget/dialogs/favorite_edit_dialog.dart';
 import 'package:refena_flutter/refena_flutter.dart';
@@ -84,6 +86,11 @@ class _FavoritesDialogState extends State<FavoritesDialog> with Refena {
           for (final favorite in favorites)
             Row(
               children: [
+                DeviceAvatar(
+                  device: DeviceResolver.deviceForFavorite(ref, favorite),
+                  size: 40,
+                ),
+                const SizedBox(width: 12),
                 Expanded(
                   child: TextButton(
                     style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.onSurface),

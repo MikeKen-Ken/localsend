@@ -10,10 +10,12 @@ import 'package:flutter/material.dart';
 import 'package:localsend_app/config/theme.dart';
 import 'package:localsend_app/gen/strings.g.dart';
 import 'package:localsend_app/model/state/server/receive_session_state.dart';
+import 'package:localsend_app/provider/favorites_provider.dart';
 import 'package:localsend_app/provider/network/send_provider.dart';
 import 'package:localsend_app/provider/network/server/server_provider.dart';
 import 'package:localsend_app/provider/progress_provider.dart';
 import 'package:localsend_app/provider/settings_provider.dart';
+import 'package:localsend_app/util/favorites.dart';
 import 'package:localsend_app/util/file_size_helper.dart';
 import 'package:localsend_app/util/file_speed_helper.dart';
 import 'package:localsend_app/util/native/open_file.dart';
@@ -26,6 +28,7 @@ import 'package:localsend_app/widget/custom_progress_bar.dart';
 import 'package:localsend_app/widget/dialogs/cancel_session_dialog.dart';
 import 'package:localsend_app/widget/dialogs/error_dialog.dart';
 import 'package:localsend_app/widget/file_thumbnail.dart';
+import 'package:localsend_app/widget/session_peer_header.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:routerino/routerino.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
@@ -252,17 +255,22 @@ class _ProgressPageState extends State<ProgressPage> with Refena {
               itemCount: _files.length + 2,
               itemBuilder: (context, index) {
                 if (index == 0) {
-                  // title
-                  if (widget.showAppBar) {
-                    return Container();
-                  }
+                  final peerDevice = receiveSession?.sender ?? sendSession?.target;
+                  final peerName = receiveSession != null
+                      ? receiveSession.senderAlias
+                      : peerDevice == null
+                      ? null
+                      : ref.watch(favoritesProvider.select((state) => state.findDevice(peerDevice)))?.alias ?? peerDevice.alias;
 
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 5),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(title, style: Theme.of(context).textTheme.titleLarge),
+                        if (!widget.showAppBar)
+                          Text(title, style: Theme.of(context).textTheme.titleLarge),
+                        if (peerDevice != null && peerName != null)
+                          SessionPeerHeader(device: peerDevice, displayName: peerName),
                         if (checkPlatformWithFileSystem() && receiveSession != null)
                           Padding(
                             padding: const EdgeInsets.only(bottom: 10),

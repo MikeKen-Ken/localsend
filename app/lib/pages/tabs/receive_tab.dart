@@ -1,21 +1,19 @@
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
 import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/pages/home_page.dart';
-import 'package:localsend_app/pages/home_page_controller.dart';
+import 'package:localsend_app/features/avatar/avatar_provider.dart';
 import 'package:localsend_app/pages/qr_scan_page.dart';
 import 'package:localsend_app/pages/receive_history_page.dart';
 import 'package:localsend_app/pages/tabs/receive_tab_vm.dart';
-import 'package:localsend_app/provider/animation_provider.dart';
+import 'package:localsend_app/provider/device_info_provider.dart';
 import 'package:localsend_app/provider/tv_provider.dart';
 import 'package:localsend_app/util/ip_helper.dart';
 import 'package:localsend_app/util/native/platform_check.dart';
 import 'package:localsend_app/widget/animations/initial_fade_transition.dart';
 import 'package:localsend_app/widget/column_list_view.dart';
 import 'package:localsend_app/widget/custom_icon_button.dart';
-import 'package:localsend_app/widget/local_send_logo.dart';
+import 'package:localsend_app/widget/device_avatar.dart';
 import 'package:localsend_app/widget/responsive_list_view.dart';
-import 'package:localsend_app/widget/rotating_widget.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:routerino/routerino.dart';
 
@@ -54,12 +52,13 @@ class ReceiveTab extends StatelessWidget {
                           delay: const Duration(milliseconds: 200),
                           child: Consumer(
                             builder: (context, ref) {
-                              final animations = ref.watch(animationProvider);
-                              final activeTab = ref.watch(homePageControllerProvider.select((state) => state.currentTab));
-                              return RotatingWidget(
-                                duration: const Duration(seconds: 15),
-                                spinning: vm.serverState != null && animations && activeTab == HomeTab.receive,
-                                child: const LocalSendLogo(withText: false),
+                              final myDevice = ref.watch(deviceFullInfoProvider);
+                              final avatarRevision = ref.watch(avatarLocalProvider);
+                              return DeviceAvatar(
+                                device: myDevice,
+                                size: 140,
+                                useLocalAvatarFile: avatarRevision > 0,
+                                localAvatarRevision: avatarRevision,
                               );
                             },
                           ),

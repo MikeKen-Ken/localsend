@@ -9,6 +9,7 @@ import 'package:localsend_app/model/persistence/receive_history_entry.dart';
 import 'package:localsend_app/pages/receive_page.dart';
 import 'package:localsend_app/provider/receive_history_provider.dart';
 import 'package:localsend_app/provider/settings_provider.dart';
+import 'package:localsend_app/util/device_resolver.dart';
 import 'package:localsend_app/util/file_size_helper.dart';
 import 'package:localsend_app/util/native/directories.dart';
 import 'package:localsend_app/util/native/open_file.dart';
@@ -17,6 +18,7 @@ import 'package:localsend_app/util/native/platform_check.dart';
 import 'package:localsend_app/widget/custom_basic_appbar.dart';
 import 'package:localsend_app/widget/dialogs/file_info_dialog.dart';
 import 'package:localsend_app/widget/dialogs/history_clear_dialog.dart';
+import 'package:localsend_app/widget/device_avatar.dart';
 import 'package:localsend_app/widget/file_thumbnail.dart';
 import 'package:localsend_app/widget/responsive_list_view.dart';
 import 'package:path/path.dart' as path;
@@ -164,74 +166,81 @@ class ReceiveHistoryPage extends StatelessWidget {
                           await _openFile(context, entry, context.redux(receiveHistoryProvider));
                         }
                       : null,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      FilePathThumbnail(
-                        path: entry.path,
-                        fileType: entry.fileType,
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(height: 3),
-                            Text(
-                              entry.fileName,
-                              style: const TextStyle(fontSize: 16),
-                              maxLines: 1,
-                              overflow: TextOverflow.fade,
-                              softWrap: false,
+                  child: Consumer(
+                    builder: (context, ref) {
+                      final peerDevice = DeviceResolver.deviceForHistoryEntry(ref, entry);
+                      return Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          FilePathThumbnail(
+                            path: entry.path,
+                            fileType: entry.fileType,
+                          ),
+                          const SizedBox(width: 10),
+                          DeviceAvatar(device: peerDevice, size: 36),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 3),
+                                Text(
+                                  entry.fileName,
+                                  style: const TextStyle(fontSize: 16),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.fade,
+                                  softWrap: false,
+                                ),
+                                Text(
+                                  '${entry.timestampString} - ${entry.fileSize.asReadableFileSize} - ${entry.isOutgoing ? t.receiveHistoryPage.sentTo(alias: entry.senderAlias) : entry.senderAlias}',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.fade,
+                                  softWrap: false,
+                                  style: const TextStyle(color: Colors.grey),
+                                ),
+                              ],
                             ),
-                            Text(
-                              '${entry.timestampString} - ${entry.fileSize.asReadableFileSize} - ${entry.isOutgoing ? t.receiveHistoryPage.sentTo(alias: entry.senderAlias) : entry.senderAlias}',
-                              maxLines: 1,
-                              overflow: TextOverflow.fade,
-                              softWrap: false,
-                              style: const TextStyle(color: Colors.grey),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      PopupMenuButton<_EntryOption>(
-                        onSelected: (_EntryOption item) async {
-                          switch (item) {
-                            case _EntryOption.open:
-                              await _openFile(context, entry, context.redux(receiveHistoryProvider));
-                              break;
-                            case _EntryOption.showInFolder:
-                              if (entry.path != null) {
-                                await openFolder(
-                                  folderPath: File(entry.path!).parent.path,
-                                  fileName: path.basename(entry.path!),
-                                );
+                          ),
+                          const SizedBox(width: 10),
+                          PopupMenuButton<_EntryOption>(
+                            onSelected: (_EntryOption item) async {
+                              switch (item) {
+                                case _EntryOption.open:
+                                  await _openFile(context, entry, context.redux(receiveHistoryProvider));
+                                  break;
+                                case _EntryOption.showInFolder:
+                                  if (entry.path != null) {
+                                    await openFolder(
+                                      folderPath: File(entry.path!).parent.path,
+                                      fileName: path.basename(entry.path!),
+                                    );
+                                  }
+                                  break;
+                                case _EntryOption.info:
+                                  // ignore: use_build_context_synchronously
+                                  await showDialog(
+                                    context: context,
+                                    builder: (_) => FileInfoDialog(entry: entry),
+                                  );
+                                  break;
+                                case _EntryOption.delete:
+                                  // ignore: use_build_context_synchronously
+                                  await context.redux(receiveHistoryProvider).dispatchAsync(RemoveHistoryEntryAction(entry.id));
+                                  break;
                               }
-                              break;
-                            case _EntryOption.info:
-                              // ignore: use_build_context_synchronously
-                              await showDialog(
-                                context: context,
-                                builder: (_) => FileInfoDialog(entry: entry),
-                              );
-                              break;
-                            case _EntryOption.delete:
-                              // ignore: use_build_context_synchronously
-                              await context.redux(receiveHistoryProvider).dispatchAsync(RemoveHistoryEntryAction(entry.id));
-                              break;
-                          }
-                        },
-                        itemBuilder: (BuildContext context) {
-                          return (entry.path != null ? _optionsAll : _optionsWithoutOpen).map((e) {
-                            return PopupMenuItem<_EntryOption>(
-                              value: e,
-                              child: Text(e.label),
-                            );
-                          }).toList();
-                        },
-                      ),
-                    ],
+                            },
+                            itemBuilder: (BuildContext context) {
+                              return (entry.path != null ? _optionsAll : _optionsWithoutOpen).map((e) {
+                                return PopupMenuItem<_EntryOption>(
+                                  value: e,
+                                  child: Text(e.label),
+                                );
+                              }).toList();
+                            },
+                          ),
+                        ],
+                      );
+                    },
                   ),
                 ),
               );

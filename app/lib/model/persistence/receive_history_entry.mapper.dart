@@ -15,6 +15,7 @@ class ReceiveHistoryEntryMapper extends ClassMapperBase<ReceiveHistoryEntry> {
     if (_instance == null) {
       MapperContainer.globals.use(_instance = ReceiveHistoryEntryMapper._());
       FileTypeMapper.ensureInitialized();
+      DeviceTypeMapper.ensureInitialized();
     }
     return _instance!;
   }
@@ -60,6 +61,27 @@ class ReceiveHistoryEntryMapper extends ClassMapperBase<ReceiveHistoryEntry> {
     'senderAlias',
     _$senderAlias,
   );
+  static String? _$senderFingerprint(ReceiveHistoryEntry v) =>
+      v.senderFingerprint;
+  static const Field<ReceiveHistoryEntry, String> _f$senderFingerprint = Field(
+    'senderFingerprint',
+    _$senderFingerprint,
+    opt: true,
+  );
+  static String? _$senderAvatarUrl(ReceiveHistoryEntry v) => v.senderAvatarUrl;
+  static const Field<ReceiveHistoryEntry, String> _f$senderAvatarUrl = Field(
+    'senderAvatarUrl',
+    _$senderAvatarUrl,
+    opt: true,
+  );
+  static DeviceType? _$senderDeviceType(ReceiveHistoryEntry v) =>
+      v.senderDeviceType;
+  static const Field<ReceiveHistoryEntry, DeviceType> _f$senderDeviceType =
+      Field(
+    'senderDeviceType',
+    _$senderDeviceType,
+    opt: true,
+  );
   static bool _$isOutgoing(ReceiveHistoryEntry v) => v.isOutgoing;
   static const Field<ReceiveHistoryEntry, bool> _f$isOutgoing = Field(
     'isOutgoing',
@@ -90,6 +112,9 @@ class ReceiveHistoryEntryMapper extends ClassMapperBase<ReceiveHistoryEntry> {
     #isMessage: _f$isMessage,
     #fileSize: _f$fileSize,
     #senderAlias: _f$senderAlias,
+    #senderFingerprint: _f$senderFingerprint,
+    #senderAvatarUrl: _f$senderAvatarUrl,
+    #senderDeviceType: _f$senderDeviceType,
     #isOutgoing: _f$isOutgoing,
     #timestamp: _f$timestamp,
     #timestampString: _f$timestampString,
@@ -105,6 +130,9 @@ class ReceiveHistoryEntryMapper extends ClassMapperBase<ReceiveHistoryEntry> {
       isMessage: data.dec(_f$isMessage),
       fileSize: data.dec(_f$fileSize),
       senderAlias: data.dec(_f$senderAlias),
+      senderFingerprint: data.dec(_f$senderFingerprint),
+      senderAvatarUrl: data.dec(_f$senderAvatarUrl),
+      senderDeviceType: data.dec(_f$senderDeviceType),
       isOutgoing: data.dec(_f$isOutgoing),
       timestamp: data.dec(_f$timestamp),
     );
@@ -189,6 +217,9 @@ abstract class ReceiveHistoryEntryCopyWith<
     bool? isMessage,
     int? fileSize,
     String? senderAlias,
+    String? senderFingerprint,
+    String? senderAvatarUrl,
+    DeviceType? senderDeviceType,
     bool? isOutgoing,
     DateTime? timestamp,
   });
@@ -215,6 +246,9 @@ class _ReceiveHistoryEntryCopyWithImpl<$R, $Out>
     bool? isMessage,
     int? fileSize,
     String? senderAlias,
+    Object? senderFingerprint = $none,
+    Object? senderAvatarUrl = $none,
+    Object? senderDeviceType = $none,
     bool? isOutgoing,
     DateTime? timestamp,
   }) => $apply(
@@ -227,6 +261,9 @@ class _ReceiveHistoryEntryCopyWithImpl<$R, $Out>
       if (isMessage != null) #isMessage: isMessage,
       if (fileSize != null) #fileSize: fileSize,
       if (senderAlias != null) #senderAlias: senderAlias,
+      if (senderFingerprint != $none) #senderFingerprint: senderFingerprint,
+      if (senderAvatarUrl != $none) #senderAvatarUrl: senderAvatarUrl,
+      if (senderDeviceType != $none) #senderDeviceType: senderDeviceType,
       if (isOutgoing != null) #isOutgoing: isOutgoing,
       if (timestamp != null) #timestamp: timestamp,
     }),
@@ -241,6 +278,9 @@ class _ReceiveHistoryEntryCopyWithImpl<$R, $Out>
     isMessage: data.get(#isMessage, or: $value.isMessage),
     fileSize: data.get(#fileSize, or: $value.fileSize),
     senderAlias: data.get(#senderAlias, or: $value.senderAlias),
+    senderFingerprint: data.get(#senderFingerprint, or: $value.senderFingerprint),
+    senderAvatarUrl: data.get(#senderAvatarUrl, or: $value.senderAvatarUrl),
+    senderDeviceType: data.get(#senderDeviceType, or: $value.senderDeviceType),
     isOutgoing: data.get(#isOutgoing, or: $value.isOutgoing),
     timestamp: data.get(#timestamp, or: $value.timestamp),
   );

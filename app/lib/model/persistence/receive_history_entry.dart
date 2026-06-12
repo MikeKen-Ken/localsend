@@ -1,3 +1,4 @@
+import 'package:common/model/device.dart';
 import 'package:common/model/file_type.dart';
 import 'package:dart_mappable/dart_mappable.dart';
 import 'package:intl/intl.dart';
@@ -23,6 +24,15 @@ class ReceiveHistoryEntry with ReceiveHistoryEntryMappable {
   final int fileSize;
   final String senderAlias;
 
+  /// Fingerprint of the peer device when known (sender or recipient).
+  final String? senderFingerprint;
+
+  /// Cached avatar URL at transfer time; used when the peer is offline.
+  final String? senderAvatarUrl;
+
+  /// Device type fallback when no avatar URL is available.
+  final DeviceType? senderDeviceType;
+
   /// True when this device sent the file (e.g. via QR code or link share).
   @MappableField(hook: IsOutgoingHook())
   final bool isOutgoing;
@@ -38,6 +48,9 @@ class ReceiveHistoryEntry with ReceiveHistoryEntryMappable {
     required this.isMessage,
     required this.fileSize,
     required this.senderAlias,
+    this.senderFingerprint,
+    this.senderAvatarUrl,
+    this.senderDeviceType,
     this.isOutgoing = false,
     required this.timestamp,
   });

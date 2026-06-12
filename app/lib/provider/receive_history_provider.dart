@@ -1,3 +1,4 @@
+import 'package:common/model/device.dart';
 import 'package:common/model/file_type.dart';
 import 'package:localsend_app/model/persistence/receive_history_entry.dart';
 import 'package:localsend_app/provider/persistence_provider.dart';
@@ -30,6 +31,9 @@ class AddHistoryEntryAction extends AsyncReduxAction<ReceiveHistoryService, List
   final bool isMessage;
   final int fileSize;
   final String senderAlias;
+  final String? senderFingerprint;
+  final String? senderAvatarUrl;
+  final DeviceType? senderDeviceType;
   final bool isOutgoing;
   final DateTime timestamp;
 
@@ -42,6 +46,9 @@ class AddHistoryEntryAction extends AsyncReduxAction<ReceiveHistoryService, List
     required this.isMessage,
     required this.fileSize,
     required this.senderAlias,
+    this.senderFingerprint,
+    this.senderAvatarUrl,
+    this.senderDeviceType,
     this.isOutgoing = false,
     required this.timestamp,
   });
@@ -62,6 +69,9 @@ class AddHistoryEntryAction extends AsyncReduxAction<ReceiveHistoryService, List
         isMessage: isMessage,
         fileSize: fileSize,
         senderAlias: senderAlias,
+        senderFingerprint: senderFingerprint,
+        senderAvatarUrl: senderAvatarUrl,
+        senderDeviceType: senderDeviceType,
         isOutgoing: isOutgoing,
         timestamp: timestamp,
       ),

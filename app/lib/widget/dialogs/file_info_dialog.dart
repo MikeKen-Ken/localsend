@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:localsend_app/gen/strings.g.dart';
 import 'package:localsend_app/model/persistence/receive_history_entry.dart';
+import 'package:localsend_app/util/device_resolver.dart';
 import 'package:localsend_app/util/file_size_helper.dart';
+import 'package:localsend_app/widget/device_avatar.dart';
+import 'package:refena_flutter/refena_flutter.dart';
 import 'package:routerino/routerino.dart';
 
 class FileInfoDialog extends StatelessWidget {
@@ -55,7 +58,19 @@ class FileInfoDialog extends StatelessWidget {
                     children: [
                       Text(entry.isOutgoing ? t.dialogs.fileInfo.recipient : t.dialogs.fileInfo.sender),
                       const SizedBox(width: 10),
-                      SelectableText(entry.senderAlias),
+                      Consumer(
+                        builder: (context, ref) {
+                          final device = DeviceResolver.deviceForHistoryEntry(ref, entry);
+                          return Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              DeviceAvatar(device: device, size: 32),
+                              const SizedBox(width: 8),
+                              SelectableText(entry.senderAlias),
+                            ],
+                          );
+                        },
+                      ),
                     ],
                   ),
                   TableRow(

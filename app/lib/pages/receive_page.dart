@@ -12,12 +12,12 @@ import 'package:localsend_app/pages/receive_options_page.dart';
 import 'package:localsend_app/provider/favorites_provider.dart';
 import 'package:localsend_app/provider/selection/selected_receiving_files_provider.dart';
 import 'package:localsend_app/provider/settings_provider.dart';
-import 'package:localsend_app/util/device_type_ext.dart';
 import 'package:localsend_app/util/favorites.dart';
 import 'package:localsend_app/util/ip_helper.dart';
 import 'package:localsend_app/util/native/platform_check.dart';
 import 'package:localsend_app/util/native/taskbar_helper.dart';
 import 'package:localsend_app/util/ui/snackbar.dart';
+import 'package:localsend_app/widget/device_avatar.dart';
 import 'package:localsend_app/widget/device_bage.dart';
 import 'package:localsend_app/widget/responsive_list_view.dart';
 import 'package:refena_flutter/refena_flutter.dart';
@@ -118,7 +118,7 @@ class _ReceivePageState extends State<ReceivePage> with Refena {
                                   if (vm.showSenderInfo && !smallUi)
                                     Padding(
                                       padding: const EdgeInsets.only(bottom: 10),
-                                      child: Icon(vm.sender.deviceType.icon, size: 64),
+                                      child: DeviceAvatar(device: vm.sender, size: 64),
                                     ),
                                   Builder(
                                     builder: (context) {
