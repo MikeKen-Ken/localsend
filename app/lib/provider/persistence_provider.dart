@@ -13,6 +13,7 @@ import 'package:localsend_app/model/persistence/favorite_device.dart';
 import 'package:localsend_app/model/persistence/receive_history_entry.dart';
 import 'package:localsend_app/model/send_mode.dart';
 import 'package:localsend_app/provider/window_dimensions_provider.dart';
+import 'package:localsend_app/rust/api/crypto.dart' as crypto;
 import 'package:localsend_app/util/alias_generator.dart';
 import 'package:localsend_app/util/native/autostart_helper.dart';
 import 'package:localsend_app/util/native/context_menu_helper.dart';
@@ -50,6 +51,7 @@ const _securityContext = 'ls_security_context';
 // WebRTC
 const _signalingServers = 'ls_signaling_servers';
 const _stunServers = 'ls_stun_servers';
+const _signalingKeyPair = 'ls_signaling_key_pair';
 
 // Received file history
 const _receiveHistory = 'ls_receive_history';
@@ -225,6 +227,27 @@ class PersistenceService {
 
   Future<void> setSecurityContext(StoredSecurityContext context) async {
     await _prefs.setString(_securityContext, jsonEncode(context));
+  }
+
+  Future<crypto.KeyPair> getOrCreateSignalingKeyPair() async {
+    final raw = _prefs.getString(_signalingKeyPair);
+    if (raw != null) {
+      final map = jsonDecode(raw) as Map<String, dynamic>;
+      return crypto.KeyPair(
+        privateKey: map['privateKey'] as String,
+        publicKey: map['publicKey'] as String,
+      );
+    }
+
+    final key = await crypto.generateKeyPair();
+    await _prefs.setString(
+      _signalingKeyPair,
+      jsonEncode({
+        'privateKey': key.privateKey,
+        'publicKey': key.publicKey,
+      }),
+    );
+    return key;
   }
 
   List<String>? getSignalingServers() {

@@ -15,6 +15,14 @@ pub fn generate_key_pair() -> anyhow::Result<KeyPair> {
     )
 }
 
+pub fn verify_token(public_key: String, token: String) -> bool {
+    let Ok(verifying_key) = localsend::crypto::token::parse_public_key(&public_key, "ed25519") else {
+        return false;
+    };
+
+    localsend::crypto::token::verify_token_timestamp(&*verifying_key, &token)
+}
+
 pub struct KeyPair {
     pub private_key: String,
     pub public_key: String,

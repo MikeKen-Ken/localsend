@@ -242,6 +242,11 @@ abstract class RustLibApi extends BaseApi {
     required String publicKey,
   });
 
+  Future<bool> crateApiCryptoVerifyToken({
+    required String publicKey,
+    required String token,
+  });
+
   RustArcIncrementStrongCountFnType get rust_arc_increment_strong_count_Dart2RustStreamReceiver;
 
   RustArcDecrementStrongCountFnType get rust_arc_decrement_strong_count_Dart2RustStreamReceiver;
@@ -1521,6 +1526,40 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   TaskConstMeta get kCrateApiCryptoVerifyCertConstMeta => const TaskConstMeta(
     debugName: 'verify_cert',
     argNames: ['cert', 'publicKey'],
+  );
+
+  @override
+  Future<bool> crateApiCryptoVerifyToken({
+    required String publicKey,
+    required String token,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(publicKey, serializer);
+          sse_encode_String(token, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 31,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_bool,
+          decodeErrorData: sse_decode_unit,
+        ),
+        constMeta: kCrateApiCryptoVerifyTokenConstMeta,
+        argValues: [publicKey, token],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiCryptoVerifyTokenConstMeta => const TaskConstMeta(
+    debugName: 'verify_token',
+    argNames: ['publicKey', 'token'],
   );
 
   Future<void> Function(int, dynamic)

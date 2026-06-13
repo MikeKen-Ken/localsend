@@ -11,6 +11,11 @@ Future<void> verifyCert({required String cert, required String publicKey}) => Ru
   publicKey: publicKey,
 );
 
+Future<bool> verifyToken({required String publicKey, required String token}) => RustLib.instance.api.crateApiCryptoVerifyToken(
+  publicKey: publicKey,
+  token: token,
+);
+
 Future<KeyPair> generateKeyPair() => RustLib.instance.api.crateApiCryptoGenerateKeyPair();
 
 class KeyPair {

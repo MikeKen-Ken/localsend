@@ -7,11 +7,11 @@ import 'package:flutter/foundation.dart';
 import 'package:localsend_app/provider/device_info_provider.dart';
 import 'package:localsend_app/provider/favorites_provider.dart';
 import 'package:localsend_app/provider/network/nearby_devices_provider.dart';
+import 'package:localsend_app/provider/network/webrtc/signaling_peer_filter.dart';
 import 'package:localsend_app/provider/network/webrtc/webrtc_receiver.dart';
 import 'package:localsend_app/provider/persistence_provider.dart';
 import 'package:localsend_app/provider/security_provider.dart';
 import 'package:localsend_app/provider/settings_provider.dart';
-import 'package:localsend_app/rust/api/crypto.dart' as crypto;
 import 'package:localsend_app/rust/api/model.dart' as rust;
 import 'package:localsend_app/rust/api/webrtc.dart';
 import 'package:refena_flutter/refena_flutter.dart';
@@ -75,14 +75,14 @@ class _SetupSignalingConnection extends AsyncGlobalAction {
   Future<void> reduce() async {
     final settings = ref.read(settingsProvider);
     final deviceInfo = ref.read(deviceInfoProvider);
-
-    // TODO: Use persistent key
-    final key = await crypto.generateKeyPair();
+    final persistence = ref.read(persistenceProvider);
+    final key = await persistence.getOrCreateSignalingKeyPair();
     if (kDebugMode) {
-      print('private key: ${key.privateKey}');
+      print('signaling public key: ${key.publicKey}');
     }
 
     LsSignalingConnection? connection;
+    ClientInfo? selfClient;
     final stream = connect(
       uri: 'wss://public.localsend.org/v1/ws',
       info: ProposingClientInfo(
@@ -110,7 +110,15 @@ class _SetupSignalingConnection extends AsyncGlobalAction {
       await for (final message in stream) {
         switch (message) {
           case WsServerMessage_Hello():
+            selfClient = message.client;
             for (final d in message.peers) {
+              if (await isSelfSignalingPeer(
+                peer: d,
+                selfClient: selfClient,
+                publicKey: key.publicKey,
+              )) {
+                continue;
+              }
               ref
                   .redux(nearbyDevicesProvider)
                   .dispatch(
@@ -122,6 +130,13 @@ class _SetupSignalingConnection extends AsyncGlobalAction {
             break;
           case WsServerMessage_Join(peer: final peer):
           case WsServerMessage_Update(peer: final peer):
+            if (await isSelfSignalingPeer(
+              peer: peer,
+              selfClient: selfClient,
+              publicKey: key.publicKey,
+            )) {
+              break;
+            }
             ref
                 .redux(nearbyDevicesProvider)
                 .dispatch(

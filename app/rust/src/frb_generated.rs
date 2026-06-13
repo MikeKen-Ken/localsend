@@ -1746,6 +1746,43 @@ fn wire__crate__api__crypto__verify_cert_impl(
         },
     )
 }
+fn wire__crate__api__crypto__verify_token_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "verify_token",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_public_key = <String>::sse_decode(&mut deserializer);
+            let api_token = <String>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, ()>(
+                    (move || {
+                        let output_ok =
+                            crate::api::crypto::verify_token(api_public_key, api_token);
+                        Ok(output_ok)
+                    })(),
+                )
+            }
+        },
+    )
+}
 
 // Section: static_checks
 
@@ -3000,6 +3037,7 @@ fn pde_ffi_dispatcher_primary_impl(
         }
         29 => wire__crate__api__crypto__generate_key_pair_impl(port, ptr, rust_vec_len, data_len),
         30 => wire__crate__api__crypto__verify_cert_impl(port, ptr, rust_vec_len, data_len),
+        31 => wire__crate__api__crypto__verify_token_impl(port, ptr, rust_vec_len, data_len),
         _ => unreachable!(),
     }
 }
