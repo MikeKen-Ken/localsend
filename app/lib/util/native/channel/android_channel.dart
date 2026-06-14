@@ -92,6 +92,17 @@ Future<void> openGallery() async {
   await _methodChannel.invokeMethod('openGallery');
 }
 
+Future<void> openFolderInFileManager({
+  required String folderPath,
+  String? fileName,
+}) async {
+  _logger.info('Opening folder in file manager: $folderPath, file: $fileName');
+  await _methodChannel.invokeMethod('openFolderInFileManager', {
+    'folderPath': folderPath,
+    'fileName': fileName,
+  });
+}
+
 @MappableClass()
 class PickDirectoryResult with PickDirectoryResultMappable {
   final String directoryUri;

@@ -1262,8 +1262,11 @@ class TranslationsProgressPageActionsEn {
   /// en: 'Open folder'
   String get openFolder => 'Open folder';
 
-  /// en: 'Send to…'
-  String get sendTo => 'Send to…';
+  /// en: 'Share'
+  String get share => 'Share';
+
+  /// en: 'Share all files'
+  String get shareAll => 'Share all files';
 }
 
 // Path: progressPage.total

@@ -17,23 +17,31 @@ Future<void> openFolder({
     return;
   }
 
-  if (fileName != null && checkPlatform([TargetPlatform.windows, TargetPlatform.linux, TargetPlatform.macOS])) {
-    // open folder and select file
-
+  if (checkPlatform([TargetPlatform.windows, TargetPlatform.linux, TargetPlatform.macOS])) {
+    var path = folderPath;
     if (defaultTargetPlatform == TargetPlatform.windows) {
-      folderPath = folderPath.replaceAll('/', '\\');
+      path = path.replaceAll('/', '\\');
     }
 
-    final result = await OpenDir().openNativeDir(path: folderPath, highlightedFileName: fileName);
-    _logger.info('Open folder result: $result, path: $folderPath, file: $fileName');
-  } else {
-    // only open folder
-
-    if (!folderPath.endsWith('/')) {
-      folderPath = '$folderPath/';
-    }
-
-    final result = await OpenFilex.open(folderPath);
-    _logger.info('Open folder result: ${result.message}, path: $folderPath');
+    final result = await OpenDir().openNativeDir(path: path, highlightedFileName: fileName);
+    _logger.info('Open folder result: $result, path: $path, file: $fileName');
+    return;
   }
+
+  if (checkPlatform([TargetPlatform.android])) {
+    await android_channel.openFolderInFileManager(
+      folderPath: folderPath,
+      fileName: fileName,
+    );
+    return;
+  }
+
+  // iOS 等无公开目录 API 的平台：尽量打开文件本身
+  final filePath = fileName != null
+      ? (folderPath.endsWith('/') ? '$folderPath$fileName' : '$folderPath/$fileName')
+      : folderPath.endsWith('/')
+      ? folderPath
+      : '$folderPath/';
+  final result = await OpenFilex.open(filePath);
+  _logger.info('Open folder fallback result: ${result.message}, path: $filePath');
 }

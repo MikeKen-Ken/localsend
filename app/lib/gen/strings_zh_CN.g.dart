@@ -1077,7 +1077,10 @@ class _TranslationsProgressPageActionsZhCn extends TranslationsProgressPageActio
   String get openFolder => '打开目录';
 
   @override
-  String get sendTo => '发送到…';
+  String get share => '分享';
+
+  @override
+  String get shareAll => '分享全部文件';
 }
 
 // Path: progressPage.total

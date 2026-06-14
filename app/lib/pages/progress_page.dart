@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:bitsdojo_window/bitsdojo_window.dart';
@@ -13,19 +12,17 @@ import 'package:localsend_app/config/theme.dart';
 import 'package:localsend_app/gen/strings.g.dart';
 import 'package:localsend_app/model/state/server/receive_session_state.dart';
 import 'package:localsend_app/model/state/server/receiving_file.dart';
-import 'package:localsend_app/pages/home_page.dart';
 import 'package:localsend_app/provider/favorites_provider.dart';
 import 'package:localsend_app/provider/network/send_provider.dart';
 import 'package:localsend_app/provider/network/server/server_provider.dart';
 import 'package:localsend_app/provider/progress_provider.dart';
-import 'package:localsend_app/provider/selection/selected_sending_files_provider.dart';
 import 'package:localsend_app/util/favorites.dart';
 import 'package:localsend_app/util/file_size_helper.dart';
 import 'package:localsend_app/util/file_speed_helper.dart';
 import 'package:localsend_app/util/native/channel/android_channel.dart' as android_channel;
-import 'package:localsend_app/util/native/cross_file_converters.dart';
 import 'package:localsend_app/util/native/open_file.dart';
 import 'package:localsend_app/util/native/open_folder.dart';
+import 'package:localsend_app/util/native/share_file.dart';
 import 'package:localsend_app/util/native/platform_check.dart';
 import 'package:localsend_app/util/native/taskbar_helper.dart';
 import 'package:localsend_app/util/ui/nav_bar_padding.dart';
@@ -163,7 +160,7 @@ class _ProgressPageState extends State<ProgressPage> with Refena {
     return files.any((f) => f.path != null || (f.savedToGallery && defaultTargetPlatform == TargetPlatform.android));
   }
 
-  bool _canSendReceivedFiles(List<ReceivingFile> files) {
+  bool _canShareReceivedFiles(List<ReceivingFile> files) {
     return files.any((f) => f.path != null && f.path!.isNotEmpty);
   }
 
@@ -222,25 +219,46 @@ class _ProgressPageState extends State<ProgressPage> with Refena {
     );
   }
 
-  Future<void> _sendReceivedFiles(ReceiveSessionState session) async {
+  Future<void> _shareReceivedFiles(ReceiveSessionState session) async {
     final paths = _finishedReceiveFiles(session).map((f) => f.path).whereType<String>().where((p) => p.isNotEmpty).toList();
     if (paths.isEmpty) {
       return;
     }
 
-    ref.redux(selectedSendingFilesProvider).dispatch(ClearSelectionAction());
-    await ref.redux(selectedSendingFilesProvider).dispatchAsync(
-      AddFilesAction(
-        files: paths.map(File.new),
-        converter: CrossFileConverters.convertFile,
+    if (paths.length == 1) {
+      await shareLocalFiles(paths);
+      return;
+    }
+
+    if (!mounted) {
+      return;
+    }
+
+    await showModalBottomSheet<void>(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: Text(t.progressPage.actions.shareAll),
+              onTap: () async {
+                Navigator.of(context).pop();
+                await shareLocalFiles(paths);
+              },
+            ),
+            for (final entry in _finishedReceiveFiles(session).where((f) => f.path != null && f.path!.isNotEmpty))
+              ListTile(
+                title: Text(entry.desiredName ?? entry.file.fileName),
+                onTap: () async {
+                  Navigator.of(context).pop();
+                  await shareLocalFiles([entry.path!]);
+                },
+              ),
+          ],
+        ),
       ),
     );
-
-    ref.notifier(serverProvider).closeSession();
-    if (mounted) {
-      // ignore: unawaited_futures
-      context.pushRootImmediately(() => const HomePage(initialTab: HomeTab.send, appStart: false));
-    }
   }
 
   @override
@@ -307,7 +325,7 @@ class _ProgressPageState extends State<ProgressPage> with Refena {
     final finishedReceiveFiles = isReceiveFinished ? _finishedReceiveFiles(receiveSession!) : <ReceivingFile>[];
     final canOpenReceived = finishedReceiveFiles.isNotEmpty && _canOpenReceivedFile(finishedReceiveFiles);
     final canOpenReceiveFolder = isReceiveFinished && checkPlatformWithFileSystem() && !checkPlatform([TargetPlatform.iOS]);
-    final canSendReceived = finishedReceiveFiles.isNotEmpty && _canSendReceivedFiles(finishedReceiveFiles);
+    final canShareReceived = finishedReceiveFiles.isNotEmpty && _canShareReceivedFiles(finishedReceiveFiles);
     final singleReceiveFileName = finishedReceiveFiles.length == 1 && finishedReceiveFiles.first.path != null
         ? path.basename(finishedReceiveFiles.first.path!)
         : null;
@@ -615,12 +633,12 @@ class _ProgressPageState extends State<ProgressPage> with Refena {
                                     icon: const Icon(Icons.folder_open),
                                     label: Text(t.progressPage.actions.openFolder),
                                   ),
-                                if (canSendReceived)
+                                if (canShareReceived)
                                   TextButton.icon(
                                     style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.onSurface),
-                                    onPressed: () async => await _sendReceivedFiles(receiveSession!),
-                                    icon: const Icon(Icons.send),
-                                    label: Text(t.progressPage.actions.sendTo),
+                                    onPressed: () async => await _shareReceivedFiles(receiveSession!),
+                                    icon: const Icon(Icons.share),
+                                    label: Text(t.progressPage.actions.share),
                                   ),
                               ],
                             ),

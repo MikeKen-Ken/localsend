@@ -71,6 +71,15 @@ class MainActivity : FlutterActivity() {
                     result.success(null)
                 }
 
+                "openFolderInFileManager" -> {
+                    openFolderInFileManager(
+                        context,
+                        call.argument<String>("folderPath")!!,
+                        call.argument<String>("fileName"),
+                    )
+                    result.success(null)
+                }
+
                 "isAnimationsEnabled" -> {
                     result.success(isAnimationsEnabled())
                 }

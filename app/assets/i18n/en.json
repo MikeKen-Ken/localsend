@@ -261,7 +261,8 @@
     "actions": {
       "openFile": "Open",
       "openFolder": "Open folder",
-      "sendTo": "Send to…"
+      "share": "Share",
+      "shareAll": "Share all files"
     },
     "remainingTime": {
       "seconds": "{n}:{ss}",

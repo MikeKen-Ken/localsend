@@ -1,9 +1,11 @@
 package org.localsend.localsend_app
 
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.DocumentsContract
+import java.io.File
 import java.util.Locale
 
 fun openUri(context: Context, uriStr: String) {
@@ -16,6 +18,58 @@ fun openUri(context: Context, uriStr: String) {
     intent.setDataAndType(uri, type)
     intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     context.startActivity(intent)
+}
+
+fun openFolderInFileManager(context: Context, folderPath: String, fileName: String?) {
+    val folder = File(folderPath)
+    val directory = when {
+        folder.isDirectory -> folder
+        folder.parentFile != null -> folder.parentFile!!
+        else -> return
+    }
+
+    val relativePath = toPrimaryStorageRelativePath(directory.absolutePath)
+    if (relativePath != null) {
+        val folderEncoded = encodeDocumentPath(relativePath)
+        val folderUri = Uri.parse("content://com.android.externalstorage.documents/document/primary:$folderEncoded")
+
+        val intent = Intent(Intent.ACTION_VIEW)
+        intent.setDataAndType(folderUri, DocumentsContract.Document.MIME_TYPE_DIR)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+        if (fileName != null) {
+            val fileEncoded = encodeDocumentPath("$relativePath/$fileName")
+            val fileUri = Uri.parse("content://com.android.externalstorage.documents/document/primary:$fileEncoded")
+            intent.putExtra("org.android.apps.documents.EXTRA_HIGHLIGHT", fileUri.toString())
+            intent.putExtra("org.android.apps.documents.extra.Highlight", fileUri)
+        }
+
+        try {
+            context.startActivity(intent)
+            return
+        } catch (e: ActivityNotFoundException) {
+            println("Failed to open folder in file manager: $e")
+        }
+    }
+
+    if (fileName != null) {
+        val file = File(directory, fileName)
+        if (file.exists()) {
+            openUri(context, file.absolutePath)
+        }
+    }
+}
+
+private fun toPrimaryStorageRelativePath(absolutePath: String): String? {
+    return when {
+        absolutePath.startsWith("/storage/emulated/0/") -> absolutePath.removePrefix("/storage/emulated/0/")
+        absolutePath.startsWith("/sdcard/") -> absolutePath.removePrefix("/sdcard/")
+        else -> null
+    }
+}
+
+private fun encodeDocumentPath(relativePath: String): String {
+    return relativePath.split("/").joinToString("%2F") { Uri.encode(it) }
 }
 
 private fun getFileType(filePath: String): String {

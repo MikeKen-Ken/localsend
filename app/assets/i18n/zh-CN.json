@@ -252,7 +252,8 @@
     "actions": {
       "openFile": "打开",
       "openFolder": "打开目录",
-      "sendTo": "发送到…"
+      "share": "分享",
+      "shareAll": "分享全部文件"
     },
     "remainingTime": {
       "hours": "{h}h {m}m",
