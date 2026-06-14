@@ -30,7 +30,7 @@ import 'package:localsend_app/widget/dialogs/add_file_dialog.dart';
 import 'package:localsend_app/pages/qr_scan_page.dart';
 import 'package:localsend_app/widget/dialogs/qr_share_dialog.dart';
 import 'package:localsend_app/widget/dialogs/send_mode_help_dialog.dart';
-import 'package:localsend_app/widget/file_thumbnail.dart';
+import 'package:localsend_app/widget/selected_files_preview.dart';
 import 'package:localsend_app/widget/list_tile/device_list_tile.dart';
 import 'package:localsend_app/widget/list_tile/device_placeholder_list_tile.dart';
 import 'package:localsend_app/widget/opacity_slideshow.dart';
@@ -144,20 +144,7 @@ class SendTab extends StatelessWidget {
                           Text(t.sendTab.selection.files(files: vm.selectedFiles.length)),
                           Text(t.sendTab.selection.size(size: vm.selectedFiles.fold(0, (prev, curr) => prev + curr.size).asReadableFileSize)),
                           const SizedBox(height: 10),
-                          SizedBox(
-                            height: defaultThumbnailSize,
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: vm.selectedFiles.length,
-                              itemBuilder: (context, index) {
-                                final file = vm.selectedFiles[index];
-                                return Padding(
-                                  padding: const EdgeInsets.only(right: 10),
-                                  child: SmartFileThumbnail.fromCrossFile(file),
-                                );
-                              },
-                            ),
-                          ),
+                          SelectedFilesPreview(files: vm.selectedFiles),
                           const SizedBox(height: 10),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.end,

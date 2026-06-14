@@ -1,9 +1,7 @@
-import 'dart:convert';
-
-import 'package:common/model/file_type.dart';
 import 'package:flutter/material.dart';
 import 'package:localsend_app/gen/strings.g.dart';
 import 'package:localsend_app/provider/selection/selected_sending_files_provider.dart';
+import 'package:localsend_app/util/cross_file_message_ext.dart';
 import 'package:localsend_app/util/file_size_helper.dart';
 import 'package:localsend_app/util/native/open_file.dart';
 import 'package:localsend_app/util/ui/nav_bar_padding.dart';
@@ -11,6 +9,7 @@ import 'package:localsend_app/widget/custom_basic_appbar.dart';
 import 'package:localsend_app/widget/dialogs/message_input_dialog.dart';
 import 'package:localsend_app/widget/file_thumbnail.dart';
 import 'package:localsend_app/widget/responsive_list_view.dart';
+import 'package:localsend_app/widget/text_message_preview.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:routerino/routerino.dart';
 
@@ -63,13 +62,7 @@ class SelectedFilesPage extends StatelessWidget {
                 childCount: selectedFiles.length,
                 (context, index) {
                   final file = selectedFiles[index];
-
-                  final String? message;
-                  if (file.fileType == FileType.text && file.bytes != null) {
-                    message = utf8.decode(file.bytes!);
-                  } else {
-                    message = null;
-                  }
+                  final message = file.messageText;
 
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 10),
@@ -82,55 +75,81 @@ class SelectedFilesPage extends StatelessWidget {
                       child: Card(
                         child: Padding(
                           padding: const EdgeInsets.all(10),
-                          child: Row(
-                            children: [
-                              SmartFileThumbnail.fromCrossFile(file),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Column(
+                          child: message != null
+                              ? Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      message != null ? '"${message.replaceAll('\n', ' ')}"' : file.name,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.fade,
-                                      softWrap: false,
+                                    TextMessagePreview(text: message, maxHeight: 120),
+                                    const SizedBox(height: 8),
+                                    Row(
+                                      children: [
+                                        Text(file.size.asReadableFileSize, style: Theme.of(context).textTheme.bodySmall),
+                                        const Spacer(),
+                                        TextButton(
+                                          style: TextButton.styleFrom(
+                                            foregroundColor: Theme.of(context).colorScheme.onSurface,
+                                          ),
+                                          onPressed: () async {
+                                            final result = await showDialog<String>(
+                                              context: context,
+                                              builder: (_) => MessageInputDialog(initialText: message),
+                                            );
+                                            if (result != null) {
+                                              ref.redux(selectedSendingFilesProvider).dispatch(UpdateMessageAction(message: result, index: index));
+                                            }
+                                          },
+                                          child: const Icon(Icons.edit),
+                                        ),
+                                        TextButton(
+                                          style: TextButton.styleFrom(
+                                            foregroundColor: Theme.of(context).colorScheme.onSurface,
+                                          ),
+                                          onPressed: () {
+                                            final currCount = ref.read(selectedSendingFilesProvider).length;
+                                            ref.redux(selectedSendingFilesProvider).dispatch(RemoveSelectedFileAction(index));
+                                            if (currCount == 1) {
+                                              context.popUntilRoot();
+                                            }
+                                          },
+                                          child: const Icon(Icons.delete),
+                                        ),
+                                      ],
                                     ),
-                                    Text(file.size.asReadableFileSize, style: Theme.of(context).textTheme.bodySmall),
+                                  ],
+                                )
+                              : Row(
+                                  children: [
+                                    SmartFileThumbnail.fromCrossFile(file),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            file.name,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.fade,
+                                            softWrap: false,
+                                          ),
+                                          Text(file.size.asReadableFileSize, style: Theme.of(context).textTheme.bodySmall),
+                                        ],
+                                      ),
+                                    ),
+                                    TextButton(
+                                      style: TextButton.styleFrom(
+                                        foregroundColor: Theme.of(context).colorScheme.onSurface,
+                                      ),
+                                      onPressed: () {
+                                        final currCount = ref.read(selectedSendingFilesProvider).length;
+                                        ref.redux(selectedSendingFilesProvider).dispatch(RemoveSelectedFileAction(index));
+                                        if (currCount == 1) {
+                                          context.popUntilRoot();
+                                        }
+                                      },
+                                      child: const Icon(Icons.delete),
+                                    ),
                                   ],
                                 ),
-                              ),
-                              if (file.fileType == FileType.text && file.bytes != null)
-                                TextButton(
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: Theme.of(context).colorScheme.onSurface,
-                                  ),
-                                  onPressed: () async {
-                                    final result = await showDialog<String>(
-                                      context: context,
-                                      builder: (_) => MessageInputDialog(initialText: message),
-                                    );
-                                    if (result != null) {
-                                      ref.redux(selectedSendingFilesProvider).dispatch(UpdateMessageAction(message: result, index: index));
-                                    }
-                                  },
-                                  child: const Icon(Icons.edit),
-                                ),
-                              TextButton(
-                                style: TextButton.styleFrom(
-                                  foregroundColor: Theme.of(context).colorScheme.onSurface,
-                                ),
-                                onPressed: () {
-                                  final currCount = ref.read(selectedSendingFilesProvider).length;
-                                  ref.redux(selectedSendingFilesProvider).dispatch(RemoveSelectedFileAction(index));
-                                  if (currCount == 1) {
-                                    context.popUntilRoot();
-                                  }
-                                },
-                                child: const Icon(Icons.delete),
-                              ),
-                            ],
-                          ),
                         ),
                       ),
                     ),

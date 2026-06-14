@@ -283,7 +283,7 @@ Future<void> _pickMedia(BuildContext context, Ref ref) async {
 
 Future<void> _pickText(BuildContext context, Ref ref) async {
   final result = await showDialog<String>(context: context, builder: (_) => const MessageInputDialog());
-  if (result != null) {
+  if (result != null && result.trim().isNotEmpty) {
     ref.redux(selectedSendingFilesProvider).dispatch(AddMessageAction(message: result));
   }
 }
@@ -291,7 +291,13 @@ Future<void> _pickText(BuildContext context, Ref ref) async {
 Future<void> _pickClipboard(BuildContext context, Ref ref) async {
   final data = await Clipboard.getData(Clipboard.kTextPlain);
   if (data?.text != null) {
-    ref.redux(selectedSendingFilesProvider).dispatch(AddMessageAction(message: data!.text!));
+    final result = await showDialog<String>(
+      context: context,
+      builder: (_) => MessageInputDialog(initialText: data!.text!),
+    );
+    if (result != null && result.trim().isNotEmpty) {
+      ref.redux(selectedSendingFilesProvider).dispatch(AddMessageAction(message: result));
+    }
     return;
   }
 
