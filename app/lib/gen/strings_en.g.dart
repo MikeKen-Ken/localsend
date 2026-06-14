@@ -484,6 +484,7 @@ class TranslationsProgressPageEn {
   String get savedToGallery => 'Saved in Photos';
 
   late final TranslationsProgressPageTotalEn total = TranslationsProgressPageTotalEn.internal(_root);
+  late final TranslationsProgressPageActionsEn actions = TranslationsProgressPageActionsEn.internal(_root);
   late final TranslationsProgressPageRemainingTimeEn remainingTime = TranslationsProgressPageRemainingTimeEn.internal(_root);
 }
 
@@ -1245,6 +1246,24 @@ class TranslationsReceiveHistoryPageEntryActionsEn {
 
   /// en: 'Delete from history'
   String get deleteFromHistory => 'Delete from history';
+}
+
+// Path: progressPage.actions
+class TranslationsProgressPageActionsEn {
+  TranslationsProgressPageActionsEn.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// en: 'Open'
+  String get openFile => 'Open';
+
+  /// en: 'Open folder'
+  String get openFolder => 'Open folder';
+
+  /// en: 'Send to…'
+  String get sendTo => 'Send to…';
 }
 
 // Path: progressPage.total

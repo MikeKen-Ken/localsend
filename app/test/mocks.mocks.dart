@@ -429,24 +429,6 @@ class MockPersistenceService extends _i1.Mock implements _i3.PersistenceService 
           as _i4.Future<void>);
 
   @override
-  bool isAutoFinish() =>
-      (super.noSuchMethod(
-            Invocation.method(#isAutoFinish, []),
-            returnValue: false,
-            returnValueForMissingStub: false,
-          )
-          as bool);
-
-  @override
-  _i4.Future<void> setAutoFinish(bool? autoFinish) =>
-      (super.noSuchMethod(
-            Invocation.method(#setAutoFinish, [autoFinish]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
-          )
-          as _i4.Future<void>);
-
-  @override
   bool isMinimizeToTray() =>
       (super.noSuchMethod(
             Invocation.method(#isMinimizeToTray, []),

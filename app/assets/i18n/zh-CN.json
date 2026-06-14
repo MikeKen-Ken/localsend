@@ -117,7 +117,6 @@
       "quickSave": "@:general.quickSave",
       "quickSaveFromFavorites": "@:general.quickSaveFromFavorites",
       "requirePin": "@:webSharePage.requirePin",
-      "autoFinish": "自动完成传输任务",
       "destination": "保存目录",
       "downloads": "(下载)",
       "saveToGallery": "保存到相册",
@@ -249,6 +248,11 @@
       "count": "文件：{curr} / {n}",
       "size": "大小：{curr} / {n}",
       "speed": "速度：{speed}/s"
+    },
+    "actions": {
+      "openFile": "打开",
+      "openFolder": "打开目录",
+      "sendTo": "发送到…"
     },
     "remainingTime": {
       "hours": "{h}h {m}m",

@@ -1,23 +1,29 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:common/model/dto/file_dto.dart';
 import 'package:common/model/file_status.dart';
 import 'package:common/model/session_status.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:localsend_app/config/theme.dart';
 import 'package:localsend_app/gen/strings.g.dart';
 import 'package:localsend_app/model/state/server/receive_session_state.dart';
+import 'package:localsend_app/model/state/server/receiving_file.dart';
+import 'package:localsend_app/pages/home_page.dart';
 import 'package:localsend_app/provider/favorites_provider.dart';
 import 'package:localsend_app/provider/network/send_provider.dart';
 import 'package:localsend_app/provider/network/server/server_provider.dart';
 import 'package:localsend_app/provider/progress_provider.dart';
-import 'package:localsend_app/provider/settings_provider.dart';
+import 'package:localsend_app/provider/selection/selected_sending_files_provider.dart';
 import 'package:localsend_app/util/favorites.dart';
 import 'package:localsend_app/util/file_size_helper.dart';
 import 'package:localsend_app/util/file_speed_helper.dart';
+import 'package:localsend_app/util/native/channel/android_channel.dart' as android_channel;
+import 'package:localsend_app/util/native/cross_file_converters.dart';
 import 'package:localsend_app/util/native/open_file.dart';
 import 'package:localsend_app/util/native/open_folder.dart';
 import 'package:localsend_app/util/native/platform_check.dart';
@@ -29,6 +35,7 @@ import 'package:localsend_app/widget/dialogs/cancel_session_dialog.dart';
 import 'package:localsend_app/widget/dialogs/error_dialog.dart';
 import 'package:localsend_app/widget/file_thumbnail.dart';
 import 'package:localsend_app/widget/session_peer_header.dart';
+import 'package:path/path.dart' as path;
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:routerino/routerino.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
@@ -57,9 +64,6 @@ class _ProgressPageState extends State<ProgressPage> with Refena {
   Set<String> _selectedFiles = {};
   SessionStatus? _lastStatus;
 
-  // If [autoFinish] is enabled, we wait a few seconds before automatically closing the session.
-  int _finishCounter = 3;
-  Timer? _finishTimer;
   Timer? _wakelockPlusTimer;
 
   bool _advanced = false;
@@ -91,25 +95,6 @@ class _ProgressPageState extends State<ProgressPage> with Refena {
           } catch (_) {}
         }
       });
-
-      if (ref.read(settingsProvider).autoFinish) {
-        _finishTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-          final finished =
-              ref.read(serverProvider)?.session?.files.values.map((e) => e.status).isFinishedOrSkipped ??
-              ref.read(sendProvider)[widget.sessionId]?.files.values.map((e) => e.status).isFinishedOrSkipped ??
-              true;
-          if (finished) {
-            if (_finishCounter == 1) {
-              timer.cancel();
-              _exit(closeSession: true);
-            } else {
-              setState(() {
-                _finishCounter--;
-              });
-            }
-          }
-        });
-      }
 
       setState(() {
         final receiveSession = ref.read(serverProvider)?.session;
@@ -170,10 +155,97 @@ class _ProgressPageState extends State<ProgressPage> with Refena {
     return result;
   }
 
+  List<ReceivingFile> _finishedReceiveFiles(ReceiveSessionState session) {
+    return session.files.values.where((f) => f.status == FileStatus.finished).toList();
+  }
+
+  bool _canOpenReceivedFile(List<ReceivingFile> files) {
+    return files.any((f) => f.path != null || (f.savedToGallery && defaultTargetPlatform == TargetPlatform.android));
+  }
+
+  bool _canSendReceivedFiles(List<ReceivingFile> files) {
+    return files.any((f) => f.path != null && f.path!.isNotEmpty);
+  }
+
+  Future<void> _openReceivedEntry(ReceivingFile entry) async {
+    if (entry.savedToGallery && defaultTargetPlatform == TargetPlatform.android) {
+      await android_channel.openGallery();
+      return;
+    }
+
+    final filePath = entry.path;
+    if (filePath != null && mounted) {
+      await openFile(context, entry.file.fileType, filePath);
+    }
+  }
+
+  Future<void> _openReceivedFiles(ReceiveSessionState session) async {
+    final files = _finishedReceiveFiles(session);
+    final openable = files.where((f) => f.path != null || (f.savedToGallery && defaultTargetPlatform == TargetPlatform.android)).toList();
+    if (openable.isEmpty) {
+      return;
+    }
+
+    if (openable.length == 1) {
+      await _openReceivedEntry(openable.first);
+      return;
+    }
+
+    if (!mounted) {
+      return;
+    }
+
+    await showModalBottomSheet<void>(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final entry in openable)
+              ListTile(
+                title: Text(entry.desiredName ?? entry.file.fileName),
+                onTap: () async {
+                  Navigator.of(context).pop();
+                  await _openReceivedEntry(entry);
+                },
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openReceiveFolder(ReceiveSessionState session, {String? fileName}) async {
+    await openFolder(
+      folderPath: session.destinationDirectory,
+      fileName: fileName,
+    );
+  }
+
+  Future<void> _sendReceivedFiles(ReceiveSessionState session) async {
+    final paths = _finishedReceiveFiles(session).map((f) => f.path).whereType<String>().where((p) => p.isNotEmpty).toList();
+    if (paths.isEmpty) {
+      return;
+    }
+
+    ref.redux(selectedSendingFilesProvider).dispatch(ClearSelectionAction());
+    await ref.redux(selectedSendingFilesProvider).dispatchAsync(
+      AddFilesAction(
+        files: paths.map(File.new),
+        converter: CrossFileConverters.convertFile,
+      ),
+    );
+
+    ref.notifier(serverProvider).closeSession();
+    if (mounted) {
+      // ignore: unawaited_futures
+      context.pushRootImmediately(() => const HomePage(initialTab: HomeTab.send, appStart: false));
+    }
+  }
+
   @override
   void dispose() {
     super.dispose();
-    _finishTimer?.cancel();
     _wakelockPlusTimer?.cancel();
     TaskbarHelper.clearProgressBar(); // ignore: discarded_futures
     try {
@@ -230,6 +302,15 @@ class _ProgressPageState extends State<ProgressPage> with Refena {
     final fileStatusMap = receiveSession?.files.map((k, f) => MapEntry(k, f.status)) ?? sendSession!.files.map((k, f) => MapEntry(k, f.status));
     final finishedCount = fileStatusMap.values.where((s) => s == FileStatus.finished).length;
     final hasFailedFiles = sendSession != null && fileStatusMap.values.any((s) => s == FileStatus.failed);
+    final isReceiveFinished =
+        receiveSession != null && (status == SessionStatus.finished || status == SessionStatus.finishedWithErrors);
+    final finishedReceiveFiles = isReceiveFinished ? _finishedReceiveFiles(receiveSession!) : <ReceivingFile>[];
+    final canOpenReceived = finishedReceiveFiles.isNotEmpty && _canOpenReceivedFile(finishedReceiveFiles);
+    final canOpenReceiveFolder = isReceiveFinished && checkPlatformWithFileSystem() && !checkPlatform([TargetPlatform.iOS]);
+    final canSendReceived = finishedReceiveFiles.isNotEmpty && _canSendReceivedFiles(finishedReceiveFiles);
+    final singleReceiveFileName = finishedReceiveFiles.length == 1 && finishedReceiveFiles.first.path != null
+        ? path.basename(finishedReceiveFiles.first.path!)
+        : null;
 
     return PopScope(
       onPopInvokedWithResult: (didPop, result) {
@@ -515,6 +596,35 @@ class _ProgressPageState extends State<ProgressPage> with Refena {
                               ),
                             ),
                           ),
+                          if (isReceiveFinished) ...[
+                            const SizedBox(height: 5),
+                            Wrap(
+                              alignment: WrapAlignment.end,
+                              children: [
+                                if (canOpenReceived)
+                                  TextButton.icon(
+                                    style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.onSurface),
+                                    onPressed: () async => await _openReceivedFiles(receiveSession!),
+                                    icon: const Icon(Icons.open_in_new),
+                                    label: Text(t.progressPage.actions.openFile),
+                                  ),
+                                if (canOpenReceiveFolder)
+                                  TextButton.icon(
+                                    style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.onSurface),
+                                    onPressed: () async => await _openReceiveFolder(receiveSession!, fileName: singleReceiveFileName),
+                                    icon: const Icon(Icons.folder_open),
+                                    label: Text(t.progressPage.actions.openFolder),
+                                  ),
+                                if (canSendReceived)
+                                  TextButton.icon(
+                                    style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.onSurface),
+                                    onPressed: () async => await _sendReceivedFiles(receiveSession!),
+                                    icon: const Icon(Icons.send),
+                                    label: Text(t.progressPage.actions.sendTo),
+                                  ),
+                              ],
+                            ),
+                          ],
                           const SizedBox(height: 5),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.end,
@@ -541,11 +651,7 @@ class _ProgressPageState extends State<ProgressPage> with Refena {
                                 onPressed: () => _exit(closeSession: true),
                                 icon: Icon(status == SessionStatus.sending ? Icons.close : Icons.check_circle),
                                 label: Text(
-                                  status == SessionStatus.sending
-                                      ? t.general.cancel
-                                      : _finishTimer != null
-                                      ? '${t.general.done} ($_finishCounter)'
-                                      : t.general.done,
+                                  status == SessionStatus.sending ? t.general.cancel : t.general.done,
                                 ),
                               ),
                             ],

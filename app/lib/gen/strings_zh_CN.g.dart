@@ -396,6 +396,8 @@ class _TranslationsProgressPageZhCn extends TranslationsProgressPageEn {
   @override
   late final _TranslationsProgressPageTotalZhCn total = _TranslationsProgressPageTotalZhCn._(_root);
   @override
+  late final _TranslationsProgressPageActionsZhCn actions = _TranslationsProgressPageActionsZhCn._(_root);
+  @override
   late final _TranslationsProgressPageRemainingTimeZhCn remainingTime = _TranslationsProgressPageRemainingTimeZhCn._(_root);
 }
 
@@ -1059,6 +1061,23 @@ class _TranslationsReceiveHistoryPageEntryActionsZhCn extends TranslationsReceiv
   String get info => '信息';
   @override
   String get deleteFromHistory => '从历史记录中删除';
+}
+
+// Path: progressPage.actions
+class _TranslationsProgressPageActionsZhCn extends TranslationsProgressPageActionsEn {
+  _TranslationsProgressPageActionsZhCn._(TranslationsZhCn root) : this._root = root, super.internal(root);
+
+  final TranslationsZhCn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get openFile => '打开';
+
+  @override
+  String get openFolder => '打开目录';
+
+  @override
+  String get sendTo => '发送到…';
 }
 
 // Path: progressPage.total

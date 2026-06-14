@@ -84,7 +84,6 @@ const _saveToHistory = 'ls_save_to_history';
 const _quickSave = 'ls_quick_save';
 const _quickSaveFromFavorites = 'ls_quick_save_from_favorites';
 const _receivePin = 'ls_receive_pin';
-const _autoFinish = 'ls_auto_finish';
 const _minimizeToTray = 'ls_minimize_to_tray';
 const _https = 'ls_https';
 const _sendMode = 'ls_send_mode';
@@ -482,14 +481,6 @@ class PersistenceService {
     } else {
       await _prefs.setString(_receivePin, pin);
     }
-  }
-
-  bool isAutoFinish() {
-    return _prefs.getBool(_autoFinish) ?? false;
-  }
-
-  Future<void> setAutoFinish(bool autoFinish) async {
-    await _prefs.setBool(_autoFinish, autoFinish);
   }
 
   bool isMinimizeToTray() {

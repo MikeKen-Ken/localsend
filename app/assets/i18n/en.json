@@ -117,7 +117,6 @@
       "quickSave": "@:general.quickSave",
       "quickSaveFromFavorites": "@:general.quickSaveFromFavorites",
       "requirePin": "@:webSharePage.requirePin",
-      "autoFinish": "Auto Finish",
       "destination": "Save to folder",
       "downloads": "(Downloads)",
       "saveToGallery": "Save media to gallery",
@@ -258,6 +257,11 @@
       "count": "Files: {curr} / {n}",
       "size": "Size: {curr} / {n}",
       "speed": "Speed: {speed}/s"
+    },
+    "actions": {
+      "openFile": "Open",
+      "openFolder": "Open folder",
+      "sendTo": "Send to…"
     },
     "remainingTime": {
       "seconds": "{n}:{ss}",

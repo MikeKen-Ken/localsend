@@ -100,11 +100,6 @@ class SettingsStateMapper extends ClassMapperBase<SettingsState> {
     'receivePin',
     _$receivePin,
   );
-  static bool _$autoFinish(SettingsState v) => v.autoFinish;
-  static const Field<SettingsState, bool> _f$autoFinish = Field(
-    'autoFinish',
-    _$autoFinish,
-  );
   static bool _$minimizeToTray(SettingsState v) => v.minimizeToTray;
   static const Field<SettingsState, bool> _f$minimizeToTray = Field(
     'minimizeToTray',
@@ -177,7 +172,6 @@ class SettingsStateMapper extends ClassMapperBase<SettingsState> {
     #quickSave: _f$quickSave,
     #quickSaveFromFavorites: _f$quickSaveFromFavorites,
     #receivePin: _f$receivePin,
-    #autoFinish: _f$autoFinish,
     #minimizeToTray: _f$minimizeToTray,
     #https: _f$https,
     #sendMode: _f$sendMode,
@@ -209,7 +203,6 @@ class SettingsStateMapper extends ClassMapperBase<SettingsState> {
       quickSave: data.dec(_f$quickSave),
       quickSaveFromFavorites: data.dec(_f$quickSaveFromFavorites),
       receivePin: data.dec(_f$receivePin),
-      autoFinish: data.dec(_f$autoFinish),
       minimizeToTray: data.dec(_f$minimizeToTray),
       https: data.dec(_f$https),
       sendMode: data.dec(_f$sendMode),
@@ -307,7 +300,6 @@ abstract class SettingsStateCopyWith<$R, $In extends SettingsState, $Out>
     bool? quickSave,
     bool? quickSaveFromFavorites,
     String? receivePin,
-    bool? autoFinish,
     bool? minimizeToTray,
     bool? https,
     SendMode? sendMode,
@@ -367,7 +359,6 @@ class _SettingsStateCopyWithImpl<$R, $Out>
     bool? quickSave,
     bool? quickSaveFromFavorites,
     Object? receivePin = $none,
-    bool? autoFinish,
     bool? minimizeToTray,
     bool? https,
     SendMode? sendMode,
@@ -399,7 +390,6 @@ class _SettingsStateCopyWithImpl<$R, $Out>
       if (quickSaveFromFavorites != null)
         #quickSaveFromFavorites: quickSaveFromFavorites,
       if (receivePin != $none) #receivePin: receivePin,
-      if (autoFinish != null) #autoFinish: autoFinish,
       if (minimizeToTray != null) #minimizeToTray: minimizeToTray,
       if (https != null) #https: https,
       if (sendMode != null) #sendMode: sendMode,
@@ -439,7 +429,6 @@ class _SettingsStateCopyWithImpl<$R, $Out>
       or: $value.quickSaveFromFavorites,
     ),
     receivePin: data.get(#receivePin, or: $value.receivePin),
-    autoFinish: data.get(#autoFinish, or: $value.autoFinish),
     minimizeToTray: data.get(#minimizeToTray, or: $value.minimizeToTray),
     https: data.get(#https, or: $value.https),
     sendMode: data.get(#sendMode, or: $value.sendMode),
