@@ -13,7 +13,6 @@ class MessageInputDialog extends StatefulWidget {
 
 class _MessageInputDialogState extends State<MessageInputDialog> {
   final _textController = TextEditingController();
-  final _scrollController = ScrollController();
 
   static const _maxInputHeight = 240.0;
   static const _inputPadding = EdgeInsets.fromLTRB(12, 12, 4, 12);
@@ -27,7 +26,6 @@ class _MessageInputDialogState extends State<MessageInputDialog> {
   @override
   void dispose() {
     _textController.dispose();
-    _scrollController.dispose();
     super.dispose();
   }
 
@@ -49,20 +47,15 @@ class _MessageInputDialogState extends State<MessageInputDialog> {
           constraints: const BoxConstraints(maxHeight: _maxInputHeight),
           child: ClipRRect(
             borderRadius: _inputBorderRadius(context),
-            child: Scrollbar(
-              controller: _scrollController,
-              thumbVisibility: true,
-              child: TextFormField(
-                controller: _textController,
-                scrollController: _scrollController,
-                keyboardType: TextInputType.multiline,
-                maxLines: null,
-                autofocus: true,
-                scrollPadding: EdgeInsets.zero,
-                decoration: const InputDecoration(
-                  contentPadding: _inputPadding,
-                  isDense: true,
-                ),
+            child: TextFormField(
+              controller: _textController,
+              keyboardType: TextInputType.multiline,
+              maxLines: null,
+              autofocus: true,
+              scrollPadding: EdgeInsets.zero,
+              decoration: const InputDecoration(
+                contentPadding: _inputPadding,
+                isDense: true,
               ),
             ),
           ),
