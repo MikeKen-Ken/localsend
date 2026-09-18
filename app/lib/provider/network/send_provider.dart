@@ -10,6 +10,7 @@ import 'package:common/model/file_type.dart';
 import 'package:common/model/session_status.dart';
 import 'package:common/util/sleep.dart';
 import 'package:flutter/material.dart';
+import 'package:localsend_app/features/avatar/avatar_service.dart';
 import 'package:localsend_app/model/cross_file.dart';
 import 'package:localsend_app/util/file_path_helper.dart';
 import 'package:localsend_app/model/send_mode.dart';
@@ -63,6 +64,7 @@ class SendNotifier extends Notifier<Map<String, SendSessionState>> {
   }) async {
     final client = ref.read(httpProvider).v2;
     final sessionId = _uuid.v4();
+    unawaited(AvatarService.persistDeviceAvatar(target));
 
     final requestState = SendSessionState(
       sessionId: sessionId,

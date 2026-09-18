@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:common/isolate.dart';
 import 'package:common/model/device.dart';
+import 'package:localsend_app/features/avatar/avatar_service.dart';
 import 'package:localsend_app/model/persistence/favorite_device.dart';
 import 'package:localsend_app/model/state/nearby_devices_state.dart';
 import 'package:localsend_app/provider/favorites_provider.dart';
@@ -28,6 +29,8 @@ class NearbyDevicesService extends ReduxNotifier<NearbyDevicesState> {
   final FavoritesService _favoriteService;
   final DiscoveryLogger _discoveryLogger;
   final Set<String> _runningInfoRefreshIps = {};
+  /// Survives [ClearFoundDevicesAction] so a refresh does not drop known avatars.
+  final Map<String, String> avatarUrlByFingerprint = {};
 
   NearbyDevicesService({
     required IsolateController isolateController,
@@ -106,9 +109,12 @@ class RegisterDeviceAction
       await Future.microtask(() {});
     }
     final existing = state.devices[device.ip!];
+    final withCachedAvatar = applyLastKnownAvatar(device, notifier.avatarUrlByFingerprint);
     final merged = existing != null
-        ? mergeDiscoveredDevices(device, existing)
-        : device;
+        ? mergeDiscoveredDevices(withCachedAvatar, existing)
+        : withCachedAvatar;
+    rememberDeviceAvatarUrl(merged, notifier.avatarUrlByFingerprint);
+    unawaited(AvatarService.persistDeviceAvatar(merged));
     return state.copyWith(devices: {...state.devices, device.ip!: merged});
   }
 }

@@ -4,7 +4,7 @@ import 'package:localsend_app/model/persistence/favorite_device.dart';
 import 'package:localsend_app/model/persistence/receive_history_entry.dart';
 import 'package:localsend_app/provider/network/nearby_devices_provider.dart';
 import 'package:localsend_app/provider/settings_provider.dart';
-import 'package:refena/refena.dart';
+import 'package:refena_flutter/refena_flutter.dart';
 
 /// Resolves [Device] instances for UI when only partial peer metadata is stored.
 abstract final class DeviceResolver {
@@ -12,7 +12,13 @@ abstract final class DeviceResolver {
     if (fingerprint.isEmpty) {
       return null;
     }
-    return ref.read(nearbyDevicesProvider).allDevices[fingerprint];
+    final all = ref.read(nearbyDevicesProvider).allDevices;
+    for (final device in all.values) {
+      if (device.fingerprint == fingerprint) {
+        return device;
+      }
+    }
+    return all[fingerprint];
   }
 
   static Device deviceForFavorite(Ref ref, FavoriteDevice favorite) {

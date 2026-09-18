@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:common/model/device.dart';
 import 'package:flutter/foundation.dart';
@@ -40,40 +39,31 @@ class DeviceAvatar extends StatelessWidget {
       return Icon(device.deviceType.icon, size: size);
     }
 
-    return _buildNetworkOrFallback();
-  }
-
-  Widget _buildNetworkOrFallback() {
-    final fetchUrl = AvatarService.resolveFetchUrl(device);
-    if (fetchUrl == null) {
-      return Icon(device.deviceType.icon, size: size);
-    }
-
-    return _RemoteAvatarImage(
-      avatarUrl: fetchUrl,
+    return _PeerAvatarImage(
+      device: device,
       size: size,
       fallback: Icon(device.deviceType.icon, size: size),
     );
   }
 }
 
-/// Fetches remote avatars via [AvatarService] so LAN self-signed HTTPS works on desktop.
-class _RemoteAvatarImage extends StatefulWidget {
-  final String avatarUrl;
+/// Shows a peer avatar from fingerprint cache first, then refreshes from the network.
+class _PeerAvatarImage extends StatefulWidget {
+  final Device device;
   final double size;
   final Widget fallback;
 
-  const _RemoteAvatarImage({
-    required this.avatarUrl,
+  const _PeerAvatarImage({
+    required this.device,
     required this.size,
     required this.fallback,
   });
 
   @override
-  State<_RemoteAvatarImage> createState() => _RemoteAvatarImageState();
+  State<_PeerAvatarImage> createState() => _PeerAvatarImageState();
 }
 
-class _RemoteAvatarImageState extends State<_RemoteAvatarImage> {
+class _PeerAvatarImageState extends State<_PeerAvatarImage> {
   static const _retryDelays = <Duration>[
     Duration(seconds: 5),
     Duration(seconds: 15),
@@ -82,23 +72,37 @@ class _RemoteAvatarImageState extends State<_RemoteAvatarImage> {
   ];
 
   Uint8List? _bytes;
-  bool _loading = true;
+  bool _loading = false;
   Timer? _retryTimer;
   int _retryAttempt = 0;
+  String? _fetchUrl;
+
+  String get _fingerprint => widget.device.fingerprint.trim();
 
   @override
   void initState() {
     super.initState();
-    _startLoad(widget.avatarUrl);
+    _primeFromCache();
+    _startLoad();
   }
 
   @override
-  void didUpdateWidget(_RemoteAvatarImage oldWidget) {
+  void didUpdateWidget(_PeerAvatarImage oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.avatarUrl != widget.avatarUrl) {
+    final oldUrl = AvatarService.resolveFetchUrl(oldWidget.device);
+    final newUrl = AvatarService.resolveFetchUrl(widget.device);
+    final fingerprintChanged = oldWidget.device.fingerprint != widget.device.fingerprint;
+    if (fingerprintChanged) {
       _cancelRetry();
       _retryAttempt = 0;
-      _startLoad(widget.avatarUrl);
+      _primeFromCache();
+      _startLoad();
+      return;
+    }
+    if (oldUrl != newUrl) {
+      _cancelRetry();
+      _retryAttempt = 0;
+      _startLoad();
     }
   }
 
@@ -113,26 +117,52 @@ class _RemoteAvatarImageState extends State<_RemoteAvatarImage> {
     _retryTimer = null;
   }
 
-  void _startLoad(String url) {
-    final cached = AvatarService.getCachedRemoteAvatarBytes(url);
-    if (cached != null) {
-      _bytes = cached;
-      _loading = false;
+  void _primeFromCache() {
+    _fetchUrl = AvatarService.resolveFetchUrl(widget.device);
+    _bytes = AvatarService.getCachedPeerAvatarBytes(_fingerprint) ??
+        (_fetchUrl == null ? null : AvatarService.getCachedRemoteAvatarBytes(_fetchUrl!));
+    _loading = _bytes == null && _fetchUrl != null;
+  }
+
+  void _startLoad() {
+    _fetchUrl = AvatarService.resolveFetchUrl(widget.device);
+    unawaited(_loadDiskThenNetwork());
+  }
+
+  Future<void> _loadDiskThenNetwork() async {
+    if (_bytes == null && _fingerprint.isNotEmpty) {
+      final disk = await AvatarService.loadPeerAvatarBytes(_fingerprint);
+      if (!mounted) {
+        return;
+      }
+      if (disk != null && _bytes == null) {
+        setState(() {
+          _bytes = disk;
+          _loading = false;
+        });
+      }
+    }
+
+    final url = _fetchUrl;
+    if (url == null) {
+      if (mounted && _loading) {
+        setState(() => _loading = false);
+      }
       return;
     }
-    unawaited(_load(url));
+    await _load(url);
   }
 
   void _scheduleRetry(String url) {
     _cancelRetry();
-    if (_bytes != null || !mounted || url != widget.avatarUrl) {
+    if (!mounted || url != _fetchUrl) {
       return;
     }
 
     final delay = _retryDelays[_retryAttempt.clamp(0, _retryDelays.length - 1)];
     _retryAttempt++;
     _retryTimer = Timer(delay, () {
-      if (!mounted || url != widget.avatarUrl || _bytes != null) {
+      if (!mounted || url != _fetchUrl) {
         return;
       }
       unawaited(_load(url));
@@ -140,14 +170,14 @@ class _RemoteAvatarImageState extends State<_RemoteAvatarImage> {
   }
 
   Future<void> _load(String url) async {
-    setState(() {
-      _loading = true;
-    });
+    if (_bytes == null && mounted) {
+      setState(() => _loading = true);
+    }
 
     Uint8List? bytes;
     for (var attempt = 0; attempt < 3; attempt++) {
       bytes = await AvatarService.fetchUrlImageBytes(url);
-      if (bytes != null || !mounted || url != widget.avatarUrl) {
+      if (bytes != null || !mounted || url != _fetchUrl) {
         break;
       }
       if (attempt < 2) {
@@ -155,25 +185,42 @@ class _RemoteAvatarImageState extends State<_RemoteAvatarImage> {
       }
     }
 
-    if (!mounted || url != widget.avatarUrl) {
+    if (!mounted || url != _fetchUrl) {
       return;
     }
 
-    setState(() {
-      _bytes = bytes;
-      _loading = false;
-    });
-
     if (bytes != null) {
+      unawaited(AvatarService.savePeerAvatar(_fingerprint, bytes));
+      setState(() {
+        _bytes = bytes;
+        _loading = false;
+      });
       _retryAttempt = 0;
       _cancelRetry();
-    } else {
+      return;
+    }
+
+    setState(() => _loading = false);
+    if (_bytes == null) {
       _scheduleRetry(url);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_bytes != null) {
+      return ClipOval(
+        child: Image.memory(
+          _bytes!,
+          width: widget.size,
+          height: widget.size,
+          fit: BoxFit.cover,
+          gaplessPlayback: true,
+          errorBuilder: (_, __, ___) => widget.fallback,
+        ),
+      );
+    }
+
     if (_loading) {
       return SizedBox(
         width: widget.size,
@@ -188,20 +235,7 @@ class _RemoteAvatarImageState extends State<_RemoteAvatarImage> {
       );
     }
 
-    if (_bytes == null) {
-      return widget.fallback;
-    }
-
-    return ClipOval(
-      child: Image.memory(
-        _bytes!,
-        width: widget.size,
-        height: widget.size,
-        fit: BoxFit.cover,
-        gaplessPlayback: true,
-        errorBuilder: (_, __, ___) => widget.fallback,
-      ),
-    );
+    return widget.fallback;
   }
 }
 

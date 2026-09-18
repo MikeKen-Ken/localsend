@@ -16,9 +16,9 @@ import 'package:localsend_app/util/native/open_file.dart';
 import 'package:localsend_app/util/native/open_folder.dart';
 import 'package:localsend_app/util/native/platform_check.dart';
 import 'package:localsend_app/widget/custom_basic_appbar.dart';
+import 'package:localsend_app/widget/device_avatar.dart';
 import 'package:localsend_app/widget/dialogs/file_info_dialog.dart';
 import 'package:localsend_app/widget/dialogs/history_clear_dialog.dart';
-import 'package:localsend_app/widget/device_avatar.dart';
 import 'package:localsend_app/widget/file_thumbnail.dart';
 import 'package:localsend_app/widget/responsive_list_view.dart';
 import 'package:path/path.dart' as path;
@@ -177,7 +177,11 @@ class ReceiveHistoryPage extends StatelessWidget {
                             fileType: entry.fileType,
                           ),
                           const SizedBox(width: 10),
-                          DeviceAvatar(device: peerDevice, size: 36),
+                          DeviceAvatar(
+                            key: ValueKey('history-avatar-${peerDevice.fingerprint}'),
+                            device: peerDevice,
+                            size: 36,
+                          ),
                           const SizedBox(width: 10),
                           Expanded(
                             child: Column(

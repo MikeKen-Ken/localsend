@@ -256,12 +256,14 @@ class ReceiveController {
     _logger.info('Destination Directory: $destinationDir');
 
     final streamController = StreamController<Map<String, String>?>();
+    final sender = dto.info.toDevice(request.ip, port, https, null);
+    unawaited(AvatarService.persistDeviceAvatar(sender));
     server.setState(
       (oldState) => oldState?.copyWith(
         session: ReceiveSessionState(
           sessionId: sessionId,
           status: SessionStatus.waiting,
-          sender: dto.info.toDevice(request.ip, port, https, null),
+          sender: sender,
           senderAlias: server.ref.read(favoritesProvider).firstWhereOrNull((e) => e.fingerprint == dto.info.fingerprint)?.alias ?? dto.info.alias,
           files: {
             for (final file in dto.files.values)

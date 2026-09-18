@@ -58,3 +58,24 @@ Device mergeDiscoveredDevices(Device incoming, Device existing) {
     },
   );
 }
+
+/// UDP refresh often omits [Device.avatarUrl]. Reapply the last URL we saw for this fingerprint.
+Device applyLastKnownAvatar(Device device, Map<String, String> avatarsByFingerprint) {
+  final current = device.avatarUrl?.trim();
+  if (current != null && current.isNotEmpty) {
+    return device;
+  }
+  final cached = avatarsByFingerprint[device.fingerprint]?.trim();
+  if (cached == null || cached.isEmpty) {
+    return device;
+  }
+  return device.copyWith(avatarUrl: cached);
+}
+
+void rememberDeviceAvatarUrl(Device device, Map<String, String> avatarsByFingerprint) {
+  final url = device.avatarUrl?.trim();
+  if (device.fingerprint.isEmpty || url == null || url.isEmpty) {
+    return;
+  }
+  avatarsByFingerprint[device.fingerprint] = url;
+}
