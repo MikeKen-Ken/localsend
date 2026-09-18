@@ -26,16 +26,58 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Get version from pubspec.yaml
+      # Each Push Build publishes a new version:
+      # - If pubspec is already above the latest published Release, keep pubspec
+      # - Otherwise bump patch on max(pubspec, latest) so we never overwrite the same tag
+      - name: Resolve next release version
         id: get_version
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          VERSION=$(sed -n 's/^version: \([0-9]*\.[0-9]*\.[0-9]*\).*/\1/p' app/pubspec.yaml)
-          PUBSPEC_BUILD=$(sed -n 's/^version: [0-9.]*+\([0-9]*\).*/\1/p' app/pubspec.yaml)
-          # pubspec build-number + workflow run counter → monotonic versionCode per CI build
-          BUILD_NUMBER=$((PUBSPEC_BUILD + ${{ github.run_number }}))
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "build_number=$BUILD_NUMBER" >> $GITHUB_OUTPUT
-          echo "Android build-number: $BUILD_NUMBER (pubspec +$PUBSPEC_BUILD, run #${{ github.run_number }})"
+          set -euo pipefail
+
+          PUBSPEC_VERSION=$(sed -n 's/^version: \([0-9]*\.[0-9]*\.[0-9]*\).*/\1/p' app/pubspec.yaml)
+          if [ -z "$PUBSPEC_VERSION" ]; then
+            echo "Could not parse version from app/pubspec.yaml" >&2
+            exit 1
+          fi
+
+          LATEST_TAG="$(
+            gh release list --repo "${{ github.repository }}" --exclude-drafts --limit 30 \
+              --json tagName,isPrerelease \
+              --jq '[.[] | select(.isPrerelease | not) | .tagName] | .[0] // empty'
+          )"
+          LATEST_VERSION="${LATEST_TAG#v}"
+
+          version_max() {
+            printf '%s\n%s\n' "$1" "$2" | sort -V | tail -n1
+          }
+
+          bump_patch() {
+            local major minor patch
+            IFS=. read -r major minor patch <<< "$1"
+            echo "${major}.${minor}.$((patch + 1))"
+          }
+
+          if [ -z "$LATEST_VERSION" ]; then
+            BASE="$PUBSPEC_VERSION"
+          else
+            BASE="$(version_max "$PUBSPEC_VERSION" "$LATEST_VERSION")"
+          fi
+
+          if [ -n "$LATEST_VERSION" ] && [ "$BASE" = "$LATEST_VERSION" ]; then
+            VERSION="$(bump_patch "$BASE")"
+            echo "pubspec=$PUBSPEC_VERSION latest=$LATEST_VERSION → bump patch to $VERSION"
+          else
+            VERSION="$BASE"
+            echo "pubspec=$PUBSPEC_VERSION latest=${LATEST_VERSION:-none} → use $VERSION"
+          fi
+
+          BUILD_NUMBER=${{ github.run_number }}
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "build_number=$BUILD_NUMBER" >> "$GITHUB_OUTPUT"
+          echo "Release version: $VERSION+$BUILD_NUMBER"
 
   build_android:
     needs: version
@@ -89,7 +131,11 @@ jobs:
 
       - name: Build APK
         working-directory: ${{ env.APK_BUILD_DIR }}/app
-        run: flutter build apk --target-platform android-arm64 --build-number=${{ needs.version.outputs.build_number }}
+        run: >
+          flutter build apk
+          --target-platform android-arm64
+          --build-name=${{ needs.version.outputs.version }}
+          --build-number=${{ needs.version.outputs.build_number }}
 
       - name: Upload APK
         uses: actions/upload-artifact@v6
@@ -124,7 +170,10 @@ jobs:
 
       - name: Compile for Windows
         working-directory: app
-        run: flutter build windows
+        run: >
+          flutter build windows
+          --build-name=${{ needs.version.outputs.version }}
+          --build-number=${{ needs.version.outputs.build_number }}
 
       - name: Create empty settings.json
         working-directory: app
@@ -169,11 +218,39 @@ jobs:
           cd windows-release
           zip -r ../LocalSend-${{ needs.version.outputs.version }}-windows-x86-64.zip .
 
+      # Published (not draft) so in-app update can see it via Atom / public API
       - name: Upload to GitHub Release
         uses: ./.github/actions/publish-release-asset
         with:
           tag: v${{ needs.version.outputs.version }}
-          draft: "true"
+          draft: "false"
           assets: |
             apk-result/app-release.apk#LocalSend-${{ needs.version.outputs.version }}-android-arm64v8.apk
             LocalSend-${{ needs.version.outputs.version }}-windows-x86-64.zip#LocalSend-${{ needs.version.outputs.version }}-windows-x86-64.zip
+
+  # Keep pubspec in sync so the repo version does not lag GitHub Releases
+  sync_pubspec_version:
+    needs: [version, upload_release]
+    if: ${{ needs.upload_release.result == 'success' }}
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Sync app/pubspec.yaml to released version
+        env:
+          VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          sed -i "s/^version: .*/version: ${VERSION}+0/" app/pubspec.yaml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app/pubspec.yaml
+          if git diff --staged --quiet; then
+            echo "pubspec already ${VERSION}+0"
+            exit 0
+          fi
+          git commit -m "chore: sync published version to ${VERSION} [skip ci]"
+          git push origin HEAD:main

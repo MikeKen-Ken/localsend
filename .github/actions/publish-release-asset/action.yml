@@ -26,6 +26,9 @@ runs:
         set -euo pipefail
         if gh release view "$TAG" >/dev/null 2>&1; then
           echo "Release $TAG already exists"
+          if [ "$DRAFT" != "true" ]; then
+            gh release edit "$TAG" --draft=false
+          fi
           exit 0
         fi
 
