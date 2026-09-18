@@ -55,6 +55,7 @@ dependencies:
   path: 1.9.1
   path_provider: 2.1.5
   path_provider_foundation: 2.4.0
+  archive: 4.0.7
   permission_handler: 11.3.1
   pretty_qr_code: 3.3.0
   refena_flutter: 3.1.0

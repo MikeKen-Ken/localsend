@@ -117,6 +117,20 @@ Future<Uint8List?> extractApkIcon(String path) async {
   return null;
 }
 
+Future<bool> canRequestPackageInstalls() async {
+  return await _methodChannel.invokeMethod<bool>('canRequestPackageInstalls') ?? false;
+}
+
+Future<void> openUnknownSourcesSettings() async {
+  await _methodChannel.invokeMethod('openUnknownSourcesSettings');
+}
+
+Future<void> installApk(String path) async {
+  await _methodChannel.invokeMethod('installApk', {
+    'path': path,
+  });
+}
+
 @MappableClass()
 class PickDirectoryResult with PickDirectoryResultMappable {
   final String directoryUri;

@@ -14,11 +14,13 @@ import android.provider.DocumentsContract
 import android.provider.OpenableColumns
 import android.provider.Settings
 import android.util.Log
+import androidx.core.content.FileProvider
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import java.io.ByteArrayOutputStream
+import java.io.File
 
 
 private const val CHANNEL = "org.localsend.localsend_app/localsend"
@@ -100,6 +102,29 @@ class MainActivity : FlutterActivity() {
                         result.success(null)
                     } else {
                         result.success(extractApkIcon(path))
+                    }
+                }
+
+                "canRequestPackageInstalls" -> {
+                    result.success(canRequestPackageInstalls())
+                }
+
+                "openUnknownSourcesSettings" -> {
+                    openUnknownSourcesSettings()
+                    result.success(null)
+                }
+
+                "installApk" -> {
+                    val path = call.argument<String>("path")
+                    if (path.isNullOrBlank()) {
+                        result.error("invalid_args", "Missing path", null)
+                    } else {
+                        try {
+                            installApk(path)
+                            result.success(null)
+                        } catch (e: Exception) {
+                            result.error("install_failed", e.message, null)
+                        }
                     }
                 }
 
@@ -389,6 +414,43 @@ class MainActivity : FlutterActivity() {
         drawable.setBounds(0, 0, canvas.width, canvas.height)
         drawable.draw(canvas)
         return bitmap
+    }
+
+    private fun canRequestPackageInstalls(): Boolean {
+        return if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            packageManager.canRequestPackageInstalls()
+        } else {
+            true
+        }
+    }
+
+    private fun openUnknownSourcesSettings() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
+                data = Uri.parse("package:$packageName")
+            }
+            startActivity(intent)
+        } else {
+            startActivity(Intent(Settings.ACTION_SECURITY_SETTINGS))
+        }
+    }
+
+    private fun installApk(path: String) {
+        val file = File(path)
+        if (!file.exists()) {
+            throw IllegalStateException("APK not found: $path")
+        }
+        val uri = FileProvider.getUriForFile(
+            this,
+            "$packageName.fileprovider",
+            file,
+        )
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(uri, "application/vnd.android.package-archive")
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        startActivity(intent)
     }
 }
 

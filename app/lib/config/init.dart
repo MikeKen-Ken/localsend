@@ -14,6 +14,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:localsend_app/config/refena.dart';
+import 'package:localsend_app/features/app_update/app_update_page.dart';
 import 'package:localsend_app/features/avatar/avatar_provider.dart';
 import 'package:localsend_app/features/avatar/avatar_service.dart';
 import 'package:localsend_app/config/theme.dart';
@@ -313,6 +314,9 @@ Future<void> postInit(BuildContext context, Ref ref, bool appStart) async {
     ref.redux(purchaseProvider).dispatchAsync(InitPurchaseStream());
   }
   // [FOSS_REMOVE_END]
+  if (appStart && context.mounted && !hasInitialShare) {
+    unawaited(maybePromptAppUpdate(context));
+  }
 }
 
 class _HandleShareIntentAction extends AsyncGlobalAction {
