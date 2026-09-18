@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:common/model/file_type.dart';
 import 'package:localsend_app/model/cross_file.dart';
 import 'package:localsend_app/util/file_path_helper.dart';
+import 'package:localsend_app/util/native/apk_icon.dart';
 import 'package:localsend_app/util/native/cache_helper.dart';
 import 'package:localsend_app/util/native/channel/android_channel.dart' as android_channel;
 import 'package:localsend_app/util/native/content_uri_helper.dart';
@@ -175,11 +176,12 @@ class AddDirectoryAction extends AsyncReduxAction<SelectedSendingFilesNotifier, 
 
         _logger.info('Add file $relative');
 
+        final fileType = relative.guessFileType();
         final file = CrossFile(
           name: relative,
-          fileType: relative.guessFileType(),
+          fileType: fileType,
           size: entity.lengthSync(),
-          thumbnail: null,
+          thumbnail: await extractApkIconBytes(entity.path, fileType: fileType),
           asset: null,
           path: entity.path,
           bytes: null,

@@ -5,6 +5,10 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.database.Cursor
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.provider.DocumentsContract
 import android.provider.OpenableColumns
@@ -14,6 +18,7 @@ import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
+import java.io.ByteArrayOutputStream
 
 
 private const val CHANNEL = "org.localsend.localsend_app/localsend"
@@ -82,6 +87,15 @@ class MainActivity : FlutterActivity() {
 
                 "isAnimationsEnabled" -> {
                     result.success(isAnimationsEnabled())
+                }
+
+                "extractApkIcon" -> {
+                    val path = call.argument<String>("path")
+                    if (path.isNullOrBlank()) {
+                        result.success(null)
+                    } else {
+                        result.success(extractApkIcon(path))
+                    }
                 }
 
                 else -> result.notImplemented()
@@ -345,6 +359,31 @@ class MainActivity : FlutterActivity() {
             uri = uri.toString(),
             lastModified = lastModified,
         )
+    }
+
+    private fun extractApkIcon(path: String): ByteArray? {
+        val pkgInfo = packageManager.getPackageArchiveInfo(path, 0) ?: return null
+        val appInfo = pkgInfo.applicationInfo ?: return null
+        appInfo.sourceDir = path
+        appInfo.publicSourceDir = path
+        val drawable = appInfo.loadIcon(packageManager) ?: return null
+        val bitmap = drawableToBitmap(drawable)
+        val stream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+        return stream.toByteArray()
+    }
+
+    private fun drawableToBitmap(drawable: Drawable): Bitmap {
+        if (drawable is BitmapDrawable && drawable.bitmap != null) {
+            return drawable.bitmap
+        }
+        val width = if (drawable.intrinsicWidth > 0) drawable.intrinsicWidth else 192
+        val height = if (drawable.intrinsicHeight > 0) drawable.intrinsicHeight else 192
+        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        drawable.setBounds(0, 0, canvas.width, canvas.height)
+        drawable.draw(canvas)
+        return bitmap
     }
 }
 

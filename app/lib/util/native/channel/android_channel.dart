@@ -103,6 +103,16 @@ Future<void> openFolderInFileManager({
   });
 }
 
+Future<Uint8List?> extractApkIcon(String path) async {
+  final result = await _methodChannel.invokeMethod('extractApkIcon', {
+    'path': path,
+  });
+  if (result is Uint8List && result.isNotEmpty) {
+    return result;
+  }
+  return null;
+}
+
 @MappableClass()
 class PickDirectoryResult with PickDirectoryResultMappable {
   final String directoryUri;

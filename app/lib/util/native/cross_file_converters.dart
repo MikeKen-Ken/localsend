@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:localsend_app/model/cross_file.dart';
 import 'package:localsend_app/util/file_path_helper.dart';
+import 'package:localsend_app/util/native/apk_icon.dart';
 import 'package:localsend_app/util/native/channel/android_channel.dart' as android_channel;
 import 'package:share_handler/share_handler.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
@@ -28,13 +29,15 @@ class CrossFileConverters {
   }
 
   static Future<CrossFile> convertXFile(XFile file) async {
+    final fileType = file.name.guessFileType();
+    final path = kIsWeb ? null : file.path;
     return CrossFile(
       name: file.name,
-      fileType: file.name.guessFileType(),
+      fileType: fileType,
       size: await file.length(),
-      thumbnail: null,
+      thumbnail: await extractApkIconBytes(path, fileType: fileType),
       asset: null,
-      path: kIsWeb ? null : file.path,
+      path: path,
       bytes: kIsWeb ? await file.readAsBytes() : null, // we can fetch it now because in Web it is already there
       lastModified: kIsWeb ? null : await file.lastModified(),
       lastAccessed: null,
@@ -42,11 +45,12 @@ class CrossFileConverters {
   }
 
   static Future<CrossFile> convertFile(File file) async {
+    final fileType = file.path.fileName.guessFileType();
     return CrossFile(
       name: file.path.fileName,
-      fileType: file.path.fileName.guessFileType(),
+      fileType: fileType,
       size: await file.length(),
-      thumbnail: null,
+      thumbnail: await extractApkIconBytes(file.path, fileType: fileType),
       asset: null,
       path: file.path,
       bytes: null,
@@ -72,11 +76,12 @@ class CrossFileConverters {
   static Future<CrossFile> convertSharedAttachment(SharedAttachment attachment) async {
     final file = File(attachment.path);
     final fileName = attachment.path.fileName;
+    final fileType = fileName.guessFileType();
     return CrossFile(
       name: fileName,
-      fileType: fileName.guessFileType(),
+      fileType: fileType,
       size: await file.length(),
-      thumbnail: null,
+      thumbnail: await extractApkIconBytes(file.path, fileType: fileType),
       asset: null,
       path: file.path,
       bytes: null,
