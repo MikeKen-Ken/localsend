@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:common/model/dto/file_dto.dart';
@@ -22,9 +21,10 @@ import 'package:localsend_app/util/file_speed_helper.dart';
 import 'package:localsend_app/util/native/channel/android_channel.dart' as android_channel;
 import 'package:localsend_app/util/native/open_file.dart';
 import 'package:localsend_app/util/native/open_folder.dart';
-import 'package:localsend_app/util/native/share_file.dart';
 import 'package:localsend_app/util/native/platform_check.dart';
+import 'package:localsend_app/util/native/share_file.dart';
 import 'package:localsend_app/util/native/taskbar_helper.dart';
+import 'package:localsend_app/util/native/transfer_window_compact.dart';
 import 'package:localsend_app/util/ui/nav_bar_padding.dart';
 import 'package:localsend_app/widget/custom_basic_appbar.dart';
 import 'package:localsend_app/widget/custom_progress_bar.dart';
@@ -32,6 +32,7 @@ import 'package:localsend_app/widget/dialogs/cancel_session_dialog.dart';
 import 'package:localsend_app/widget/dialogs/error_dialog.dart';
 import 'package:localsend_app/widget/file_thumbnail.dart';
 import 'package:localsend_app/widget/session_peer_header.dart';
+import 'package:localsend_app/widget/transfer_mini_panel.dart';
 import 'package:path/path.dart' as path;
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:routerino/routerino.dart';
@@ -64,6 +65,8 @@ class _ProgressPageState extends State<ProgressPage> with Refena {
   Timer? _wakelockPlusTimer;
 
   bool _advanced = false;
+  bool _compact = false;
+  final _windowCompact = TransferWindowCompact();
 
   @override
   void initState() {
@@ -261,9 +264,30 @@ class _ProgressPageState extends State<ProgressPage> with Refena {
     );
   }
 
+  Future<void> _enterMiniMode() async {
+    if (checkPlatformIsDesktop()) {
+      await _windowCompact.enter();
+      if (mounted) {
+        setState(() => _compact = true);
+      }
+      return;
+    }
+    if (checkPlatform([TargetPlatform.android])) {
+      await android_channel.moveTaskToBack();
+    }
+  }
+
+  Future<void> _exitMiniMode() async {
+    await _windowCompact.exit();
+    if (mounted) {
+      setState(() => _compact = false);
+    }
+  }
+
   @override
   void dispose() {
     super.dispose();
+    unawaited(_windowCompact.exit());
     _wakelockPlusTimer?.cancel();
     TaskbarHelper.clearProgressBar(); // ignore: discarded_futures
     try {
@@ -322,13 +346,35 @@ class _ProgressPageState extends State<ProgressPage> with Refena {
     final hasFailedFiles = sendSession != null && fileStatusMap.values.any((s) => s == FileStatus.failed);
     final isReceiveFinished =
         receiveSession != null && (status == SessionStatus.finished || status == SessionStatus.finishedWithErrors);
-    final finishedReceiveFiles = isReceiveFinished ? _finishedReceiveFiles(receiveSession!) : <ReceivingFile>[];
+    final finishedReceiveFiles = isReceiveFinished ? _finishedReceiveFiles(receiveSession) : <ReceivingFile>[];
     final canOpenReceived = finishedReceiveFiles.isNotEmpty && _canOpenReceivedFile(finishedReceiveFiles);
     final canOpenReceiveFolder = isReceiveFinished && checkPlatformWithFileSystem() && !checkPlatform([TargetPlatform.iOS]);
     final canShareReceived = finishedReceiveFiles.isNotEmpty && _canShareReceivedFiles(finishedReceiveFiles);
     final singleReceiveFileName = finishedReceiveFiles.length == 1 && finishedReceiveFiles.first.path != null
         ? path.basename(finishedReceiveFiles.first.path!)
         : null;
+
+    final peerDevice = receiveSession?.sender ?? sendSession?.target;
+    final peerName = receiveSession != null
+        ? receiveSession.senderAlias
+        : peerDevice == null
+        ? null
+        : ref.watch(favoritesProvider.select((state) => state.findDevice(peerDevice)))?.alias ?? peerDevice.alias;
+    final overallProgress = _totalBytes == 0 ? 0.0 : currBytes / _totalBytes;
+    final statusLabel = status.getLabel(remainingTime: _remainingTime ?? '-');
+
+    if (_compact) {
+      return TransferMiniPanel(
+        title: title,
+        peerDevice: peerDevice,
+        peerName: peerName,
+        statusLabel: statusLabel,
+        progress: overallProgress,
+        sending: status == SessionStatus.sending,
+        onRestore: () => unawaited(_exitMiniMode()),
+        onCancelOrDone: () => _exit(closeSession: true),
+      );
+    }
 
     return PopScope(
       onPopInvokedWithResult: (didPop, result) {
@@ -354,13 +400,6 @@ class _ProgressPageState extends State<ProgressPage> with Refena {
               itemCount: _files.length + 2,
               itemBuilder: (context, index) {
                 if (index == 0) {
-                  final peerDevice = receiveSession?.sender ?? sendSession?.target;
-                  final peerName = receiveSession != null
-                      ? receiveSession.senderAlias
-                      : peerDevice == null
-                      ? null
-                      : ref.watch(favoritesProvider.select((state) => state.findDevice(peerDevice)))?.alias ?? peerDevice.alias;
-
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 5),
                     child: Column(
@@ -647,6 +686,13 @@ class _ProgressPageState extends State<ProgressPage> with Refena {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
+                              if (checkPlatformIsDesktop() || checkPlatform([TargetPlatform.android]))
+                                TextButton.icon(
+                                  style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.onSurface),
+                                  onPressed: () => unawaited(_enterMiniMode()),
+                                  icon: const Icon(Icons.minimize),
+                                  label: Text(t.progressPage.minimizeWindow),
+                                ),
                               TextButton.icon(
                                 style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.onSurface),
                                 onPressed: () {

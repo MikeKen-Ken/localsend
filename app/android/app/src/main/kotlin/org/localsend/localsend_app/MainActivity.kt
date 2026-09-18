@@ -89,6 +89,11 @@ class MainActivity : FlutterActivity() {
                     result.success(isAnimationsEnabled())
                 }
 
+                "moveTaskToBack" -> {
+                    moveTaskToBack(true)
+                    result.success(null)
+                }
+
                 "extractApkIcon" -> {
                     val path = call.argument<String>("path")
                     if (path.isNullOrBlank()) {
