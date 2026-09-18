@@ -66,6 +66,7 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
   late final TranslationsAboutPageEn aboutPage = TranslationsAboutPageEn.internal(_root);
   late final TranslationsDonationPageEn donationPage = TranslationsDonationPageEn.internal(_root);
   late final TranslationsChangelogPageEn changelogPage = TranslationsChangelogPageEn.internal(_root);
+  late final TranslationsAppUpdatePageEn appUpdatePage = TranslationsAppUpdatePageEn.internal(_root);
   late final TranslationsAliasGeneratorEn aliasGenerator = TranslationsAliasGeneratorEn.internal(_root);
   late final TranslationsDialogsEn dialogs = TranslationsDialogsEn.internal(_root);
   late final TranslationsSanitizationEn sanitization = TranslationsSanitizationEn.internal(_root);
@@ -358,7 +359,7 @@ class TranslationsReceiveHistoryPageEn {
   String get empty => 'The history is empty.';
 
   /// en: 'Sent to {alias}'
-  String sentTo({required String alias}) => 'Sent to $alias';
+  String sentTo({required Object alias}) => 'Sent to ${alias}';
 
   late final TranslationsReceiveHistoryPageEntryActionsEn entryActions = TranslationsReceiveHistoryPageEntryActionsEn.internal(_root);
 }
@@ -484,6 +485,13 @@ class TranslationsProgressPageEn {
   String get savedToGallery => 'Saved in Photos';
 
   late final TranslationsProgressPageTotalEn total = TranslationsProgressPageTotalEn.internal(_root);
+
+  /// en: 'Mini window'
+  String get minimizeWindow => 'Mini window';
+
+  /// en: 'Restore window'
+  String get restoreWindow => 'Restore window';
+
   late final TranslationsProgressPageActionsEn actions = TranslationsProgressPageActionsEn.internal(_root);
   late final TranslationsProgressPageRemainingTimeEn remainingTime = TranslationsProgressPageRemainingTimeEn.internal(_root);
 }
@@ -603,6 +611,78 @@ class TranslationsChangelogPageEn {
 
   /// en: 'Changelog'
   String get title => 'Changelog';
+}
+
+// Path: appUpdatePage
+class TranslationsAppUpdatePageEn {
+  TranslationsAppUpdatePageEn.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// en: 'Check for updates'
+  String get title => 'Check for updates';
+
+  /// en: 'Software updates'
+  String get softwareUpdates => 'Software updates';
+
+  /// en: 'Download the latest installer from GitHub Releases'
+  String get softwareUpdatesHint => 'Download the latest installer from GitHub Releases';
+
+  /// en: 'Current version'
+  String get currentVersion => 'Current version';
+
+  /// en: 'Loading…'
+  String get loading => 'Loading…';
+
+  /// en: 'Released {date}'
+  String released({required Object date}) => 'Released ${date}';
+
+  /// en: 'Remote {version} ({tag})'
+  String remote({required Object version, required Object tag}) => 'Remote ${version} (${tag})';
+
+  /// en: 'Update available'
+  String get updateAvailable => 'Update available';
+
+  /// en: 'Same-version package refreshed'
+  String get sameVersionRefresh => 'Same-version package refreshed';
+
+  /// en: 'Up to date'
+  String get upToDate => 'Up to date';
+
+  /// en: 'Check again'
+  String get checkAgain => 'Check again';
+
+  /// en: 'Download and install'
+  String get downloadAndInstall => 'Download and install';
+
+  /// en: 'No update needed'
+  String get noUpdateNeeded => 'No update needed';
+
+  /// en: 'Release notes'
+  String get releaseNotes => 'Release notes';
+
+  /// en: 'Downloading {percent}%'
+  String downloadProgress({required Object percent}) => 'Downloading ${percent}%';
+
+  /// en: 'Download complete; extracting and installing… do not close the window'
+  String get installing => 'Download complete; extracting and installing… do not close the window';
+
+  /// en: 'Installer opened; follow the prompts to finish the update'
+  String get installerOpened => 'Installer opened; follow the prompts to finish the update';
+
+  /// en: 'New version available: {version}'
+  String newVersionAvailable({required Object version}) => 'New version available: ${version}';
+
+  /// en: 'Skip this version'
+  String get skipVersion => 'Skip this version';
+
+  /// en: 'Later'
+  String get later => 'Later';
+
+  /// en: 'Update now'
+  String get updateNow => 'Update now';
 }
 
 // Path: aliasGenerator
@@ -788,10 +868,10 @@ class TranslationsWebEn {
   String get size => 'Size';
 
   /// en: 'Files from {alias}'
-  String filesFrom({required String alias}) => 'Files from $alias';
+  String filesFrom({required Object alias}) => 'Files from ${alias}';
 
   /// en: '{remaining}/{total} scans remaining'
-  String usesStatusLimited({required Object remaining, required Object total}) => '$remaining/$total scans remaining';
+  String usesStatusLimited({required Object remaining, required Object total}) => '${remaining}/${total} scans remaining';
 
   /// en: 'Scans: unlimited'
   String get usesStatusUnlimited => 'Scans: unlimited';
@@ -1058,9 +1138,6 @@ class TranslationsSettingsTabReceiveEn {
   /// en: 'Require PIN'
   String get requirePin => _root.webSharePage.requirePin;
 
-  /// en: 'Auto Finish'
-  String get autoFinish => 'Auto Finish';
-
   /// en: 'Save to folder'
   String get destination => 'Save to folder';
 
@@ -1174,6 +1251,9 @@ class TranslationsSettingsTabOtherEn {
 
   /// en: 'Terms of Use'
   String get termsOfUse => 'Terms of Use';
+
+  /// en: 'Check for updates'
+  String get checkForUpdates => 'Check for updates';
 }
 
 // Path: troubleshootPage.firewall
@@ -1248,6 +1328,25 @@ class TranslationsReceiveHistoryPageEntryActionsEn {
   String get deleteFromHistory => 'Delete from history';
 }
 
+// Path: progressPage.total
+class TranslationsProgressPageTotalEn {
+  TranslationsProgressPageTotalEn.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+  late final TranslationsProgressPageTotalTitleEn title = TranslationsProgressPageTotalTitleEn.internal(_root);
+
+  /// en: 'Files: {curr} / {n}'
+  String count({required Object curr, required Object n}) => 'Files: ${curr} / ${n}';
+
+  /// en: 'Size: {curr} / {n}'
+  String size({required Object curr, required Object n}) => 'Size: ${curr} / ${n}';
+
+  /// en: 'Speed: {speed}/s'
+  String speed({required Object speed}) => 'Speed: ${speed}/s';
+}
+
 // Path: progressPage.actions
 class TranslationsProgressPageActionsEn {
   TranslationsProgressPageActionsEn.internal(this._root);
@@ -1267,25 +1366,6 @@ class TranslationsProgressPageActionsEn {
 
   /// en: 'Share all files'
   String get shareAll => 'Share all files';
-}
-
-// Path: progressPage.total
-class TranslationsProgressPageTotalEn {
-  TranslationsProgressPageTotalEn.internal(this._root);
-
-  final Translations _root; // ignore: unused_field
-
-  // Translations
-  late final TranslationsProgressPageTotalTitleEn title = TranslationsProgressPageTotalTitleEn.internal(_root);
-
-  /// en: 'Files: {curr} / {n}'
-  String count({required Object curr, required Object n}) => 'Files: ${curr} / ${n}';
-
-  /// en: 'Size: {curr} / {n}'
-  String size({required Object curr, required Object n}) => 'Size: ${curr} / ${n}';
-
-  /// en: 'Speed: {speed}/s'
-  String speed({required Object speed}) => 'Speed: ${speed}/s';
 }
 
 // Path: progressPage.remainingTime
@@ -1638,7 +1718,7 @@ class TranslationsDialogsQrEn {
   String get loading => 'Preparing share link…';
 
   /// en: 'Expires in {time}'
-  String expiresIn({required String time}) => 'Expires in $time';
+  String expiresIn({required Object time}) => 'Expires in ${time}';
 
   /// en: 'This share link has expired.'
   String get expired => 'This share link has expired.';
@@ -1647,10 +1727,10 @@ class TranslationsDialogsQrEn {
   String get consumed => 'All uses have been consumed. The QR code is no longer valid.';
 
   /// en: '{n} uses remaining'
-  String usesRemaining({required Object n}) => '$n uses remaining';
+  String usesRemaining({required Object n}) => '${n} uses remaining';
 
   /// en: '{remaining}/{total} scans remaining'
-  String usesStatusLimited({required Object remaining, required Object total}) => '$remaining/$total scans remaining';
+  String usesStatusLimited({required Object remaining, required Object total}) => '${remaining}/${total} scans remaining';
 
   /// en: 'Scans: unlimited'
   String get usesStatusUnlimited => 'Scans: unlimited';
@@ -1674,7 +1754,8 @@ class TranslationsDialogsQrEn {
   String get hint => 'Scan the QR code or copy the link below. Only works on the same local network.';
 
   /// en: 'HTTPS is enabled. Browsers may warn about an untrusted certificate. Disable HTTPS in settings, or scan with the LocalSend app instead.'
-  String get httpsBrowserWarning => 'HTTPS is enabled. Browsers may warn about an untrusted certificate. Disable HTTPS in settings, or scan with the LocalSend app instead.';
+  String get httpsBrowserWarning =>
+      'HTTPS is enabled. Browsers may warn about an untrusted certificate. Disable HTTPS in settings, or scan with the LocalSend app instead.';
 
   /// en: 'Could not start sharing. Check your network connection.'
   String get error => 'Could not start sharing. Check your network connection.';
@@ -1698,7 +1779,7 @@ class TranslationsDialogsQrEn {
   String get expiredOrInvalid => 'This share link has expired or is no longer valid.';
 
   /// en: 'Files from {alias}'
-  String filesFrom({required String alias}) => 'Files from $alias';
+  String filesFrom({required Object alias}) => 'Files from ${alias}';
 
   /// en: 'Download all'
   String get downloadAll => 'Download all';

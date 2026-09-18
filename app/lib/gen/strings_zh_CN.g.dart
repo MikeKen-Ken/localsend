@@ -76,6 +76,8 @@ class TranslationsZhCn extends Translations {
   @override
   late final _TranslationsChangelogPageZhCn changelogPage = _TranslationsChangelogPageZhCn._(_root);
   @override
+  late final _TranslationsAppUpdatePageZhCn appUpdatePage = _TranslationsAppUpdatePageZhCn._(_root);
+  @override
   late final _TranslationsAliasGeneratorZhCn aliasGenerator = _TranslationsAliasGeneratorZhCn._(_root);
   @override
   late final _TranslationsDialogsZhCn dialogs = _TranslationsDialogsZhCn._(_root);
@@ -290,7 +292,7 @@ class _TranslationsReceiveHistoryPageZhCn extends TranslationsReceiveHistoryPage
   @override
   String get empty => '无历史记录。';
   @override
-  String sentTo({required String alias}) => '发送至 $alias';
+  String sentTo({required Object alias}) => '发送至 ${alias}';
   @override
   late final _TranslationsReceiveHistoryPageEntryActionsZhCn entryActions = _TranslationsReceiveHistoryPageEntryActionsZhCn._(_root);
 }
@@ -396,6 +398,10 @@ class _TranslationsProgressPageZhCn extends TranslationsProgressPageEn {
   @override
   late final _TranslationsProgressPageTotalZhCn total = _TranslationsProgressPageTotalZhCn._(_root);
   @override
+  String get minimizeWindow => '迷你窗口';
+  @override
+  String get restoreWindow => '还原窗口';
+  @override
   late final _TranslationsProgressPageActionsZhCn actions = _TranslationsProgressPageActionsZhCn._(_root);
   @override
   late final _TranslationsProgressPageRemainingTimeZhCn remainingTime = _TranslationsProgressPageRemainingTimeZhCn._(_root);
@@ -492,6 +498,57 @@ class _TranslationsChangelogPageZhCn extends TranslationsChangelogPageEn {
   // Translations
   @override
   String get title => '更新日志';
+}
+
+// Path: appUpdatePage
+class _TranslationsAppUpdatePageZhCn extends TranslationsAppUpdatePageEn {
+  _TranslationsAppUpdatePageZhCn._(TranslationsZhCn root) : this._root = root, super.internal(root);
+
+  final TranslationsZhCn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => '检查更新';
+  @override
+  String get softwareUpdates => '软件更新';
+  @override
+  String get softwareUpdatesHint => '从 GitHub Releases 下载最新安装包';
+  @override
+  String get currentVersion => '当前版本';
+  @override
+  String get loading => '加载中…';
+  @override
+  String released({required Object date}) => '发布于 ${date}';
+  @override
+  String remote({required Object version, required Object tag}) => '远端 ${version} (${tag})';
+  @override
+  String get updateAvailable => '有可用更新';
+  @override
+  String get sameVersionRefresh => '同版本安装包已刷新';
+  @override
+  String get upToDate => '已是最新';
+  @override
+  String get checkAgain => '重新检查';
+  @override
+  String get downloadAndInstall => '下载并安装';
+  @override
+  String get noUpdateNeeded => '无需更新';
+  @override
+  String get releaseNotes => '更新说明';
+  @override
+  String downloadProgress({required Object percent}) => '正在下载 ${percent}%';
+  @override
+  String get installing => '下载完成，正在解压安装…请勿关闭窗口';
+  @override
+  String get installerOpened => '已打开安装器，请按提示完成更新';
+  @override
+  String newVersionAvailable({required Object version}) => '发现新版本：${version}';
+  @override
+  String get skipVersion => '跳过此版本';
+  @override
+  String get later => '稍后';
+  @override
+  String get updateNow => '立即更新';
 }
 
 // Path: aliasGenerator
@@ -687,9 +744,9 @@ class _TranslationsWebZhCn extends TranslationsWebEn {
   @override
   String get size => '大小';
   @override
-  String filesFrom({required String alias}) => '来自 $alias 的文件';
+  String filesFrom({required Object alias}) => '来自 ${alias} 的文件';
   @override
-  String usesStatusLimited({required Object remaining, required Object total}) => '剩余 $remaining/$total 次扫码';
+  String usesStatusLimited({required Object remaining, required Object total}) => '剩余 ${remaining}/${total} 次扫码';
   @override
   String get usesStatusUnlimited => '扫码次数：不限';
 }
@@ -779,8 +836,7 @@ class _TranslationsNetworkInterfacesPageZhCn extends TranslationsNetworkInterfac
   @override
   String get excludeVpnInterfaces => '排除常用 VPN IP';
   @override
-  String get excludeVpnInterfacesHint =>
-      '内置网段：198.18.0.0/15（Clash / Mihomo fake-ip）、100.64.0.0/10（Tailscale 等）、10.8.0.0/16（OpenVPN 默认池）';
+  String get excludeVpnInterfacesHint => '内置网段：198.18.0.0/15（Clash / Mihomo fake-ip）、100.64.0.0/10（Tailscale 等）、10.8.0.0/16（OpenVPN 默认池）';
 }
 
 // Path: receiveTab.infoBox
@@ -917,8 +973,6 @@ class _TranslationsSettingsTabReceiveZhCn extends TranslationsSettingsTabReceive
   @override
   String get requirePin => _root.webSharePage.requirePin;
   @override
-  String get autoFinish => '自动完成传输任务';
-  @override
   String get destination => '保存目录';
   @override
   String get downloads => '(下载)';
@@ -1003,6 +1057,8 @@ class _TranslationsSettingsTabOtherZhCn extends TranslationsSettingsTabOtherEn {
   String get privacyPolicy => '隐私政策';
   @override
   String get termsOfUse => '使用条款';
+  @override
+  String get checkForUpdates => '检查更新';
 }
 
 // Path: troubleshootPage.firewall
@@ -1063,26 +1119,6 @@ class _TranslationsReceiveHistoryPageEntryActionsZhCn extends TranslationsReceiv
   String get deleteFromHistory => '从历史记录中删除';
 }
 
-// Path: progressPage.actions
-class _TranslationsProgressPageActionsZhCn extends TranslationsProgressPageActionsEn {
-  _TranslationsProgressPageActionsZhCn._(TranslationsZhCn root) : this._root = root, super.internal(root);
-
-  final TranslationsZhCn _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get openFile => '打开';
-
-  @override
-  String get openFolder => '打开目录';
-
-  @override
-  String get share => '分享';
-
-  @override
-  String get shareAll => '分享全部文件';
-}
-
 // Path: progressPage.total
 class _TranslationsProgressPageTotalZhCn extends TranslationsProgressPageTotalEn {
   _TranslationsProgressPageTotalZhCn._(TranslationsZhCn root) : this._root = root, super.internal(root);
@@ -1098,6 +1134,23 @@ class _TranslationsProgressPageTotalZhCn extends TranslationsProgressPageTotalEn
   String size({required Object curr, required Object n}) => '大小：${curr} / ${n}';
   @override
   String speed({required Object speed}) => '速度：${speed}/s';
+}
+
+// Path: progressPage.actions
+class _TranslationsProgressPageActionsZhCn extends TranslationsProgressPageActionsEn {
+  _TranslationsProgressPageActionsZhCn._(TranslationsZhCn root) : this._root = root, super.internal(root);
+
+  final TranslationsZhCn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get openFile => '打开';
+  @override
+  String get openFolder => '打开目录';
+  @override
+  String get share => '分享';
+  @override
+  String get shareAll => '分享全部文件';
 }
 
 // Path: progressPage.remainingTime
@@ -1389,94 +1442,64 @@ class _TranslationsDialogsQrZhCn extends TranslationsDialogsQrEn {
   // Translations
   @override
   String get title => '二维码';
-
   @override
   String get shareTitle => '二维码分享';
-
   @override
   String get loading => '正在准备分享链接…';
-
   @override
-  String expiresIn({required String time}) => '将于 $time 后过期';
-
+  String expiresIn({required Object time}) => '将于 ${time} 后过期';
   @override
   String get expired => '分享链接已过期。';
-
   @override
   String get consumed => '分享次数已用完，二维码已失效。';
-
   @override
-  String usesRemaining({required Object n}) => '还可使用 $n 次';
-
+  String usesRemaining({required Object n}) => '还可使用 ${n} 次';
   @override
-  String usesStatusLimited({required Object remaining, required Object total}) => '剩余 $remaining/$total 次扫码';
-
+  String usesStatusLimited({required Object remaining, required Object total}) => '剩余 ${remaining}/${total} 次扫码';
   @override
   String get usesStatusUnlimited => '扫码次数：不限';
-
   @override
   String get useLimit => '二维码使用次数';
-
   @override
   String get useLimitSingle => '1 次';
-
   @override
   String get useLimitTriple => '3 次';
-
   @override
   String get useLimitFive => '5 次';
-
   @override
   String get useLimitUnlimited => '不限次数';
-
   @override
   String get hint => '扫描二维码或复制下方链接即可下载，仅限同一局域网内使用。';
-
   @override
   String get httpsBrowserWarning => '已启用 HTTPS，浏览器打开链接时可能提示证书不受信任。请在设置中关闭 HTTPS，或改用 LocalSend 应用扫码下载。';
-
   @override
   String get error => '无法开始分享，请检查网络连接。';
-
   @override
   String get scanTitle => '扫描二维码';
-
   @override
   String get scanHint => '将相机对准 LocalSend 二维码即可下载文件。';
-
   @override
   String get invalidCode => '这不是有效的 LocalSend 分享二维码。';
-
   @override
   String get downloadTitle => '链接下载';
-
   @override
   String get connecting => '正在连接发送方…';
-
   @override
   String get expiredOrInvalid => '分享链接已过期或已失效。';
-
   @override
-  String filesFrom({required String alias}) => '来自 $alias 的文件';
-
+  String filesFrom({required Object alias}) => '来自 ${alias} 的文件';
   @override
   String get downloadAll => '全部下载';
-
   @override
   String get downloadFinished => '所有文件已下载完成。';
-
   @override
   String get openInBrowser => '在浏览器中打开';
-
   @override
   String get cameraPermissionTitle => '需要相机权限';
-
   @override
   String get cameraRequired => '扫描二维码需要相机权限。';
-
   @override
   String get cameraPermissionDenied => '请在系统设置中授予相机权限后再扫描二维码。';
-
   @override
   String get openSettings => '打开设置';
 }

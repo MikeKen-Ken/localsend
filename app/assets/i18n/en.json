@@ -167,7 +167,8 @@
       "support": "Support LocalSend",
       "donate": "Donate",
       "privacyPolicy": "Privacy Policy",
-      "termsOfUse": "Terms of Use"
+      "termsOfUse": "Terms of Use",
+      "checkForUpdates": "Check for updates"
     },
     "advancedSettings": "Advanced settings"
   },
@@ -258,6 +259,8 @@
       "size": "Size: {curr} / {n}",
       "speed": "Speed: {speed}/s"
     },
+    "minimizeWindow": "Mini window",
+    "restoreWindow": "Restore window",
     "actions": {
       "openFile": "Open",
       "openFolder": "Open folder",
@@ -311,6 +314,29 @@
   },
   "changelogPage": {
     "title": "Changelog"
+  },
+  "appUpdatePage": {
+    "title": "Check for updates",
+    "softwareUpdates": "Software updates",
+    "softwareUpdatesHint": "Download the latest installer from GitHub Releases",
+    "currentVersion": "Current version",
+    "loading": "Loading…",
+    "released": "Released {date}",
+    "remote": "Remote {version} ({tag})",
+    "updateAvailable": "Update available",
+    "sameVersionRefresh": "Same-version package refreshed",
+    "upToDate": "Up to date",
+    "checkAgain": "Check again",
+    "downloadAndInstall": "Download and install",
+    "noUpdateNeeded": "No update needed",
+    "releaseNotes": "Release notes",
+    "downloadProgress": "Downloading {percent}%",
+    "installing": "Download complete; extracting and installing… do not close the window",
+    "installerOpened": "Installer opened; follow the prompts to finish the update",
+    "newVersionAvailable": "New version available: {version}",
+    "skipVersion": "Skip this version",
+    "later": "Later",
+    "updateNow": "Update now"
   },
   "aliasGenerator(ignoreMissing, ignoreGpt)": {
     "@info": "Different locales may have different words, it may not match 1:1",
