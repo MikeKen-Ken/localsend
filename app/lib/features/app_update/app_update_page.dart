@@ -187,15 +187,21 @@ class _AppUpdatePageState extends State<AppUpdatePage> {
                     children: [
                       Expanded(
                         child: OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                          ),
                           onPressed: _busy ? null : _checkUpdate,
-                          child: Text(t.appUpdatePage.checkAgain),
+                          child: _SingleLineButtonLabel(t.appUpdatePage.checkAgain),
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: FilledButton(
+                          style: FilledButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                          ),
                           onPressed: _busy || check == null || !check.updateAvailable || !_service.isSupported ? null : _install,
-                          child: Text(
+                          child: _SingleLineButtonLabel(
                             check?.updateAvailable == true ? t.appUpdatePage.downloadAndInstall : t.appUpdatePage.noUpdateNeeded,
                           ),
                         ),
@@ -289,4 +295,23 @@ String _startupPromptBody(AppUpdateCheckResult result) {
     return message;
   }
   return '$message\n${t.appUpdatePage.released(date: date)}';
+}
+
+class _SingleLineButtonLabel extends StatelessWidget {
+  final String text;
+
+  const _SingleLineButtonLabel(this.text);
+
+  @override
+  Widget build(BuildContext context) {
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Text(
+        text,
+        maxLines: 1,
+        softWrap: false,
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
 }

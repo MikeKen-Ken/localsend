@@ -59,11 +59,13 @@ class _QrShareDialogState extends State<QrShareDialog> with Refena {
         await ref.notifier(serverProvider).startServerFromSettings();
       }
 
-      await ref.notifier(serverProvider).initializeWebSend(
-        widget.files,
-        maxUses: widget.maxUses,
-        quickShare: true,
-      );
+      await ref
+          .notifier(serverProvider)
+          .initializeWebSend(
+            widget.files,
+            maxUses: widget.maxUses,
+            quickShare: true,
+          );
 
       if (!mounted) {
         return;
@@ -184,8 +186,20 @@ class _QrShareDialogState extends State<QrShareDialog> with Refena {
         _close();
       },
       child: AlertDialog(
+        insetPadding: EdgeInsets.symmetric(
+          horizontal: MediaQuery.sizeOf(context).width < 500 ? 12 : 40,
+          vertical: MediaQuery.sizeOf(context).height < 700 ? 12 : 24,
+        ),
         title: Text(t.dialogs.qr.shareTitle),
-        content: _buildContent(context),
+        content: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: 360,
+            maxHeight: MediaQuery.sizeOf(context).height * 0.7,
+          ),
+          child: SingleChildScrollView(
+            child: _buildContent(context),
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: _close,
@@ -237,6 +251,7 @@ class _QrShareDialogState extends State<QrShareDialog> with Refena {
           webSendState: webSendState,
         );
         final remaining = webSendState.expiresAt!.difference(DateTime.now());
+        final qrSize = (MediaQuery.sizeOf(context).height * 0.28).clamp(140.0, 220.0);
 
         return Column(
           mainAxisSize: MainAxisSize.min,
@@ -246,8 +261,8 @@ class _QrShareDialogState extends State<QrShareDialog> with Refena {
             Padding(
               padding: const EdgeInsets.all(8),
               child: SizedBox(
-                width: 220,
-                height: 220,
+                width: qrSize,
+                height: qrSize,
                 child: PrettyQrView.data(
                   errorCorrectLevel: QrErrorCorrectLevel.Q,
                   data: shareUrl,
@@ -286,7 +301,7 @@ class _QrShareDialogState extends State<QrShareDialog> with Refena {
             const SizedBox(height: 12),
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.fromLTRB(10, 6, 4, 6),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.secondaryContainer,
                 borderRadius: BorderRadius.circular(8),
@@ -294,22 +309,25 @@ class _QrShareDialogState extends State<QrShareDialog> with Refena {
               child: Row(
                 children: [
                   Expanded(
-                    child: SelectableText(
-                      shareUrl,
-                      style: Theme.of(context).textTheme.bodySmall,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: SelectableText(
+                        shareUrl,
+                        style: Theme.of(context).textTheme.bodySmall,
+                        maxLines: 1,
+                      ),
                     ),
                   ),
-                  InkWell(
-                    onTap: () async {
+                  IconButton(
+                    tooltip: t.general.copy,
+                    visualDensity: VisualDensity.compact,
+                    icon: const Icon(Icons.content_copy, size: 18),
+                    onPressed: () async {
                       await Clipboard.setData(ClipboardData(text: shareUrl));
                       if (context.mounted && checkPlatformIsDesktop()) {
                         context.showSnackBar(t.general.copiedToClipboard);
                       }
                     },
-                    child: const Padding(
-                      padding: EdgeInsets.all(8),
-                      child: Icon(Icons.content_copy, size: 18),
-                    ),
                   ),
                 ],
               ),

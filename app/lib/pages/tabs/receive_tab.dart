@@ -130,11 +130,23 @@ class ReceiveTab extends StatelessWidget {
             ),
           ),
         ),
-        _InfoBox(vm),
-        _CornerButtons(
-          showAdvanced: vm.showAdvanced,
-          showHistoryButton: vm.showHistoryButton,
-          toggleAdvanced: vm.toggleAdvanced,
+        Align(
+          alignment: Alignment.topRight,
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                _CornerButtons(
+                  showAdvanced: vm.showAdvanced,
+                  showHistoryButton: vm.showHistoryButton,
+                  toggleAdvanced: vm.toggleAdvanced,
+                ),
+                _InfoBox(vm),
+              ],
+            ),
+          ),
         ),
       ],
     );
@@ -154,43 +166,37 @@ class _CornerButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.topRight,
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Consumer(
-              builder: (context, ref) {
-                if (!checkPlatformWithCamera() || ref.watch(tvProvider)) {
-                  return const SizedBox.shrink();
-                }
-                return CustomIconButton(
-                  onPressed: () async => QrScanPage.open(context),
-                  child: const Icon(Icons.qr_code_scanner),
-                );
-              },
-            ),
-            if (!showAdvanced)
-              AnimatedOpacity(
-                opacity: showHistoryButton ? 1 : 0,
-                duration: const Duration(milliseconds: 200),
-                child: CustomIconButton(
-                  onPressed: () async {
-                    await context.push(() => const ReceiveHistoryPage());
-                  },
-                  child: const Icon(Icons.history),
-                ),
-              ),
-            CustomIconButton(
-              key: const ValueKey('info-btn'),
-              onPressed: toggleAdvanced,
-              child: const Icon(Icons.info),
-            ),
-          ],
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Consumer(
+          builder: (context, ref) {
+            if (!checkPlatformWithCamera() || ref.watch(tvProvider)) {
+              return const SizedBox.shrink();
+            }
+            return CustomIconButton(
+              onPressed: () async => QrScanPage.open(context),
+              child: const Icon(Icons.qr_code_scanner),
+            );
+          },
         ),
-      ),
+        if (!showAdvanced)
+          AnimatedOpacity(
+            opacity: showHistoryButton ? 1 : 0,
+            duration: const Duration(milliseconds: 200),
+            child: CustomIconButton(
+              onPressed: () async {
+                await context.push(() => const ReceiveHistoryPage());
+              },
+              child: const Icon(Icons.history),
+            ),
+          ),
+        CustomIconButton(
+          key: const ValueKey('info-btn'),
+          onPressed: toggleAdvanced,
+          child: const Icon(Icons.info),
+        ),
+      ],
     );
   }
 }
@@ -202,60 +208,52 @@ class _InfoBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedCrossFade(
-      crossFadeState: vm.showAdvanced ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+    return AnimatedSize(
       duration: const Duration(milliseconds: 200),
-      firstChild: Container(),
-      secondChild: Align(
-        alignment: Alignment.topRight,
-        child: Padding(
-          padding: const EdgeInsets.all(15),
-          child: Card(
-            child: Padding(
-              padding: const EdgeInsets.all(15),
-              child: Table(
-                columnWidths: const {
-                  0: IntrinsicColumnWidth(),
-                  1: IntrinsicColumnWidth(),
-                  2: IntrinsicColumnWidth(),
-                },
-                children: [
-                  TableRow(
-                    children: [
-                      Text(t.receiveTab.infoBox.alias),
-                      const SizedBox(width: 10),
-                      Padding(
-                        padding: const EdgeInsets.only(right: 30),
-                        child: SelectableText(vm.serverState?.alias ?? '-'),
-                      ),
-                    ],
-                  ),
-                  TableRow(
-                    children: [
-                      Text(t.receiveTab.infoBox.ip),
-                      const SizedBox(width: 10),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (vm.localIps.isEmpty) Text(t.general.unknown),
-                          ...vm.localIps.map((ip) => SelectableText(ip)),
-                        ],
-                      ),
-                    ],
-                  ),
-                  TableRow(
-                    children: [
-                      Text(t.receiveTab.infoBox.port),
-                      const SizedBox(width: 10),
-                      SelectableText(vm.serverState?.port.toString() ?? '-'),
-                    ],
-                  ),
-                ],
+      alignment: Alignment.topRight,
+      child: vm.showAdvanced
+          ? Card(
+              child: Padding(
+                padding: const EdgeInsets.all(15),
+                child: Table(
+                  columnWidths: const {
+                    0: IntrinsicColumnWidth(),
+                    1: IntrinsicColumnWidth(),
+                    2: IntrinsicColumnWidth(),
+                  },
+                  children: [
+                    TableRow(
+                      children: [
+                        Text(t.receiveTab.infoBox.alias),
+                        const SizedBox(width: 10),
+                        SelectableText(vm.serverState?.alias ?? '-'),
+                      ],
+                    ),
+                    TableRow(
+                      children: [
+                        Text(t.receiveTab.infoBox.ip),
+                        const SizedBox(width: 10),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (vm.localIps.isEmpty) Text(t.general.unknown),
+                            ...vm.localIps.map((ip) => SelectableText(ip)),
+                          ],
+                        ),
+                      ],
+                    ),
+                    TableRow(
+                      children: [
+                        Text(t.receiveTab.infoBox.port),
+                        const SizedBox(width: 10),
+                        SelectableText(vm.serverState?.port.toString() ?? '-'),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ),
-        ),
-      ),
+            )
+          : const SizedBox.shrink(),
     );
   }
 }
