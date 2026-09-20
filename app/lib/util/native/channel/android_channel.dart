@@ -103,10 +103,6 @@ Future<void> openFolderInFileManager({
   });
 }
 
-Future<void> moveTaskToBack() async {
-  await _methodChannel.invokeMethod('moveTaskToBack');
-}
-
 Future<Uint8List?> extractApkIcon(String path) async {
   final result = await _methodChannel.invokeMethod('extractApkIcon', {
     'path': path,

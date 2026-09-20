@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:common/model/dto/file_dto.dart';
 import 'package:common/model/file_status.dart';
 import 'package:common/model/session_status.dart';
@@ -24,7 +23,7 @@ import 'package:localsend_app/util/native/open_folder.dart';
 import 'package:localsend_app/util/native/platform_check.dart';
 import 'package:localsend_app/util/native/share_file.dart';
 import 'package:localsend_app/util/native/taskbar_helper.dart';
-import 'package:localsend_app/util/native/transfer_window_compact.dart';
+import 'package:localsend_app/util/transfer_overlay.dart';
 import 'package:localsend_app/util/ui/nav_bar_padding.dart';
 import 'package:localsend_app/widget/custom_basic_appbar.dart';
 import 'package:localsend_app/widget/custom_progress_bar.dart';
@@ -32,7 +31,6 @@ import 'package:localsend_app/widget/dialogs/cancel_session_dialog.dart';
 import 'package:localsend_app/widget/dialogs/error_dialog.dart';
 import 'package:localsend_app/widget/file_thumbnail.dart';
 import 'package:localsend_app/widget/session_peer_header.dart';
-import 'package:localsend_app/widget/transfer_mini_panel.dart';
 import 'package:path/path.dart' as path;
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:routerino/routerino.dart';
@@ -65,8 +63,6 @@ class _ProgressPageState extends State<ProgressPage> with Refena {
   Timer? _wakelockPlusTimer;
 
   bool _advanced = false;
-  bool _compact = false;
-  final _windowCompact = TransferWindowCompact();
 
   @override
   void initState() {
@@ -120,10 +116,13 @@ class _ProgressPageState extends State<ProgressPage> with Refena {
     final receiveSession = ref.read(serverProvider.select((s) => s?.session));
     final sendSession = ref.read(sendProvider)[widget.sessionId];
     final SessionStatus? status = receiveSession?.status ?? sendSession?.status;
-    final keepSession = !closeSession && (status == SessionStatus.sending || status == SessionStatus.finishedWithErrors);
+    final keepSession = !closeSession && keepTransferAliveOnBack(status);
     final result = status == null || keepSession || await _askCancelConfirmation(status);
 
     if (result && mounted) {
+      if (keepSession && sendSession != null) {
+        ref.notifier(sendProvider).setBackground(widget.sessionId, true);
+      }
       // ignore: unawaited_futures
       context.popUntilRoot();
     }
@@ -264,30 +263,9 @@ class _ProgressPageState extends State<ProgressPage> with Refena {
     );
   }
 
-  Future<void> _enterMiniMode() async {
-    if (checkPlatformIsDesktop()) {
-      await _windowCompact.enter();
-      if (mounted) {
-        setState(() => _compact = true);
-      }
-      return;
-    }
-    if (checkPlatform([TargetPlatform.android])) {
-      await android_channel.moveTaskToBack();
-    }
-  }
-
-  Future<void> _exitMiniMode() async {
-    await _windowCompact.exit();
-    if (mounted) {
-      setState(() => _compact = false);
-    }
-  }
-
   @override
   void dispose() {
     super.dispose();
-    unawaited(_windowCompact.exit());
     _wakelockPlusTimer?.cancel();
     TaskbarHelper.clearProgressBar(); // ignore: discarded_futures
     try {
@@ -360,22 +338,6 @@ class _ProgressPageState extends State<ProgressPage> with Refena {
         : peerDevice == null
         ? null
         : ref.watch(favoritesProvider.select((state) => state.findDevice(peerDevice)))?.alias ?? peerDevice.alias;
-    final overallProgress = _totalBytes == 0 ? 0.0 : currBytes / _totalBytes;
-    final statusLabel = status.getLabel(remainingTime: _remainingTime ?? '-');
-
-    if (_compact) {
-      return TransferMiniPanel(
-        title: title,
-        peerDevice: peerDevice,
-        peerName: peerName,
-        statusLabel: statusLabel,
-        progress: overallProgress,
-        sending: status == SessionStatus.sending,
-        onRestore: () => unawaited(_exitMiniMode()),
-        onCancelOrDone: () => _exit(closeSession: true),
-      );
-    }
-
     return PopScope(
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) {
@@ -383,7 +345,7 @@ class _ProgressPageState extends State<ProgressPage> with Refena {
           // Because the user cannot pop this page, we can safely assume that all sessions are closed if they should be.
           return;
         }
-        _exit(closeSession: widget.closeSessionOnClose);
+        _exit(closeSession: false);
       },
       canPop: false,
       child: Scaffold(
@@ -686,13 +648,6 @@ class _ProgressPageState extends State<ProgressPage> with Refena {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
-                              if (checkPlatformIsDesktop() || checkPlatform([TargetPlatform.android]))
-                                TextButton.icon(
-                                  style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.onSurface),
-                                  onPressed: () => unawaited(_enterMiniMode()),
-                                  icon: const Icon(Icons.minimize),
-                                  label: Text(t.progressPage.minimizeWindow),
-                                ),
                               TextButton.icon(
                                 style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.onSurface),
                                 onPressed: () {

@@ -4,7 +4,7 @@ import 'package:localsend_app/gen/strings.g.dart';
 import 'package:localsend_app/widget/custom_progress_bar.dart';
 import 'package:localsend_app/widget/session_peer_header.dart';
 
-/// Compact transfer chrome: peer, overall progress, restore and cancel.
+/// Compact transfer chrome on the previous page: peer, progress, tap to restore.
 class TransferMiniPanel extends StatelessWidget {
   final String title;
   final Device? peerDevice;
@@ -14,6 +14,7 @@ class TransferMiniPanel extends StatelessWidget {
   final VoidCallback onRestore;
   final VoidCallback onCancelOrDone;
   final bool sending;
+  final bool padBottomSafeArea;
 
   const TransferMiniPanel({
     super.key,
@@ -25,45 +26,47 @@ class TransferMiniPanel extends StatelessWidget {
     required this.onRestore,
     required this.onCancelOrDone,
     required this.sending,
+    this.padBottomSafeArea = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Theme.of(context).scaffoldBackgroundColor,
+      elevation: 6,
+      color: Theme.of(context).colorScheme.surface,
       child: SafeArea(
+        top: false,
+        bottom: padBottomSafeArea,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(12, 8, 4, 8),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+          child: Row(
             children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: peerDevice != null && peerName != null
-                        ? SessionPeerHeader(
-                            device: peerDevice!,
-                            displayName: peerName!,
-                            avatarSize: 32,
-                          )
-                        : Text(title, style: Theme.of(context).textTheme.titleMedium),
+              Expanded(
+                child: InkWell(
+                  onTap: onRestore,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      peerDevice != null && peerName != null
+                          ? SessionPeerHeader(
+                              device: peerDevice!,
+                              displayName: peerName!,
+                              avatarSize: 32,
+                            )
+                          : Text(title, style: Theme.of(context).textTheme.titleMedium),
+                      Text(statusLabel, maxLines: 1, overflow: TextOverflow.ellipsis),
+                      const SizedBox(height: 6),
+                      CustomProgressBar(progress: progress, borderRadius: 5),
+                    ],
                   ),
-                  IconButton(
-                    tooltip: t.progressPage.restoreWindow,
-                    onPressed: onRestore,
-                    icon: const Icon(Icons.open_in_full),
-                  ),
-                  IconButton(
-                    tooltip: sending ? t.general.cancel : t.general.done,
-                    onPressed: onCancelOrDone,
-                    icon: Icon(sending ? Icons.close : Icons.check_circle),
-                  ),
-                ],
+                ),
               ),
-              Text(statusLabel, maxLines: 1, overflow: TextOverflow.ellipsis),
-              const SizedBox(height: 6),
-              CustomProgressBar(progress: progress, borderRadius: 5),
+              IconButton(
+                tooltip: sending ? t.general.cancel : t.general.done,
+                onPressed: onCancelOrDone,
+                icon: Icon(sending ? Icons.close : Icons.check_circle),
+              ),
             ],
           ),
         ),

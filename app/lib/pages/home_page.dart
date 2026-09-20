@@ -14,6 +14,7 @@ import 'package:localsend_app/pages/tabs/settings_tab.dart';
 import 'package:localsend_app/provider/selection/selected_sending_files_provider.dart';
 import 'package:localsend_app/util/native/cross_file_converters.dart';
 import 'package:localsend_app/util/native/platform_check.dart';
+import 'package:localsend_app/widget/active_transfer_mini_bar.dart';
 import 'package:localsend_app/widget/responsive_builder.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 
@@ -153,32 +154,39 @@ class _HomePageState extends State<HomePage> with Refena {
                     ],
                   ),
                 Expanded(
-                  child: Stack(
+                  child: Column(
                     children: [
-                      PageView(
-                        controller: vm.controller,
-                        physics: const NeverScrollableScrollPhysics(),
-                        children: const [
-                          SafeArea(child: ReceiveTab()),
-                          SafeArea(child: SendTab()),
-                          SettingsTab(),
-                        ],
-                      ),
-                      if (_dragAndDropIndicator)
-                        Container(
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).scaffoldBackgroundColor,
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(Icons.file_download, size: 128),
-                              const SizedBox(height: 30),
-                              Text(t.sendTab.placeItems, style: Theme.of(context).textTheme.titleLarge),
-                            ],
-                          ),
+                      Expanded(
+                        child: Stack(
+                          children: [
+                            PageView(
+                              controller: vm.controller,
+                              physics: const NeverScrollableScrollPhysics(),
+                              children: const [
+                                SafeArea(child: ReceiveTab()),
+                                SafeArea(child: SendTab()),
+                                SettingsTab(),
+                              ],
+                            ),
+                            if (_dragAndDropIndicator)
+                              Container(
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).scaffoldBackgroundColor,
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(Icons.file_download, size: 128),
+                                    const SizedBox(height: 30),
+                                    Text(t.sendTab.placeItems, style: Theme.of(context).textTheme.titleLarge),
+                                  ],
+                                ),
+                              ),
+                          ],
                         ),
+                      ),
+                      ActiveTransferMiniBar(padBottomSafeArea: !sizingInformation.isMobile),
                     ],
                   ),
                 ),
