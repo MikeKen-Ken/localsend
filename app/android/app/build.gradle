@@ -22,6 +22,14 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
 
+// Keep this fork installable alongside upstream LocalSend and prevent stores or
+// upstream APKs from treating both builds as the same Android application.
+def forkApplicationId = "io.github.mikekenken.localsend"
+def upstreamApplicationId = "org.localsend.localsend_app"
+if (forkApplicationId == upstreamApplicationId) {
+    throw new GradleException("The fork must not reuse LocalSend's upstream application ID.")
+}
+
 android {
     namespace "org.localsend.localsend_app"
     compileSdkVersion 34
@@ -41,8 +49,7 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId "org.localsend.localsend_app"
+        applicationId forkApplicationId
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-build-configuration.
         minSdkVersion flutter.minSdkVersion
